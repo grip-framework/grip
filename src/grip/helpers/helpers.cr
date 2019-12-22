@@ -23,7 +23,7 @@ def add_handlers(handlers : Array(HTTP::Handler))
     if Grip.config.env == "development"
       puts handler
     end
-    
+
     Grip.config.add_handler handler
   end
 end
