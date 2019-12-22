@@ -18,6 +18,12 @@ def add_handler(handler : HTTP::Handler, position : Int32)
   Grip.config.add_handler handler, position
 end
 
+def add_handlers(handlers : Array(HTTP::Handler))
+  handlers.each do |handler|
+    Grip.config.add_handler handler
+  end
+end
+
 # Sets public folder from which the static assets will be served.
 #
 # By default this is `/public` not `src/public`.
