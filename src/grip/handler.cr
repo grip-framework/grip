@@ -7,9 +7,8 @@ module Grip
   # These methods are useful for the conditional execution of custom handlers .
   class Handler
     include HTTP::Handler
-
-    @@routes_tree = Radix::Tree(String).new
-
+    
+    @@routes = Radix::Tree(String).new
     @@handler_path = String.new
     @@handler_methods = Array(String).new
 
@@ -28,7 +27,7 @@ module Grip
         class_name = {{@type.name}}
         method_downcase = method.downcase
         class_name_method = "#{class_name}/#{method_downcase}"
-        @@routes_tree.add class_name_method + {{path}}, '/' + method_downcase + {{path}}
+        @@routes.add class_name_method + {{path}}, '/' + method_downcase + {{path}}
       end
     end
 
@@ -116,7 +115,19 @@ module Grip
     # end
     # ```
     def route_match?(env : HTTP::Server::Context)
-      @@routes_tree.find(radix_path(env.request.method, env.request.path)).found?
+      @@routes.find(radix_path(env.request.method, env.request.path)).found?
+    end
+
+    def json?(env : HTTP::Server::Context)
+      if !env.params.json.nil?
+        env.params.json
+      end
+    end
+
+    def body?(env : HTTP::Server::Context)
+      if !env.params.body.nil?
+        env.params.body
+      end
     end
 
     private def radix_path(method : String, path : String)
