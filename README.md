@@ -1,40 +1,76 @@
 
-[![Kemal](https://avatars3.githubusercontent.com/u/15321198?v=3&s=200)](http://kemalcr.com)
+[![Grip](https://i.ibb.co/1LBZc4L/grip.png)](https://github.com/grkek/grip)
 
-# Kemal
+# Grip
 
-Lightning Fast, Super Simple web framework.
-
-[![Build Status](https://travis-ci.org/kemalcr/kemal.svg?branch=master)](https://travis-ci.org/kemalcr/kemal)
-[![Join the chat at https://gitter.im/sdogruyol/kemal](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sdogruyol/kemal?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Class oriented fork of the [Kemal](https://kemalcr.com) framework.
 
 # Super Simple ⚡️
 
 ```ruby
-require "kemal"
+require "grip"
 
-# Matches GET "http://host:port/"
-get "/" do
-  "Hello World!"
+class IndexHandler < Grip::Handler
+  # Only match the route / and methods defined below
+  route("/", ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+
+  def get(env)
+    # This gets called when the route receives a GET request
+    return call_next(env) unless route_match?(env)
+
+    # Render the content, the default content type is JSON
+    render(env, 200, "Hello, GET!")
+  end
+
+  def post(env)
+    return call_next(env) unless route_match?(env)
+    render(env, 200, "Hello, POST!")
+  end
+
+  def put(env)
+    return call_next(env) unless route_match?(env)
+    render(env, 200, "Hello, PUT!")
+  end
+
+  def patch(env)
+    return call_next(env) unless route_match?(env)
+    render(env, 200, "Hello, PATCH!")
+  end
+
+  def delete(env)
+    return call_next(env) unless route_match?(env)
+    render(env, 200, "Hello, DELETE!")
+  end
+
+  def options(env)
+    return call_next(env) unless route_match?(env)
+    render(env, 200, "Hello, OPTIONS!")
+  end
 end
 
-# Creates a WebSocket handler.
-# Matches "ws://host:port/socket"
-ws "/socket" do |socket|
-  socket.send "Hello from Kemal!"
+class DocumentationHandler < Grip::Handler
+  route("/docs", ["GET"])
+
+  def get(env)
+    return call_next(env) unless route_match?(env)
+
+    # Render the content as html
+    render(env, 200, "<p>Hello, Documentation!</p>", "text/html")
+  end
 end
 
-Kemal.run
+# Initialize the handlers
+index = IndexHandler.new
+docs = DocumentationHandler.new
+
+# Add the handlers to the handler list
+add_handlers [index, docs]
+
+# Run the server
+Grip.run
 ```
 
 Start your application!
-
-```
-crystal src/kemal_sample.cr
-```
-Go to *http://localhost:3000*
-
-Check [documentation](http://kemalcr.com) or [samples](https://github.com/kemalcr/kemal/tree/master/samples) for more.
 
 # Installation
 
@@ -42,11 +78,9 @@ Add this to your application's `shard.yml`:
 
 ```yaml
 dependencies:
-  kemal:
-    github: kemalcr/kemal
+  grip:
+    github: grkek/grip
 ```
-
-See also [Getting Started](http://kemalcr.com/guide/).
 
 # Features
 
@@ -60,8 +94,10 @@ See also [Getting Started](http://kemalcr.com/guide/).
 
 # Documentation
 
-You can read the documentation at the official site [kemalcr.com](http://kemalcr.com)
+
 
 ## Thanks
 
 Thanks to Manas for their awesome work on [Frank](https://github.com/manastech/frank).
+
+Thanks to Serdar for the awesome work on [Kemal](https://github.com/kemalcr/kemal)
