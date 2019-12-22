@@ -35,7 +35,10 @@ module Grip
 
     # Test environment doesn't need to have signal trap and logging.
     if config.env != "test"
+      setup_400
+      setup_401
       setup_404
+      setup_500
       setup_trap_signal
     end
 
@@ -80,10 +83,38 @@ module Grip
     end
   end
 
+  private def self.setup_400
+    unless Grip.config.error_handlers.has_key?(400)
+      error 400 do |env|
+        env.response.content_type = "application/json"
+        {"status": "error", "message": "bad_request"}.to_json
+      end
+    end
+  end
+
+  private def self.setup_401
+    unless Grip.config.error_handlers.has_key?(401)
+      error 401 do |env|
+        env.response.content_type = "application/json"
+        {"status": "error", "message": "not_authorized"}.to_json
+      end
+    end
+  end
+
   private def self.setup_404
     unless Grip.config.error_handlers.has_key?(404)
-      error 404 do
-        render_404
+      error 404 do |env|
+        env.response.content_type = "application/json"
+        {"status": "error", "message": "not_found"}.to_json
+      end
+    end
+  end
+
+  private def self.setup_500
+    unless Grip.config.error_handlers.has_key?(500)
+      error 500 do |env|
+        env.response.content_type = "application/json"
+        {"status": "error", "message": "internal_server_error"}.to_json
       end
     end
   end

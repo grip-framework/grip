@@ -14,7 +14,11 @@ module Grip
       log("Exception: #{ex.inspect_with_backtrace}")
       return call_exception_with_status_code(context, ex, 500) if Grip.config.error_handlers.has_key?(500)
       verbosity = Grip.config.env == "production" ? false : true
-      render_500(context, ex, verbosity)
+
+      context.response.status_code = 500
+      context.response.content_type = "application/json"
+      context.response.print({"status": "error", "message": "internal_server_error"}.to_json)
+      context
     end
 
     private def call_exception_with_status_code(context : HTTP::Server::Context, exception : Exception, status_code : Int32)

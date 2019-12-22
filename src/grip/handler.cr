@@ -11,20 +11,20 @@ module Grip
     @@routes_tree = Radix::Tree(String).new
 
     @@handler_path = String.new
-    @@handler_method = Array(String).new
+    @@handler_methods = Array(String).new
 
     def to_s(io)
-      if @@handler_method.size > 1
-        io << "Route registered at '" << @@handler_path << "' and is reachable via '" << @@handler_method << "' methods."
+      if @@handler_methods.size > 1
+        io << "Route registered at '" << @@handler_path << "' and is reachable via '" << @@handler_methods << "' methods."
       else
-        io << "Route registered at '" << @@handler_path << "' and is reachable via a '" << @@handler_method[0] << "' method."
+        io << "Route registered at '" << @@handler_path << "' and is reachable via a '" << @@handler_methods[0] << "' method."
       end
     end
 
     macro route(path, methods = ["GET"])
       @@handler_path = {{path}}
       {{methods}}.each do |method|
-        @@handler_method.push(method)
+        @@handler_methods.push(method)
         class_name = {{@type.name}}
         method_downcase = method.downcase
         class_name_method = "#{class_name}/#{method_downcase}"
@@ -56,32 +56,26 @@ module Grip
 
     # get post put patch delete options
     def get(env : HTTP::Server::Context)
-      return call_next(env) unless route_match?(env)
       call_next(env)
     end
 
     def post(env : HTTP::Server::Context)
-      return call_next(env) unless route_match?(env)
       call_next(env)
     end
 
     def put(env : HTTP::Server::Context)
-      return call_next(env) unless route_match?(env)
       call_next(env)
     end
 
     def patch(env : HTTP::Server::Context)
-      return call_next(env) unless route_match?(env)
       call_next(env)
     end
 
     def delete(env : HTTP::Server::Context)
-      return call_next(env) unless route_match?(env)
       call_next(env)
     end
 
     def options(env : HTTP::Server::Context)
-      return call_next(env) unless route_match?(env)
       call_next(env)
     end
 
