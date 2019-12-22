@@ -3,11 +3,11 @@ require "json"
 module Grip
   # `Grip::Handler` is a subclass of `HTTP::Handler`.
   #
-  # It adds `only`, `only_match?`, `exclude`, `exclude_match?`.
+  # It adds `route`, `route_match?`
   # These methods are useful for the conditional execution of custom handlers .
   class Handler
     include HTTP::Handler
-    
+
     @@routes = Radix::Tree(String).new
     @@handler_path = String.new
     @@handler_methods = Array(String).new
@@ -97,23 +97,6 @@ module Grip
       end
     end
 
-    # Processes the path based on `only` paths which is a `Array(String)`.
-    # If the path is not found on `only` conditions the handler will continue processing.
-    # If the path is found in `only` conditions it'll stop processing and will pass the request
-    # to next handler.
-    #
-    # However this is not done automatically. All handlers must inherit from `Kemal::Handler`.
-    #
-    # ```
-    # class OnlyHandler < Kemal::Handler
-    #   only ["/"]
-    #
-    #   def call(env)
-    #     return call_next(env) unless only_match?(env)
-    #     puts "If the path is / i will be doing some processing here."
-    #   end
-    # end
-    # ```
     def route_match?(env : HTTP::Server::Context)
       @@routes.find(radix_path(env.request.method, env.request.path)).found?
     end
