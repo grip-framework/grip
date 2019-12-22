@@ -1,8 +1,16 @@
-require "kemal"
+require "grip"
 
-# Set root. If not specified the default content_type is 'text'
-get "/" do
-  "Hello Kemal!"
+class IndexHandler < Grip::Handler
+  route("/", ["GET"])
+
+  def get(env)
+    return call_next(env) unless route_match?(env)
+    render(env, 200, "Hello, World!", "text/html")
+  end
 end
 
-Kemal.run
+index = IndexHandler.new
+
+add_handlers [index]
+
+Grip.run

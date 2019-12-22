@@ -1,11 +1,16 @@
-require "kemal"
-require "json"
+require "grip"
 
-# You can easily access the context and set content_type like 'application/json'.
-# Look how easy to build a JSON serving API.
-get "/" do |env|
-  env.response.content_type = "application/json"
-  {name: "Serdar", age: 27}.to_json
+class IndexHandler < Grip::Handler
+  route("/", ["GET"])
+
+  def get(env)
+    return call_next(env) unless route_match?(env)
+    render(env, 200, {"message": "Hello, World!"})
+  end
 end
 
-Kemal.run
+index = IndexHandler.new
+
+add_handlers [index]
+
+Grip.run
