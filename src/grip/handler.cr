@@ -14,7 +14,7 @@ module Grip
     @@handler_method = String.new
 
     def to_s(io)
-      io << "Route of '" << typeof(self) << "' can be reached at '" << @@handler_path << "' via a '" << @@handler_method << "' method."
+      io << "Route registered at '" << @@handler_path << "' and is reachable via a '" << @@handler_method << "' method."
     end
 
     macro only(path, method = "GET")
