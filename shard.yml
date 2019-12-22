@@ -1,8 +1,9 @@
-name: kemal
-version: 0.26.1
+name: grip
+version: 0.26.2
 
 authors:
   - Serdar Dogruyol <dogruyolserdar@gmail.com>
+  - Giorgi Kavrelishvili <deliciouscakefrosting@gmail.com>
 
 dependencies:
   radix:
@@ -20,6 +21,6 @@ development_dependencies:
     github: crystal-ameba/ameba
     version: ~> 0.10.0
 
-crystal: 0.30.0
+crystal: 0.32.0
 
 license: MIT
