@@ -1,5 +1,5 @@
 
-[![Grip](https://i.ibb.co/1LBZc4L/grip.png)](https://github.com/grkek/grip)
+[![Grip](https://avatars0.githubusercontent.com/u/44188195?s=200&v=4)](https://github.com/grkek/grip)
 
 # Grip
 
