@@ -10,7 +10,17 @@ module Grip
 
     @@only_routes_tree = Radix::Tree(String).new
 
-    macro only(path, method = "get")
+    @@handler_path = String.new
+    @@handler_method = String.new
+
+    def to_s(io)
+      io << "Route of '" << typeof(self) << "' can be reached at '" << @@handler_path << "' via a '" << @@handler_method << "' method."
+    end
+
+    macro only(path, method = "GET")
+      @@handler_path = {{path}}
+      @@handler_method = {{method}}
+
       class_name = {{@type.name}}
       method_downcase = {{method}}.downcase
       class_name_method = "#{class_name}/#{method_downcase}"

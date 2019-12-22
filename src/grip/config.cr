@@ -28,8 +28,8 @@ module Grip
 
     def initialize
       @host_binding = "0.0.0.0"
-      @port = 3000
-      @env = ENV["KEMAL_ENV"]? || "development"
+      @port = 8080
+      @env = ENV["GRIP_ENV"]? || "development"
       @serve_static = {"dir_listing" => false, "gzip" => true}
       @public_folder = "./public"
       @logging = true
@@ -41,6 +41,10 @@ module Grip
       @running = false
       @shutdown_message = true
       @handler_position = 0
+    end
+
+    def env
+      @env
     end
 
     def logger
@@ -68,6 +72,10 @@ module Grip
 
     def handlers
       HANDLERS
+    end
+
+    def custom_handlers
+      CUSTOM_HANDLERS
     end
 
     def handlers=(handlers : Array(HTTP::Handler))

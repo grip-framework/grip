@@ -20,6 +20,10 @@ end
 
 def add_handlers(handlers : Array(HTTP::Handler))
   handlers.each do |handler|
+    if Grip.config.env == "development"
+      puts handler
+    end
+    
     Grip.config.add_handler handler
   end
 end
