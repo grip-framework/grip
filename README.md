@@ -88,7 +88,7 @@ dependencies:
 
 # Documentation
 
-
+- The documentation currently is not hosted anywhere, yet.
 
 ## Thanks
 
