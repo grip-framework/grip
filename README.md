@@ -53,7 +53,12 @@ class IndexedHandler < Grip::Handler
   route("/:id", ["GET"])
 
   def get(env)
-    render(env, 200, env.params.url["id"])
+    puts json?(env) # Get the JSON parameters which are sent to the server
+    puts body?(env) # Get the body parameters which are sent to the server
+    puts query?(env) # Get the query parameters which are sent to the server
+    puts url?(env) # Get the url specified parameters like the :id which are sent to the server
+
+    render(env, 200, url?(env)["id"])
   end
 end
 

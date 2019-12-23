@@ -99,15 +99,19 @@ module Grip
     end
 
     def json?(env : HTTP::Server::Context)
-      if !env.params.json.nil?
-        env.params.json
-      end
+      env.params.json
     end
 
     def body?(env : HTTP::Server::Context)
-      if !env.params.body.nil?
-        env.params.body
-      end
+      env.params.body
+    end
+
+    def query?(env : HTTP::Server::Context)
+      env.params.query
+    end
+
+    def url?(env : HTTP::Server::Context)
+      env.params.url
     end
   end
 end
