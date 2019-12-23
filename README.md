@@ -57,7 +57,10 @@ class IndexedHandler < Grip::Handler
     puts body?(env) # Get the body parameters which are sent to the server
     puts query?(env) # Get the query parameters which are sent to the server
     puts url?(env) # Get the url specified parameters like the :id which are sent to the server
+    puts headers?(env) # Get the headers which are sent to the server
 
+    # Set headers
+    headers(env, "Host", "github.com")
     render(env, 200, url?(env)["id"])
   end
 end

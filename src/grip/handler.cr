@@ -113,5 +113,13 @@ module Grip
     def url?(env : HTTP::Server::Context)
       env.params.url
     end
+
+    def headers?(env : HTTP::Server::Context)
+      env.request.headers
+    end
+
+    def headers(env, key, value)
+      env.response.headers[key] = value
+    end
   end
 end
