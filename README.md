@@ -15,35 +15,27 @@ class IndexHandler < Grip::Handler
   route("/", ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 
   def get(env)
-    # This gets called when the route receives a GET request
-    return call_next(env) unless route_match?(env)
-
     # Render the content, the default content type is JSON
     render(env, 200, "Hello, GET!")
   end
 
   def post(env)
-    return call_next(env) unless route_match?(env)
     render(env, 200, "Hello, POST!")
   end
 
   def put(env)
-    return call_next(env) unless route_match?(env)
     render(env, 200, "Hello, PUT!")
   end
 
   def patch(env)
-    return call_next(env) unless route_match?(env)
     render(env, 200, "Hello, PATCH!")
   end
 
   def delete(env)
-    return call_next(env) unless route_match?(env)
     render(env, 200, "Hello, DELETE!")
   end
 
   def options(env)
-    return call_next(env) unless route_match?(env)
     render(env, 200, "Hello, OPTIONS!")
   end
 end
@@ -52,19 +44,21 @@ class DocumentationHandler < Grip::Handler
   route("/docs", ["GET"])
 
   def get(env)
-    return call_next(env) unless route_match?(env)
-
     # Render the content as html
     render(env, 200, "<p>Hello, Documentation!</p>", "text/html")
   end
 end
 
-# Initialize the handlers
-index = IndexHandler.new
-docs = DocumentationHandler.new
+class IndexedHandler < Grip::Handler
+  route("/:id", ["GET"])
+
+  def get(env)
+    render(env, 200, env.params.url["id"])
+  end
+end
 
 # Add the handlers to the handler list
-add_handlers [index, docs]
+add_handlers [IndexHandler, DocumentationHandler, IndexedHandler]
 
 # Run the server
 Grip.run

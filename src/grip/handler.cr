@@ -8,9 +8,14 @@ module Grip
   class Handler
     include HTTP::Handler
 
-    @@routes = Radix::Tree(String).new
     @@handler_path = String.new
     @@handler_methods = Array(String).new
+
+    def initialize
+      @@handler_methods.each do |method|
+        Grip::RouteHandler::INSTANCE.add_route(method.upcase, @@handler_path, self)
+      end
+    end
 
     def to_s(io)
       if @@handler_methods.size > 1
@@ -24,10 +29,6 @@ module Grip
       @@handler_path = {{path}}
       {{methods}}.each do |method|
         @@handler_methods.push(method)
-        class_name = {{@type.name}}
-        method_downcase = method.downcase
-        class_name_method = "#{class_name}/#{method_downcase}"
-        @@routes.add class_name_method + {{path}}, '/' + method_downcase + {{path}}
       end
     end
 
@@ -97,10 +98,6 @@ module Grip
       end
     end
 
-    def route_match?(env : HTTP::Server::Context)
-      @@routes.find(radix_path(env.request.method, env.request.path)).found?
-    end
-
     def json?(env : HTTP::Server::Context)
       if !env.params.json.nil?
         env.params.json
@@ -111,10 +108,6 @@ module Grip
       if !env.params.body.nil?
         env.params.body
       end
-    end
-
-    private def radix_path(method : String, path : String)
-      "#{self.class}/#{method.downcase}#{path}"
     end
   end
 end

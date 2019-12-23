@@ -18,13 +18,12 @@ def add_handler(handler : HTTP::Handler, position : Int32)
   Grip.config.add_handler handler, position
 end
 
-def add_handlers(handlers : Array(HTTP::Handler))
-  handlers.each do |handler|
+macro add_handlers(handlers)
+  {{handlers}}.each do |handler|
+    instance = handler.new
     if Grip.config.env == "development"
-      puts handler
+      puts instance
     end
-
-    Grip.config.add_handler handler
   end
 end
 

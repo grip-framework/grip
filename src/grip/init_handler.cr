@@ -1,6 +1,6 @@
 module Grip
   # Initializes the context with default values, such as
-  # *Content-Type* or *X-Powered-By* headers.
+  # *Content-Type* or *server* headers.
   class InitHandler
     include HTTP::Handler
 
