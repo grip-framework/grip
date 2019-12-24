@@ -31,7 +31,7 @@ class HTTP::Server
     end
 
     def route_lookup
-      Grip::RouteHandler::INSTANCE.lookup_route(@request.method.as(String), @request.path)
+      Grip::HttpRouteHandler::INSTANCE.lookup_route(@request.method.as(String), @request.path)
     end
 
     def route_found?
@@ -39,7 +39,7 @@ class HTTP::Server
     end
 
     def ws_route_lookup
-      Grip::WebSocketHandler::INSTANCE.lookup_ws_route(@request.path)
+      Grip::WebSocketRouteHandler::INSTANCE.lookup_ws_route(@request.path)
     end
 
     def ws_route_found?

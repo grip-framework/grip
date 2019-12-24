@@ -116,8 +116,8 @@ module Grip
         setup_filter_handlers
         @default_handlers_setup = true
         @router_included = true
-        HANDLERS.insert(HANDLERS.size, Grip::WebSocketHandler::INSTANCE)
-        HANDLERS.insert(HANDLERS.size, Grip::RouteHandler::INSTANCE)
+        HANDLERS.insert(HANDLERS.size, Grip::WebSocketRouteHandler::INSTANCE)
+        HANDLERS.insert(HANDLERS.size, Grip::HttpRouteHandler::INSTANCE)
       end
     end
 

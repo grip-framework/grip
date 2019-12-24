@@ -10,7 +10,7 @@ Class oriented fork of the [Kemal](https://kemalcr.com) framework.
 ```ruby
 require "grip"
 
-class IndexHandler < Grip::Handler
+class Index < Grip::Http
   # Only match the route / and methods defined below
   route("/", ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 
@@ -40,7 +40,7 @@ class IndexHandler < Grip::Handler
   end
 end
 
-class DocumentationHandler < Grip::Handler
+class Documentation < Grip::Http
   route("/docs", ["GET"])
 
   def get(env)
@@ -49,7 +49,7 @@ class DocumentationHandler < Grip::Handler
   end
 end
 
-class IndexedHandler < Grip::Handler
+class Indexed < Grip::Handler
   route("/:id", ["GET"])
 
   def get(env)
@@ -65,8 +65,27 @@ class IndexedHandler < Grip::Handler
   end
 end
 
+class Echo < Grip::WebSocket
+  route("/:id") # Either this or route("/") this, it depends what you want to achieve with it
+
+  def on_message(env, message)
+    puts url?(env) # This gets the hash instance of the route url specified variables
+    puts headers?(env) # This gets the http headers
+
+    if message == "close"
+      close("Received a 'close' message, closing the connection!") # This closes the connection
+    end
+
+    send(message)
+  end
+
+  def on_close(env, message)
+    puts message
+  end
+end
+
 # Add the handlers to the handler list
-add_handlers [IndexHandler, DocumentationHandler, IndexedHandler]
+add_handlers [IndexHandler, DocumentationHandler, IndexedHandler, Echo]
 
 # Run the server
 Grip.run

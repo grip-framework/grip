@@ -7,10 +7,10 @@
 # - error
 FILTER_METHODS = %w(all)
 
-def ws(path : String, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
-  raise Grip::Exceptions::InvalidPathStartException.new("ws", path) unless Grip::Utils.path_starts_with_slash?(path)
-  Grip::WebSocketHandler::INSTANCE.add_route path, &block
-end
+# def ws(path : String, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
+#   raise Grip::Exceptions::InvalidPathStartException.new("ws", path) unless Grip::Utils.path_starts_with_slash?(path)
+#   Grip::WebSocketRouteHandler::INSTANCE.add_route path, &block
+# end
 
 def error(status_code : Int32, &block : HTTP::Server::Context, Exception -> _)
   Grip.config.add_error_handler status_code, &block

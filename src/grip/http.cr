@@ -5,7 +5,7 @@ module Grip
   #
   # It adds `route`, `route_match?`
   # These methods are useful for the conditional execution of custom handlers .
-  class Handler
+  class Http
     include HTTP::Handler
 
     @@handler_path = String.new
@@ -13,15 +13,15 @@ module Grip
 
     def initialize
       @@handler_methods.each do |method|
-        Grip::RouteHandler::INSTANCE.add_route(method.upcase, @@handler_path, self)
+        Grip::HttpRouteHandler::INSTANCE.add_route(method.upcase, @@handler_path, self)
       end
     end
 
     def to_s(io)
       if @@handler_methods.size > 1
-        io << "Route registered at '" << @@handler_path << "' and is reachable via '" << @@handler_methods << "' methods."
+        io << "Http route registered at '" << @@handler_path << "' and is reachable via '" << @@handler_methods << "' methods."
       else
-        io << "Route registered at '" << @@handler_path << "' and is reachable via a '" << @@handler_methods[0] << "' method."
+        io << "Http route registered at '" << @@handler_path << "' and is reachable via a '" << @@handler_methods[0] << "' method."
       end
     end
 

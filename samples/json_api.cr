@@ -1,6 +1,6 @@
 require "grip"
 
-class IndexHandler < Grip::Handler
+class Index < Grip::Http
   route("/", ["GET"])
 
   def get(env)
@@ -8,6 +8,6 @@ class IndexHandler < Grip::Handler
   end
 end
 
-add_handlers [IndexHandler]
+add_handlers [Index]
 
 Grip.run

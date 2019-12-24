@@ -1,7 +1,7 @@
 require "radix"
 
 module Grip
-  class RouteHandler
+  class HttpRouteHandler
     include HTTP::Handler
 
     INSTANCE            = new
@@ -9,8 +9,8 @@ module Grip
     property routes, cached_routes
 
     def initialize
-      @routes = Radix::Tree(Route).new
-      @cached_routes = Hash(String, Radix::Result(Route)).new
+      @routes = Radix::Tree(HttpRoute).new
+      @cached_routes = Hash(String, Radix::Result(HttpRoute)).new
     end
 
     def call(context : HTTP::Server::Context)
@@ -19,8 +19,8 @@ module Grip
 
     # Adds a given route to routing tree. As an exception each `GET` route additionaly defines
     # a corresponding `HEAD` route.
-    def add_route(method : String, path : String, handler : Grip::Handler)
-      add_to_radix_tree(method, path, Route.new(method, path, handler))
+    def add_route(method : String, path : String, handler : Grip::Http)
+      add_to_radix_tree(method, path, HttpRoute.new(method, path, handler))
     end
 
     # Looks up the route from the Radix::Tree for the first time and caches to improve performance.

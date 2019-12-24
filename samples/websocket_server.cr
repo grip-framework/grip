@@ -1,11 +1,25 @@
 require "grip"
 
-ws "/" do |socket|
-  socket.send "Hello from Grip!"
+class Echo < Grip::WebSocket
+  route("/:id")
 
-  socket.on_message do |message|
-    socket.send "Echo back from server #{message}"
+  def on_message(env, message)
+    puts url?(env) # This gets the hash instance of the route url specified variables
+    puts headers?(env) # This gets the http headers
+
+    if message == "close"
+      close("Closing the connection because of '#{message}'") # This closes the connection
+    end
+
+    send(message)
+  end
+
+  def on_close(env, message)
+    puts message
   end
 end
 
+add_handlers [Echo]
+
 Grip.run
+
