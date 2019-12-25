@@ -49,7 +49,7 @@ class Documentation < Grip::Http
   end
 end
 
-class Indexed < Grip::Handler
+class Indexed < Grip::Http
   route("/:id", ["GET"])
 
   def get(env)
