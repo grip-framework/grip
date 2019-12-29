@@ -70,6 +70,7 @@ module Grip
 
   def self.display_startup_message(config, server)
     addresses = server.addresses.map { |address| "#{config.scheme}://#{address}" }.join ", "
+    log "[#{config.env}] The request logging is on, which reduces the performance of the server."
     log "[#{config.env}] Grip is listening at #{addresses}"
   end
 

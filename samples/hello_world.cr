@@ -4,8 +4,8 @@ class Index < Grip::Http
   route("/:id", ["GET"])
 
   def get(env)
-    headers(env, "Authorization", "Basic YWRtaW46YWRtaW4=")
-    render(env, 200, "Hello, World! #{url?(env)["id"]}", "text/html")
+    params = url?(env)
+    "Hello, World! #{params["id"]}"
   end
 end
 

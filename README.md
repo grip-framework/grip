@@ -44,8 +44,8 @@ class Documentation < Grip::Http
   route("/docs", ["GET"])
 
   def get(env)
-    # Render the content as html
-    render(env, 200, "<p>Hello, Documentation!</p>", "text/html")
+    # The direct return renders the content as html
+    "<p>Hello, Documentation!</p>"
   end
 end
 
@@ -67,7 +67,7 @@ class Indexed < Grip::Http
 end
 
 class Templated < Grip::Http
-  route("/:name", ["GET"])
+  route("/:name", ["GET", "POST"])
 
   def get(env)
     params = url?(env)
@@ -79,12 +79,22 @@ class Templated < Grip::Http
     #
     # Hello, <%= params["name"] %>
     #
-    render_template(env, 200, "src/views/index.ecr")
+    if params["name"] == "admin"
+      render_template(env, 200, "src/views/index.ecr")
+    else
+      # Redirect the client to /login
+      redirect(env, "/login")
+    end
+  end
+
+  def post(env)
+    # This does the same as the function above but without the env and response code parameters.
+    render_template("src/views/index.ecr")
   end
 end
 
 class Echo < Grip::WebSocket
-  route("/:id") # Either this or route("/") this, it depends what you want to achieve with it
+  route("/:id") # The routing is based on the kemal router which supports the same routing powers.
 
   def on_message(env, message)
     puts url?(env) # This gets the hash instance of the route url specified variables
@@ -110,6 +120,12 @@ Grip.run
 ```
 
 Start your application!
+
+If you want logging to show up in the stdout put this line right above the `Grip.run` in your source code.
+
+```ruby
+logging true # Keep in mind that logging slows down the server since it is an IO bound operation
+```
 
 # Installation
 

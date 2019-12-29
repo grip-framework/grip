@@ -21,7 +21,7 @@ module Grip
     {% end %}
 
     property host_binding, ssl, port, env, public_folder, logging, running
-    property always_rescue, server : HTTP::Server?, extra_options, shutdown_message
+    property always_rescue, server : HTTP::Server?, extra_options
     property serve_static : (Bool | Hash(String, Bool))
     property static_headers : (HTTP::Server::Response, String, File::Info -> Void)?
     property powered_by_header : Bool = true
@@ -32,14 +32,13 @@ module Grip
       @env = ENV["GRIP_ENV"]? || "development"
       @serve_static = {"dir_listing" => false, "gzip" => true}
       @public_folder = "./public"
-      @logging = true
+      @logging = false
       @logger = nil
       @error_handler = nil
       @always_rescue = true
       @router_included = false
       @default_handlers_setup = false
       @running = false
-      @shutdown_message = true
       @handler_position = 0
     end
 

@@ -55,8 +55,18 @@ module Grip
       {{env}}.response.close()
     end
 
+    macro render_template(filename)
+      Kilt.render({{filename}})
+    end
+
     macro render_template(env, status_code=200, filename="", content_type = "text/html")
       render({{env}}, {{status_code}}, Kilt.render({{filename}}), {{content_type}})
+    end
+
+    # Helper methods for control flow manipulation, static file distribution, etc.
+
+    def redirect(env, to)
+      env.redirect to
     end
 
     # get post put patch delete options
@@ -103,6 +113,7 @@ module Grip
       end
     end
 
+    # Value "getter"-s have ? at the end of the method name declaration
     def json?(env : HTTP::Server::Context)
       env.params.json
     end
@@ -122,6 +133,9 @@ module Grip
     def headers?(env : HTTP::Server::Context)
       env.request.headers
     end
+
+    # Value "setter"-s have no ? at the end of the method name declaration and are implemented
+    # below this line.
 
     def headers(env, key, value)
       env.response.headers[key] = value
