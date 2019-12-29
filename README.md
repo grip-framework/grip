@@ -49,7 +49,7 @@ class Documentation < Grip::Http
   end
 end
 
-class Indexed < Grip::Handler
+class Indexed < Grip::Http
   route("/:id", ["GET"])
 
   def get(env)
@@ -59,9 +59,27 @@ class Indexed < Grip::Handler
     puts url?(env) # Get the url specified parameters like the :id which are sent to the server
     puts headers?(env) # Get the headers which are sent to the server
 
-    # Set headers
+    # Set headers via two different methods
     headers(env, "Host", "github.com")
+    headers(env, {"X-Custom-Header" => "This is a custom value", "X-Custom-Header-Two" => "This is a custom value"})
     render(env, 200, url?(env)["id"])
+  end
+end
+
+class Templated < Grip::Http
+  route("/:name", ["GET"])
+
+  def get(env)
+    params = url?(env)
+
+    #
+    # The template generation stems from Kilt which is a fantastic library,
+    # for this example we are going to create a file named index.ecr in the src/views/ directory
+    # and then we are including something like this in the index.ecr file:
+    #
+    # Hello, <%= params["name"] %>
+    #
+    render_template(env, 200, "src/views/index.ecr")
   end
 end
 
@@ -85,7 +103,7 @@ class Echo < Grip::WebSocket
 end
 
 # Add the handlers to the handler list
-add_handlers [IndexHandler, DocumentationHandler, IndexedHandler, Echo]
+add_handlers [Index, Documentation, Indexed, Templated, Echo]
 
 # Run the server
 Grip.run

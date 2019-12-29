@@ -1,4 +1,5 @@
 require "json"
+require "kilt"
 
 module Grip
   # `Grip::Handler` is a subclass of `HTTP::Handler`.
@@ -52,6 +53,10 @@ module Grip
         {{env}}.response.print({{response}}.to_json())
       {% end %}
       {{env}}.response.close()
+    end
+
+    macro render_template(env, status_code=200, filename="", content_type = "text/html")
+      render({{env}}, {{status_code}}, Kilt.render({{filename}}), {{content_type}})
     end
 
     # get post put patch delete options

@@ -55,35 +55,6 @@ macro yield_content(key)
   end
 end
 
-# Render view with a layout as the superview.
-#
-# ```
-# render "src/views/index.ecr", "src/views/layout.ecr"
-# ```
-macro render(filename, layout)
-  __content_filename__ = {{filename}}
-  content = render {{filename}}
-  render {{layout}}
-end
-
-# Render view with the given filename.
-macro render(filename)
-  Kilt.render({{filename}})
-end
-
-# Halt execution with the current context.
-# Returns 200 and an empty response by default.
-#
-# ```
-# halt env, status_code: 403, response: "Forbidden"
-# ```
-macro halt(env, status_code = 200, response = "")
-  {{env}}.response.status_code = {{status_code}}
-  {{env}}.response.print {{response}}
-  {{env}}.response.close
-  next
-end
-
 # Extends context storage with user defined types.
 #
 # ```
