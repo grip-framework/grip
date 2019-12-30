@@ -13,8 +13,6 @@ module Grip
     rescue ex : Exception
       log("Exception: #{ex.inspect_with_backtrace}")
       return call_exception_with_status_code(context, ex, 500) if Grip.config.error_handlers.has_key?(500)
-      verbosity = Grip.config.env == "production" ? false : true
-
       context.response.status_code = 500
       context.response.content_type = "application/json"
       context.response.print({"status": "error", "message": "internal_server_error"}.to_json)
