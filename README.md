@@ -3,6 +3,8 @@
 
 # Grip
 
+![Travis-CI](https://travis-ci.com/grkek/grip.svg?branch=master)
+
 Class oriented fork of the [Kemal](https://kemalcr.com) framework.
 
 # Super Simple ⚡️
