@@ -49,14 +49,14 @@ module Grip
     end
 
     def send(message)
-        check_open
-        @ws.send(message)
+      check_open
+      @ws.send(message)
     rescue exception
-        if !closed?
-          @closed = true
-          @ws.close(exception.message)
-        end
-        exception
+      if !closed?
+        @closed = true
+        @ws.close(exception.message)
+      end
+      exception
     end
 
     # It's possible to send a PING frame, which the client must respond to
@@ -65,41 +65,41 @@ module Grip
     #
     # See `#pong`.
     def ping(message = nil)
-        check_open
-        @ws.ping(message)
+      check_open
+      @ws.ping(message)
     rescue exception
-        if !closed?
-          @closed = true
-          @ws.close(exception.message)
-        end
-        exception
+      if !closed?
+        @closed = true
+        @ws.close(exception.message)
+      end
+      exception
     end
 
     # Server can send an unsolicited PONG frame which the client should not respond to.
     #
     # See `#ping`.
     def pong(message = nil)
-        check_open
-        @ws.pong(message)
+      check_open
+      @ws.pong(message)
     rescue exception
-        if !closed?
-          @closed = true
-          @ws.close(exception.message)
-        end
-        exception
+      if !closed?
+        @closed = true
+        @ws.close(exception.message)
+      end
+      exception
     end
 
     def stream(binary = true, frame_size = 1024)
-        check_open
-        @ws.stream(binary: binary, frame_size: frame_size) do |io|
-          yield io
-        end
+      check_open
+      @ws.stream(binary: binary, frame_size: frame_size) do |io|
+        yield io
+      end
     rescue exception
-        if !closed?
-          @closed = true
-          @ws.close(exception.message)
-        end
-        exception
+      if !closed?
+        @closed = true
+        @ws.close(exception.message)
+      end
+      exception
     end
 
     def close(message = nil)

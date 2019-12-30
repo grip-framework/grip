@@ -59,7 +59,7 @@ module Grip
       Kilt.render({{filename}})
     end
 
-    macro render_template(env, status_code=200, filename="", content_type = "text/html")
+    macro render_template(env, status_code = 200, filename = "", content_type = "text/html")
       render({{env}}, {{status_code}}, Kilt.render({{filename}}), {{content_type}})
     end
 
