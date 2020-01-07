@@ -23,45 +23,27 @@ class Index < Grip::HttpConsumer
 
   def get(env)
     # Render the content, the default content type is JSON
-    {
-      :ok, # Response status codes via lower-case names
-      {"body": "Hello, GET!"}
-    }
+    {:ok, {"body": "Hello, GET!"}}
   end
 
   def post(env)
-    {
-      201, # Response status codes via integers
-      {"body": "Hello, POST!"}
-    }
+    {201, {"body": "Hello, POST!"}}
   end
 
   def put(env)
-    {
-      :INTERNAL_SERVER_ERROR, # Response status codes via upper-case names
-      {"body": "Hello, PUT!"}
-    }
+    {:INTERNAL_SERVER_ERROR, {"body": "Hello, PUT!"}}
   end
 
   def patch(env)
-    {
-      :created,
-      {"body": "Hello, PATCH!"}
-    }
+    {:created, {"body": "Hello, PATCH!"}}
   end
 
   def delete(env)
-    {
-      :ok,
-      {"body": "Hello, DELETE!"}
-    }
+    {:ok, {"body": "Hello, DELETE!"}}
   end
 
   def options(env)
-    {
-      :ok,
-      {"body": "Hello, OPTIONS!"}
-    }
+    {:ok, {"body": "Hello, OPTIONS!"}}
   end
 end
 
@@ -78,10 +60,7 @@ class Indexed < Grip::HttpConsumer
     headers(env, "Host", "github.com")
     headers(env, {"X-Custom-Header" => "This is a custom value", "X-Custom-Header-Two" => "This is a custom value"})
     
-    {
-      :ok,
-      {"body": "Hello, #{url?(env)["id"]}!"}
-    }
+    {:ok, {"body": "Hello, #{url?(env)["id"]}!"}}
   end
 end
 
