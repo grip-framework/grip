@@ -1,11 +1,15 @@
 require "grip"
 
-class Index < Grip::Http
+class Index < Grip::HttpConsumer
   route("/:id", ["GET"])
 
   def get(env)
     params = url?(env)
-    "Hello, World! #{params["id"]}"
+    # The default content type of every response is application/json
+    {
+      :ok,
+      {"body": "Hello, World! #{params["id"]}"},
+    }
   end
 end
 

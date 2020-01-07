@@ -3,15 +3,12 @@ version: 0.26.3
 
 authors:
   - Serdar Dogruyol <dogruyolserdar@gmail.com>
-  - Giorgi Kavrelishvili <deliciouscakefrosting@gmail.com>
+  - Giorgi Kavrelishvili <giorgi.kavrelishvili@pm.me>
 
 dependencies:
   radix:
     github: luislavena/radix
     version: ~> 0.3.8
-  kilt:
-    github: jeromegn/kilt
-    version: ~> 0.4.0
   exception_page:
     github: crystal-loot/exception_page
     version: ~> 0.1.1

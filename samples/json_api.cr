@@ -1,15 +1,21 @@
 require "grip"
 
-class Index < Grip::Http
+class Index < Grip::HttpConsumer
   route("/", ["GET", "POST"])
 
   def get(env)
-    render(env, 200, {"message": "Hello, World!"})
+    {
+      :ok,
+      {"message": "Hello, World!"},
+    }
   end
 
   def post(env)
     headers(env, {"content-type" => "application/json"})
-    {"message": "Hello, World"}.to_json
+    {
+      :created,
+      {"message": "Hello, World"},
+    }
   end
 end
 

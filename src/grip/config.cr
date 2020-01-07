@@ -20,18 +20,15 @@ module Grip
       @ssl : OpenSSL::SSL::Context::Server?
     {% end %}
 
-    property host_binding, ssl, port, env, public_folder, logging, running
+    property host_binding, ssl, port, env, logging, running
     property always_rescue, server : HTTP::Server?, extra_options
-    property serve_static : (Bool | Hash(String, Bool))
     property static_headers : (HTTP::Server::Response, String, File::Info -> Void)?
     property powered_by_header : Bool = true
 
     def initialize
       @host_binding = "0.0.0.0"
-      @port = 8080
+      @port = 3000
       @env = ENV["GRIP_ENV"]? || "development"
-      @serve_static = {"dir_listing" => false, "gzip" => true}
-      @public_folder = "./public"
       @logging = false
       @logger = nil
       @error_handler = nil
@@ -110,7 +107,6 @@ module Grip
         setup_init_handler
         setup_log_handler
         setup_error_handler
-        setup_static_file_handler
         setup_custom_handlers
         setup_filter_handlers
         @default_handlers_setup = true
@@ -139,13 +135,6 @@ module Grip
       if @always_rescue
         @error_handler ||= Grip::ExceptionHandler.new
         HANDLERS.insert(@handler_position, @error_handler.not_nil!)
-        @handler_position += 1
-      end
-    end
-
-    private def setup_static_file_handler
-      if @serve_static.is_a?(Hash)
-        HANDLERS.insert(@handler_position, Grip::StaticFileHandler.new(@public_folder))
         @handler_position += 1
       end
     end

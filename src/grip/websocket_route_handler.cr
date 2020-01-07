@@ -20,7 +20,7 @@ module Grip
       @routes.find "/ws" + path
     end
 
-    def add_route(path : String, handler : Grip::WebSocket)
+    def add_route(path : String, handler : Grip::WebSocketConsumer)
       add_to_radix_tree path, WebSocketRoute.new(path, handler)
     end
 

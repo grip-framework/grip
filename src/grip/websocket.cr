@@ -7,7 +7,7 @@ require "base64"
 {% end %}
 
 module Grip
-  class WebSocket
+  class WebSocketConsumer
     include HTTP::Handler
 
     @@handler_path = String.new
