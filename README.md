@@ -39,7 +39,7 @@ class Index < Grip::HttpConsumer
   end
 
   def delete(env)
-    {:ok, {"body": "Hello, DELETE!"}}
+    {:CREATED, {"body": "Hello, DELETE!"}}
   end
 
   def options(env)
