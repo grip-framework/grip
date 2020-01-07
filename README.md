@@ -84,7 +84,7 @@ class Echo < Grip::WebSocketConsumer
 end
 
 # Add the handlers to the handler list
-add_handlers [Index, Documentation, Indexed, Echo]
+add_handlers [Index, Indexed, Echo]
 
 # Run the server
 Grip.run
