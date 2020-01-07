@@ -1,5 +1,4 @@
 require "json"
-require "kilt"
 
 module Grip
   # `Grip::Handler` is a subclass of `HTTP::Handler`.
