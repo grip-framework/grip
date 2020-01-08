@@ -105,7 +105,6 @@ module Grip
       else
         context.response.print(context)
       end
-      puts context.response.status_code
       context
     end
 
