@@ -52,7 +52,7 @@ module Grip
       end
       # Hacky solution around the 'Error: can't cast (Bool | HTTP::Server::Context | UInt64 | Nil) to Tuple(T)' when no routes are defined.
       if !content.is_a?(Bool | HTTP::Server::Context | UInt64 | Nil)
-        content = content.as(Tuple(Symbol | Int32, JSON::Any::Type))
+        content = content.as(Tuple)
         # Implemented from https://restfulapi.net/http-status-codes/
         case content[0]
         when :OK, :ok, 200
@@ -98,13 +98,14 @@ module Grip
           context.response.status_code = content.[0].to_i
         end
         if context.response.headers["Content-Type"] == "application/json"
-          context.response.print(content[1])
+          context.response.print(content[1].to_json)
         else
           context.response.print(content[1])
         end
       else
         context.response.print(context)
       end
+      puts context.response.status_code
       context
     end
 

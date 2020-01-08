@@ -16,6 +16,7 @@ So far at **93657** requests/second per instance, and still going.
 
 ```ruby
 require "grip"
+require "uuid" # Needed for the random UUID generation
 
 class Index < Grip::HttpConsumer
   # Only match the route / and methods defined below
@@ -27,23 +28,23 @@ class Index < Grip::HttpConsumer
   end
 
   def post(env)
-    {201, {"body": "Hello, POST!"}}
+    {:created, {"content" => "Hello, POST!"}}
   end
 
   def put(env)
-    {:INTERNAL_SERVER_ERROR, {"body": "Hello, PUT!"}}
+    {200, "Something interesting happened"}
   end
 
   def patch(env)
-    {:created, {"body": "Hello, PATCH!"}}
+    {201, {"is_it_real": true}}
   end
 
   def delete(env)
-    {:CREATED, {"body": "Hello, DELETE!"}}
+    {:OK, {"size": 404.404}}
   end
 
   def options(env)
-    {:ok, {"body": "Hello, OPTIONS!"}}
+    {:CREATED, {"body": "Hello, OPTIONS!"}}
   end
 end
 
@@ -81,6 +82,16 @@ class Echo < Grip::WebSocketConsumer
   def on_close(env, message)
     puts message
   end
+end
+
+# This gets executed before * (all) routes, the scope can be changed to a specific route
+before_all "*" do |env|
+  env.response.headers.merge!({"btag" => UUID.random.to_s})
+end
+
+# This gets executed after * (all) routes, the scope can be changed to a specific route
+after_all "*" do |env|
+  env.response.headers.merge!({"atag" => UUID.random.to_s})
 end
 
 # Add the handlers to the handler list
