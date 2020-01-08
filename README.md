@@ -138,7 +138,8 @@ dependencies:
 
 # Documentation
 
-- The documentation currently is not hosted anywhere, yet.
+- For the framework development just use the `crystal docs` feature and browse through the module.
+- Check out the official documentation available [here](https://github.com/grkek/grip/blob/master/DOCUMENTATION.md)
 
 ## Thanks
 
