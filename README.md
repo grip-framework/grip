@@ -59,7 +59,12 @@ class Indexed < Grip::HttpConsumer
 
     # Set headers via two different methods
     headers(env, "Host", "github.com")
-    headers(env, {"X-Custom-Header" => "This is a custom value", "X-Custom-Header-Two" => "This is a custom value"})
+    headers(env, 
+            {
+              "X-Custom-Header" => "This is a custom value",
+              "X-Custom-Header-Two" => "This is a custom value"
+            }
+    )
     
     {:ok, {"body": "Hello, #{url?(env)["id"]}!"}}
   end
