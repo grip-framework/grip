@@ -5,7 +5,7 @@ module Grip
   # It's a singleton and you can access it like.
   #
   # ```
-  # Kemal.config
+  # Grip.config
   # ```
   class Config
     INSTANCE        = Config.new
