@@ -12,9 +12,6 @@ dependencies:
   exception_page:
     github: crystal-loot/exception_page
     version: ~> 0.1.1
-  leveldb:
-    github: "crystal-community/leveldb"
-    version: "~> 0.2.0"
 
 development_dependencies:
   ameba:
