@@ -225,6 +225,7 @@ module Grip::DB
                     {% end %}
                 end
             end
+            JSON.parse(string)
         end
     end
 
