@@ -4,6 +4,7 @@ require "uri"
 require "./grip/*"
 require "./grip/ext/*"
 require "./grip/helpers/*"
+require "./grip/db/*"
 
 module Grip
   # Overload of `self.run` with the default startup logging.
