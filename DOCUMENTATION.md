@@ -45,6 +45,11 @@ class Index < Grip::HttpConsumer
 end
 
 add_handlers [Index]
+
+# Add the default routers to the stack
+Grip.config.add_router Grip::HttpRouteHandler::INSTANCE
+Grip.config.add_router Grip::WebSocketRouteHandler::INSTANCE
+
 Grip.run
 ```
 

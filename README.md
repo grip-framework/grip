@@ -102,6 +102,7 @@ end
 # Add the handlers to the handler list
 add_handlers [Index, Indexed, Echo]
 
+# Add the default routers to the stack
 Grip.config.add_router Grip::HttpRouteHandler::INSTANCE
 Grip.config.add_router Grip::WebSocketRouteHandler::INSTANCE
 
