@@ -1,5 +1,5 @@
 macro storage(path)
-    @db : Grip::DB::Base = Grip::DB::Connections[{{path}}]
+    @db = Grip::DB::Connections[{{path}}]
 end
 
 macro store(key, value)
