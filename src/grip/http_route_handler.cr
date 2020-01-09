@@ -98,7 +98,11 @@ module Grip
           context.response.status_code = content.[0].to_i
         end
         if context.response.headers["Content-Type"] == "application/json"
-          context.response.print(content[1].to_json)
+          if !content[1].is_a?(JSON::Any::Type)
+            context.response.print(content[1].as(Grip::DB::Model).to_safe)
+          else
+            context.response.print(content[1].to_json)
+          end
         else
           context.response.print(content[1])
         end
