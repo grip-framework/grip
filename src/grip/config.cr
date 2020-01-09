@@ -31,6 +31,7 @@ module Grip
       @env = ENV["GRIP_ENV"]? || "development"
       @logging = false
       @logger = nil
+      @router = Grip::HttpRouteHandler::INSTANCE
       @error_handler = nil
       @always_rescue = true
       @router_included = false
@@ -45,6 +46,10 @@ module Grip
 
     def logger
       @logger.not_nil!
+    end
+
+    def router=(router)
+      @router = router
     end
 
     def logger=(logger : Grip::BaseLogHandler)
@@ -112,7 +117,7 @@ module Grip
         @default_handlers_setup = true
         @router_included = true
         HANDLERS.insert(HANDLERS.size, Grip::WebSocketRouteHandler::INSTANCE)
-        HANDLERS.insert(HANDLERS.size, Grip::HttpRouteHandler::INSTANCE)
+        HANDLERS.insert(HANDLERS.size, @router)
       end
     end
 
