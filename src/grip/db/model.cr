@@ -209,7 +209,6 @@ module Grip::DB::Model
                     {% end %}
                 end
             end
-            JSON.parse(string)
         end
     end
 
