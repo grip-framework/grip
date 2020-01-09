@@ -1,5 +1,5 @@
 name: grip
-version: 0.26.4
+version: 0.26.3
 
 authors:
   - Serdar Dogruyol <dogruyolserdar@gmail.com>
@@ -12,9 +12,6 @@ dependencies:
   exception_page:
     github: crystal-loot/exception_page
     version: ~> 0.1.1
-  leveldb:
-    github: "crystal-community/leveldb"
-    version: "~> 0.2.0"
 
 development_dependencies:
   ameba:
