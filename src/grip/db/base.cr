@@ -2,12 +2,12 @@ require "leveldb"
 
 module Grip::DB
   class Base
-    getter path : Symbol
+    getter path : String
 
-    def initialize(@path : Symbol); end
+    def initialize(@path : String); end
 
     def database : LevelDB::DB
-      @_database ||= LevelDB::DB.new(@path.to_s)
+      @_database ||= LevelDB::DB.new(@path)
     end
 
     def open(&block)
