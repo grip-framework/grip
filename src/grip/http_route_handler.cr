@@ -98,7 +98,11 @@ module Grip
           context.response.status_code = content.[0].to_i
         end
         if context.response.headers["Content-Type"] == "application/json"
-          context.response.print(content[1].to_json)
+          if !content[1].is_a?(String)
+            context.response.print(content[1].to_json)
+          else
+            context.response.print(content[1])
+          end
         else
           context.response.print(content[1])
         end

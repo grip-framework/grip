@@ -9,7 +9,6 @@ module Grip::DB
     end
 
     def self.[](path : String) : Grip::DB::Base
-
       database = registered_connections.find { |conn| conn.path == path }
       if !database.is_a?(Nil)
         database
