@@ -102,6 +102,9 @@ end
 # Add the handlers to the handler list
 add_handlers [Index, Indexed, Echo]
 
+Grip.config.add_router Grip::HttpRouteHandler::INSTANCE
+Grip.config.add_router Grip::WebSocketRouteHandler::INSTANCE
+
 # Run the server
 Grip.run
 ```
