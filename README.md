@@ -120,6 +120,14 @@ logging true # Keep in mind that logging slows down the server since it is an IO
 
 # Installation
 
+## Prerequisites
+
+Debian:
+
+```bash
+sudo apt-get install libleveldb-dev libleveldb1v5 libsnappy1v5
+```
+
 Add this to your application's `shard.yml`:
 
 ```yaml
