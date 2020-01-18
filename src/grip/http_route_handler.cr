@@ -46,64 +46,19 @@ module Grip
     private def process_request(context)
       raise Grip::Exceptions::RouteNotFound.new(context) unless context.route_found?
       return if context.response.closed?
-      content = context.route.handler.call(context)
+      response = context.route.handler.call(context).as(Hash)
       if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(context.response.status_code)
         raise Grip::Exceptions::CustomException.new(context)
       end
-      # Hacky solution around the 'Error: can't cast (Bool | HTTP::Server::Context | UInt64 | Nil) to Tuple(T)' when no routes are defined.
-      if !content.is_a?(Bool | HTTP::Server::Context | UInt64 | Nil)
-        content = content.as(Tuple)
-        # Implemented from https://restfulapi.net/http-status-codes/
-        case content[0]
-        when :OK, :ok, 200
-          context.response.status_code = 200
-        when :CREATED, :created, 201
-          context.response.status_code = 201
-        when :ACCEPTED, :accepted, 202
-          context.response.status_code = 202
-        when :NO_CONTENT, :no_content, 204
-          context.response.status_code = 204
-        when :MOVED_PERMANENTLY, :moved_permanently, 301
-          context.response.status_code = 301
-        when :FOUND, :found, 302
-          context.response.status_code = 302
-        when :SEE_OTHER, :see_other, 303
-          context.response.status_code = 303
-        when :NOT_MODIFIED, :not_modified, 304
-          context.response.status_code = 304
-        when :TEMPORARY_REDIRECT, :temporary_redirect, 307
-          context.response.status_code = 307
-        when :BAD_REQUEST, :bad_request, 400
-          context.response.status_code = 400
-        when :UNAUTHORIZED, :unauthorized, 401
-          context.response.status_code = 401
-        when :FORBIDDEN, :forbidden, 403
-          context.response.status_code = 403
-        when :NOT_FOUND, :not_found, 404
-          context.response.status_code = 404
-        when :METHOD_NOT_ALLOWED, :method_not_allowed, 405
-          context.response.status_code = 405
-        when :NOT_ACCEPTABLE, :not_acceptable, 406
-          context.response.status_code = 406
-        when :PRECONDITION_FAILED, :precondition_failed, 412
-          context.response.status_code = 412
-        when :INTERNAL_SERVER_ERROR, :internal_server_error, 500
-          context.response.status_code = 500
-        when :NOT_IMPLEMENTED, :not_implemented, 501
-          context.response.status_code = 501
-          # Feeling cute, might delete later.
-        when :IM_A_TEAPOT, :im_a_teapot, 418
-          context.response.status_code = 418
-        else
-          context.response.status_code = content.[0].to_i
-        end
+      if !response.is_a?(Bool | HTTP::Server::Context | UInt64 | Nil)
+        context.response.status_code = response["status"].as(HTTP::Status | Int32).to_i
         if context.response.headers["Content-Type"] == "application/json"
-          context.response.print(content[1].to_json)
+          context.response.print(response["content"].to_json)
         else
-          context.response.print(content[1])
+          context.response.print(response["content"])
         end
       else
-        context.response.print(context)
+        context.response.print(response["content"])
       end
       context
     end

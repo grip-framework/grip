@@ -39,16 +39,21 @@ require "grip"
 class Index < Grip::HttpConsumer
     route "/", ["GET"]
 
+    # The status and content of a response are mandatory, without it the router wont function.
+    # The status value is precieved as the response code,
+    # and the content value is precieved as the response content.
     def get(env)
-        {:ok, "Hello, World!"}
+      {
+        # HTTP::Status is an enum which has all of the response codes alternatively you can use an integer.
+        "status" => HTTP::Status::OK,
+        "content" => {
+          "Bunch of content gathered up in one place"
+        }
+      }
     end
 end
 
 add_handlers [Index]
-
-# Add the default routers to the stack
-Grip.config.add_router Grip::HttpRouteHandler::INSTANCE
-Grip.config.add_router Grip::WebSocketRouteHandler::INSTANCE
 
 Grip.run
 ```
@@ -110,37 +115,24 @@ end
 
 ## Response Codes
 
-The response codes are made up of both upper and lower case symbols which are the RFC representations of the HTTP status codes,
-ability to use the numeric representation directly is also available but not recommended, since it is less clear to some people.
+The response codes are borrowed from HTTP::Status enum which contains all of the response codes, alternative to that is to use integers directly.
 
 ```ruby
-:OK, :ok #=> 200
-:CREATED, :created #=> 201
-:ACCEPTED, :accepted #=> 202
-:NO_CONTENT, :no_content #=> 204
-:MOVED_PERMANENTLY, :moved_permanently #=> 301
-:FOUND, :found #=> 302
-:SEE_OTHER, :see_other #=> 303
-:NOT_MODIFIED, :not_modified #=> 304
-:TEMPORARY_REDIRECT, :temporary_redirect #=> 307
-:BAD_REQUEST, :bad_request #=> 400
-:UNAUTHORIZED, :unauthorized #=> 401
-:FORBIDDEN, :forbidden #=> 403
-:NOT_FOUND, :not_found #=> 404
-:METHOD_NOT_ALLOWED, :method_not_allowed #=> 405
-:NOT_ACCEPTABLE, :not_acceptable #=> 406
-:PRECONDITION_FAILED, :precondition_failed #=> 412
-:IM_A_TEAPOT, :im_a_teapot #=> 418
-:INTERNAL_SERVER_ERROR, :internal_server_error #=> 500
-:NOT_IMPLEMENTED, :not_implemented #=> 501
-```
+# Enum based status code
+{
+  "status" => HTTP::Status::OK,
+  "content" => {
+    "Bunch of content gathered up in one place"
+  }
+}
 
-These symbols can be used with the response tuple:
-
-```ruby
-{:ok, {"result" => "Hello, World!"}} #=> 
-    # env.response.status_code = 200
-    # env.response.print({"result" => "Hello, World!"}.to_json)
+# Integer based status code
+{
+  "status" => 200,
+  "content" => {
+    "Bunch of content gathered up in one place"
+  }
+}
 ```
 
 ## Custom Errors
@@ -163,37 +155,52 @@ When passing data through an HTTP request, you will often need to use query para
 
 ## URL Parameters
 
-Grip allows you to use variables in your route path as placeholders for passing data. To access URL parameters, you use `url?`.
+Grip allows you to use variables in your route path as placeholders for passing data. To access URL parameters, you use `url`.
 
 ```ruby
 class Users < Grip::HttpConsumer
     route "/users/:id", ["GET", "POST"]
 
     def get(env)
-        id = url?(env)["id"]
-        {:ok, id}
+      id = url(env)["id"]
+      {
+        "status" => 200,
+        "content" => id
+      }
     end
 
     def post(env)
-        id = url?(env)["id"]
-        {:ok, id}
+      id = url(env)["id"]
+      {
+        "status" => 200,
+        "content" => id
+      }
     end
 end
 ```
 
 ## Query Parameters
 
-To access query parameters, you use `query?`.
+To access query parameters, you use `query`.
 
 ```ruby
 class Resize < Grip::HttpConsumer
-    route "/resize", ["GET"]
+  route "/resize", ["GET"]
 
-    def get(env)
-        width = query?(env)["width"]
-        height = query?(env)["height"]
-        {:ok, {"image_resolution": "#{width}X#{height}"}}
-    end
+  def get(env)
+    width = query(env)["width"]
+    height = query(env)["height"]
+
+    {
+      "status" => HTTP::Status::OK,
+      "content" => {
+        "imageResolution": {
+          "width": width,
+          "height": height
+        }
+      }
+    }
+  end
 end
 ```
 
@@ -203,14 +210,22 @@ You can easily access JSON payload from the parameters, or through the standard 
 
 ```ruby
 class SignIn < Grip::HttpConsumer
-    route "/signin", ["POST"]
+  route "/signin", ["POST"]
 
-    def post(env)
-        username = json?(env)["username"]
-        password = json?(env)["password"]
+  def post(env)
+    username = json(env)["username"]
+    password = json(env)["password"]
         
-        {:ok, {"username" => username, "password" => password}}
-    end
+    {
+      "status" => HTTP::Status::OK,
+      "content" => {
+        "authorizationInformation": {
+          "username": username,
+          "password": password
+        }
+      }
+    }
+  end
 end
 ```
 
@@ -224,17 +239,17 @@ Request Properties
 
 Some common request information is available at env.request.*:
 
-    method - the HTTP method
+  - method - the HTTP method
         e.g. GET, POST, …
-    headers - a hash containing relevant request header information
-    body - the request body
-    version - the HTTP version
+  - headers - a hash containing relevant request header information
+  - body - the request body
+  - version - the HTTP version
         e.g. HTTP/1.1
-    path - the uri path
+  - path - the uri path
         e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context
-    resource - the uri path and query parameters
+  - resource - the uri path and query parameters
         e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context?lang=cr
-    cookies
+  - cookies
         e.g. env.request.cookies["cookie_name"].value
 
 
@@ -242,7 +257,6 @@ Some common request information is available at env.request.*:
 
 Headers helper function allows you to set custom headers for a specific route response.
 ```ruby
-headers(env, "Host", "github.com")
 headers(env, 
         {
           "X-Custom-Header" => "This is a custom value",
@@ -274,14 +288,14 @@ class Echo < Grip::WebSocketConsumer
 end
 ```
 
-Accessing headers of the initial HTTP request can be done via a `headers?` method:
+Accessing headers of the initial HTTP request can be done via a `headers` method:
 
 ```ruby
 class Echo < Grip::WebSocketConsumer
   route "/"
 
   def on_message(env, message)
-    puts headers?(env) # This gets the http headers
+    puts headers(env) # This gets the http headers
 
     if message == "close"
       close "Received a 'close' message, closing the connection!"
@@ -296,14 +310,14 @@ class Echo < Grip::WebSocketConsumer
 end
 ```
 
-Dynamic URL parameters can be accessed via a `url?` method:
+Dynamic URL parameters can be accessed via a `url` method:
 
 ```ruby
 class Echo < Grip::WebSocketConsumer
   route "/:id"
 
   def on_message(env, message)
-    puts url?(env) # This gets the hash instance of the route url specified variables
+    puts url(env) # This gets the hash instance of the route url specified variables
 
     if message == "close"
       close "Received a 'close' message, closing the connection!"

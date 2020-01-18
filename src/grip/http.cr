@@ -81,28 +81,20 @@ module Grip
       end
     end
 
-    # Value "getter"-s have ? at the end of the method name declaration
-    def json?(env : HTTP::Server::Context)
+    def json(env : HTTP::Server::Context)
       env.params.json
     end
 
-    def query?(env : HTTP::Server::Context)
+    def query(env : HTTP::Server::Context)
       env.params.query
     end
 
-    def url?(env : HTTP::Server::Context)
+    def url(env : HTTP::Server::Context)
       env.params.url
     end
 
-    def headers?(env : HTTP::Server::Context)
+    def headers(env : HTTP::Server::Context)
       env.request.headers
-    end
-
-    # Value "setter"-s have no ? at the end of the method name declaration and are implemented
-    # below this line.
-
-    def headers(env, key, value)
-      env.response.headers[key] = value
     end
   end
 end

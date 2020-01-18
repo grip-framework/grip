@@ -23,28 +23,57 @@ class Index < Grip::HttpConsumer
   route "/", ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 
   def get(env)
-    # Render the content, the default content type is JSON
-    {:ok, {"body": "Hello, GET!"}}
+    {
+      "status" => HTTP::Status::CONTINUE, # HTTP::Status is an enum which has all of the response codes.
+      "content" => {
+        "Bunch of content gathered up in one place"
+      }
+    }
   end
 
   def post(env)
-    {:created, {"content" => "Hello, POST!"}}
+    {
+      "status" => 200, # Alternative to HTTP::Status you can use integers directly as response codes.
+      "content" => {
+        "Bunch of content gathered up in one place"
+      }
+    }
   end
 
   def put(env)
-    {200, "Something interesting happened"}
+    {
+      "status" => HTTP::Status::MULTIPLE_CHOICES,
+      "content" => {
+        "Bunch of content gathered up in one place"
+      }
+    }
   end
 
   def patch(env)
-    {201, {"is_it_real": true}}
+    {
+      "status" => 400,
+      "content" => {
+        "Bunch of content gathered up in one place"
+      }
+    }
   end
 
   def delete(env)
-    {:OK, {"size": 404.404}}
+    {
+      "status" => HTTP::Status::INTERNAL_SERVER_ERROR,
+      "content" => {
+        "Bunch of content gathered up in one place"
+      }
+    }
   end
 
   def options(env)
-    {:CREATED, {"body": "Hello, OPTIONS!"}}
+    {
+      "status" => 418,
+      "content" => {
+        "Bunch of content gathered up in one place"
+      }
+    }
   end
 end
 
@@ -52,21 +81,24 @@ class Indexed < Grip::HttpConsumer
   route "/:id", ["GET"]
 
   def get(env)
-    puts json?(env) # Get the JSON parameters which are sent to the server
-    puts query?(env) # Get the query parameters which are sent to the server
-    puts url?(env) # Get the url specified parameters like the :id which are sent to the server
-    puts headers?(env) # Get the headers which are sent to the server
+    puts json(env) # Get the JSON parameters which are sent to the server
+    puts query(env) # Get the query parameters which are sent to the server
+    puts url(env) # Get the url specified parameters like the :id which are sent to the server
+    puts headers(env) # Get the headers which are sent to the server
 
-    # Set headers via two different methods
-    headers(env, "Host", "github.com")
     headers(env, 
             {
               "X-Custom-Header" => "This is a custom value",
               "X-Custom-Header-Two" => "This is a custom value"
             }
     )
-    
-    {:ok, {"body": "Hello, #{url?(env)["id"]}!"}}
+
+    {
+      "status" => 200,
+      "content" => {
+        url(env)
+      }
+    }
   end
 end
 
@@ -74,8 +106,8 @@ class Echo < Grip::WebSocketConsumer
   route "/:id" # The routing is based on the kemal router which supports the same routing powers.
 
   def on_message(env, message)
-    puts url?(env) # This gets the hash instance of the route url specified variables
-    puts headers?(env) # This gets the http headers
+    puts url(env) # This gets the hash instance of the route url specified variables
+    puts headers(env) # This gets the http headers
 
     if message == "close"
       close "Received a 'close' message, closing the connection!" # This closes the connection
@@ -101,10 +133,6 @@ end
 
 # Add the handlers to the handler list
 add_handlers [Index, Indexed, Echo]
-
-# Add the default routers to the stack
-Grip.config.add_router Grip::HttpRouteHandler::INSTANCE
-Grip.config.add_router Grip::WebSocketRouteHandler::INSTANCE
 
 # Run the server
 Grip.run
