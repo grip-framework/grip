@@ -85,7 +85,8 @@ class Indexed < Grip::HttpConsumer
     puts query(env) # Get the query parameters which are sent to the server
     puts url(env) # Get the url specified parameters like the :id which are sent to the server
     puts headers(env) # Get the headers which are sent to the server
-
+    
+    # Set custom headers using this function
     headers(env, 
             {
               "X-Custom-Header" => "This is a custom value",
