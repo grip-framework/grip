@@ -114,8 +114,26 @@ end
 ```
 
 ## Middleware
-In grip middlewares are mentioned as consumers, when creating a consumer you inherit from Grip::BaseConsumer,
-which gives you several handy functions to use.
+In Grip middlewares are mentioned as handlers or consumers, when creating a handler or a consumer you inherit from HTTP::Handler or Grip::BaseConsumer.
+
+### Raw middleware
+
+Raw middleware is the `HTTP::Handler` class.
+
+```ruby
+class CustomHandler
+  include HTTP::Handler
+
+  def call(context)
+
+  end
+end
+```
+
+
+### Vanilla middleware
+
+Vanilla middleware contains several helpful functions which differentiate the `BaseConsumer` class from the raw `HTTP::Handler` class.
 
 ```ruby
 class CustomConsumer < Grip::BaseConsumer
@@ -140,6 +158,9 @@ class CustomConsumer < Grip::BaseConsumer
     }
   end
 end
+
+# You can add the handler just by doing the same as you do to other consumer types.
+add_handlers [CustomConsumer]
 ```
 
 ## Response Codes
