@@ -113,6 +113,35 @@ after_all "*" do |env|
 end
 ```
 
+## Middleware
+In grip middlewares are mentioned as consumers, when creating a consumer you inherit from Grip::BaseConsumer,
+which gives you several handy functions to use.
+
+```ruby
+class CustomConsumer < Grip::BaseConsumer
+  route "/myCustomMiddleware", ["GET", "POST"]
+
+  def initialize
+    # You have to add the consumer somehow to the router, it is done by the initialize function,
+    # you can create your own custom router which can work fine but at this moment
+    # the default HttpRouteHandler and WebsocketRouteHandler are recommended.
+    @@handler_methods.each do |method|
+      Grip::HttpRouteHandler::INSTANCE.add_route(method.upcase, @@handler_path, self)
+    end
+  end
+
+  def call(env)
+    # You can use the call_next and match? functions to control the flow of the middleware stack,
+    # if it matches the route defined above it will execute the content below otherwise it calls the call_next function.
+    return call_next(env) unless match?(env)
+    {
+      "status" => HTTP::Status::OK,
+      "content" => "Some custom middleware processing was done here"
+    }
+  end
+end
+```
+
 ## Response Codes
 
 The response codes are borrowed from HTTP::Status enum which contains all of the response codes, alternative to that is to use integers directly.

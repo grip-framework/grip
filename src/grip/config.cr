@@ -95,7 +95,7 @@ module Grip
       FILTER_HANDLERS << handler
     end
 
-    def add_router(handler)
+    def add_router(handler : HTTP::Handler)
       HANDLERS.insert(HANDLERS.size, handler)
     end
 

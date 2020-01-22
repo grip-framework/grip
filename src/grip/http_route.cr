@@ -6,7 +6,7 @@ module Grip
   struct HttpRoute
     getter method, path, handler
 
-    def initialize(@method : String, @path : String, @handler : Grip::HttpConsumer)
+    def initialize(@method : String, @path : String, @handler : Grip::BaseConsumer)
     end
   end
 end

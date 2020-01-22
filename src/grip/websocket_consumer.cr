@@ -7,11 +7,7 @@ require "base64"
 {% end %}
 
 module Grip
-  class WebSocketConsumer
-    include HTTP::Handler
-
-    @@handler_path = String.new
-
+  class WebSocketConsumer < BaseConsumer
     getter? closed = false
 
     def initialize
@@ -211,7 +207,7 @@ module Grip
     end
 
     def to_s(io)
-      io << "WebSocket route registered at '" << @@handler_path << "' and is reachable via a WebSocket connection."
+      io << "[\u001b[32m#{typeof(self)}\u001b[0m] registered at '" << @@handler_path << "' and is reachable via a WebSocket connection."
     end
   end
 end

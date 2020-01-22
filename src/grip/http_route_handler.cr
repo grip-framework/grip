@@ -20,7 +20,7 @@ module Grip
 
     # Adds a given route to routing tree. As an exception each `GET` route additionaly defines
     # a corresponding `HEAD` route.
-    def add_route(method : String, path : String, handler : Grip::HttpConsumer)
+    def add_route(method : String, path : String, handler : Grip::BaseConsumer)
       add_to_radix_tree(method, path, HttpRoute.new(method, path, handler))
     end
 
