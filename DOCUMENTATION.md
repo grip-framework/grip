@@ -128,6 +128,9 @@ class CustomHandler
 
   end
 end
+
+# You can add the middleware to the handler stack by using
+add_handler CustomHandler.new
 ```
 
 
