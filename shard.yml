@@ -9,9 +9,6 @@ dependencies:
   radix:
     github: luislavena/radix
     version: ~> 0.3.8
-  
-  grip-auth-basic:
-    github: grkek/grip-auth-basic
 
 development_dependencies:
   ameba:
