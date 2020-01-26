@@ -18,7 +18,7 @@ end
 
 macro add_handlers(handlers)
   {{handlers}}.each do |handler|
-    instance = handler.new
+    instance = handler.first.new(handler.last)
     if Grip.config.env == "development"
       puts instance
     end

@@ -46,19 +46,20 @@ module Grip
     private def process_request(context)
       raise Grip::Exceptions::RouteNotFound.new(context) unless context.route_found?
       return if context.response.closed?
-      response = context.route.handler.call(context).as(Hash)
+      response = context.route.handler.call(context)
       if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(context.response.status_code)
         raise Grip::Exceptions::CustomException.new(context)
       end
       if !response.is_a?(Bool | HTTP::Server::Context | UInt64 | Nil)
-        context.response.status_code = response["status"].as(HTTP::Status | Int32).to_i
+        response_hash = response.as(Hash)
+        context.response.status_code = response_hash["status"].as(HTTP::Status | Int32).to_i
         if context.response.headers["Content-Type"] == "application/json"
-          context.response.print(response["content"].to_json)
+          context.response.print(response_hash["content"].to_json)
         else
-          context.response.print(response["content"])
+          context.response.print(response_hash["content"])
         end
       else
-        context.response.print(response["content"])
+        context.response.print(response)
       end
       context
     end

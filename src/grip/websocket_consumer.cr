@@ -10,19 +10,12 @@ module Grip
   class WebSocketConsumer < BaseConsumer
     getter? closed = false
 
-    def initialize
+    def initialize(handler_path)
+      @@handler_path = handler_path
       @ws = HTTP::WebSocket::Protocol.new(IO::Memory.new)
       @buffer = Bytes.new(4096)
       @current_message = IO::Memory.new
       Grip::WebSocketRouteHandler::INSTANCE.add_route(@@handler_path, self)
-    end
-
-    def self.new(uri : URI | String, headers = HTTP::Headers.new)
-      new(Protocol.new(uri, headers: headers))
-    end
-
-    def self.new(host : String, path : String, port = nil, tls = false, headers = HTTP::Headers.new)
-      new(Protocol.new(host, path, port, tls, headers))
     end
 
     def on_ping(env : HTTP::Server::Context, on_ping : String)
@@ -207,7 +200,7 @@ module Grip
     end
 
     def to_s(io)
-      io << "[\u001b[32m#{typeof(self)}\u001b[0m] registered at '" << @@handler_path << "' and is reachable via a WebSocket connection."
+      io << "[\u001b[32minfo\u001b[0m] #{typeof(self)} registered at '" << @@handler_path << "' and is reachable via a WebSocket connection."
     end
   end
 end

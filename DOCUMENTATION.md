@@ -37,8 +37,6 @@ Let's start with a simple example
 require "grip"
 
 class Index < Grip::HttpConsumer
-    route "/", ["GET"]
-
     # The status and content of a response are mandatory, without it the router wont function.
     # The status value is precieved as the response code,
     # and the content value is precieved as the response content.
@@ -53,7 +51,11 @@ class Index < Grip::HttpConsumer
     end
 end
 
-add_handlers [Index]
+add_handlers(
+  {
+    Index => "/"
+  }
+)
 
 Grip.run
 ```
@@ -75,8 +77,6 @@ You can handle HTTP methods via pre-defining a set of available methods and then
 
 ```ruby
 class Index < Grip::HttpConsumer
-    route "/", ["GET", "POST", "PUT", "PATCH"]
-
     def get(env)
     .. show something ..
     end
@@ -140,9 +140,8 @@ Vanilla middleware contains several helpful functions which differentiate the `B
 
 ```ruby
 class CustomConsumer < Grip::BaseConsumer
-  route "/myCustomMiddleware", ["GET", "POST"]
-
-  def initialize
+  def initialize(handler_path)
+    @@handler_path = handler_path
     # You have to add the consumer somehow to the router, it is done by the initialize function,
     # you can create your own custom router which can work fine but at this moment
     # the default HttpRouteHandler and WebsocketRouteHandler are recommended.
@@ -163,7 +162,11 @@ class CustomConsumer < Grip::BaseConsumer
 end
 
 # You can add the handler just by doing the same as you do to other consumer types.
-add_handlers [CustomConsumer]
+add_handlers(
+  {
+    CustomConsumer => "/"
+  }
+)
 ```
 
 ## Response Codes
@@ -212,8 +215,6 @@ Grip allows you to use variables in your route path as placeholders for passing 
 
 ```ruby
 class Users < Grip::HttpConsumer
-    route "/users/:id", ["GET", "POST"]
-
     def get(env)
       id = url(env)["id"]
       {
@@ -230,6 +231,12 @@ class Users < Grip::HttpConsumer
       }
     end
 end
+
+add_handlers(
+  {
+    Users => "/users/:id"
+  }
+)
 ```
 
 ## Query Parameters
@@ -238,8 +245,6 @@ To access query parameters, you use `query`.
 
 ```ruby
 class Resize < Grip::HttpConsumer
-  route "/resize", ["GET"]
-
   def get(env)
     width = query(env)["width"]
     height = query(env)["height"]
@@ -255,6 +260,12 @@ class Resize < Grip::HttpConsumer
     }
   end
 end
+
+add_handlers(
+  {
+    Resize => "/users/:id"
+  }
+)
 ```
 
 ## JSON Parameters
@@ -263,8 +274,6 @@ You can easily access JSON payload from the parameters, or through the standard 
 
 ```ruby
 class SignIn < Grip::HttpConsumer
-  route "/signin", ["POST"]
-
   def post(env)
     username = json(env)["username"]
     password = json(env)["password"]
@@ -280,6 +289,12 @@ class SignIn < Grip::HttpConsumer
     }
   end
 end
+
+add_handlers(
+  {
+    SignIn => "/signin"
+  }
+)
 ```
 
 # HTTP Request / Response Context
@@ -325,8 +340,6 @@ Using WebSockets in Grip is pretty easy.
 An example echo server might look something like this:
 ```ruby
 class Echo < Grip::WebSocketConsumer
-  route "/"
-
   def on_message(env, message)
     if message == "close"
       close "Received a 'close' message, closing the connection!"
@@ -339,14 +352,18 @@ class Echo < Grip::WebSocketConsumer
     puts message
   end
 end
+
+add_handlers(
+  {
+    Echo => "/"
+  }
+)
 ```
 
 Accessing headers of the initial HTTP request can be done via a `headers` method:
 
 ```ruby
 class Echo < Grip::WebSocketConsumer
-  route "/"
-
   def on_message(env, message)
     puts headers(env) # This gets the http headers
 
@@ -361,14 +378,18 @@ class Echo < Grip::WebSocketConsumer
     puts message
   end
 end
+
+add_handlers(
+  {
+    Echo => "/"
+  }
+)
 ```
 
 Dynamic URL parameters can be accessed via a `url` method:
 
 ```ruby
 class Echo < Grip::WebSocketConsumer
-  route "/:id"
-
   def on_message(env, message)
     puts url(env) # This gets the hash instance of the route url specified variables
 
@@ -383,6 +404,12 @@ class Echo < Grip::WebSocketConsumer
     puts message
   end
 end
+
+add_handlers(
+  {
+    Echo => "/:id"
+  }
+)
 ```
 
 # SSL

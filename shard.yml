@@ -1,5 +1,5 @@
 name: grip
-version: 0.26.5
+version: 0.26.6
 
 authors:
   - Serdar Dogruyol <dogruyolserdar@gmail.com>
@@ -9,6 +9,9 @@ dependencies:
   radix:
     github: luislavena/radix
     version: ~> 0.3.8
+  
+  grip-auth-basic:
+    github: grkek/grip-auth-basic
 
 development_dependencies:
   ameba:

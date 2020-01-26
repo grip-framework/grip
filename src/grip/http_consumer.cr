@@ -6,9 +6,12 @@ module Grip
   # It adds `route`, `route_match?`
   # These methods are useful for the conditional execution of custom handlers .
   class HttpConsumer < BaseConsumer
-    def initialize
+    @@handler_methods : Array(String) = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    def initialize(handler_path)
+      @@handler_path = handler_path
+
       @@handler_methods.each do |method|
-        Grip::HttpRouteHandler::INSTANCE.add_route(method.upcase, @@handler_path, self)
+        Grip::HttpRouteHandler::INSTANCE.add_route(method.upcase, handler_path, self)
       end
     end
 
@@ -19,27 +22,27 @@ module Grip
 
     # get post put patch delete options
     def get(env : HTTP::Server::Context)
-      call_next(env)
+      env.response.status_code = 404
     end
 
     def post(env : HTTP::Server::Context)
-      call_next(env)
+      env.response.status_code = 404
     end
 
     def put(env : HTTP::Server::Context)
-      call_next(env)
+      env.response.status_code = 404
     end
 
     def patch(env : HTTP::Server::Context)
-      call_next(env)
+      env.response.status_code = 404
     end
 
     def delete(env : HTTP::Server::Context)
-      call_next(env)
+      env.response.status_code = 404
     end
 
     def options(env : HTTP::Server::Context)
-      call_next(env)
+      env.response.status_code = 404
     end
 
     def call(env : HTTP::Server::Context)
@@ -78,11 +81,7 @@ module Grip
     end
 
     def to_s(io)
-      if @@handler_methods.size > 1
-        io << "[\u001b[32m#{typeof(self)}\u001b[0m] registered at '" << @@handler_path << "' and is reachable via '" << @@handler_methods << "' methods."
-      else
-        io << "[\u001b[32m#{typeof(self)}\u001b[0m] registered at '" << @@handler_path << "' and is reachable via a '" << @@handler_methods[0] << "' method."
-      end
+      io << "[\u001b[32minfo\u001b[0m] #{typeof(self)} registered at '" << @@handler_path << "' and is reachable via a HTTP connection."
     end
   end
 end

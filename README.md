@@ -19,9 +19,6 @@ require "grip"
 require "uuid" # Needed for the random UUID generation
 
 class Index < Grip::HttpConsumer
-  # Only match the route / and methods defined below
-  route "/", ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-
   def get(env)
     {
       "status" => HTTP::Status::CONTINUE, # HTTP::Status is an enum which has all of the response codes.
@@ -33,7 +30,7 @@ class Index < Grip::HttpConsumer
 
   def post(env)
     {
-      "status" => 200, # Alternative to HTTP::Status you can use integers directly as response codes.
+      "status": 200, # Alternative to HTTP::Status you can use integers directly as response codes.
       "content" => {
         "Bunch of content gathered up in one place"
       }
@@ -78,8 +75,6 @@ class Index < Grip::HttpConsumer
 end
 
 class Indexed < Grip::HttpConsumer
-  route "/:id", ["GET"]
-
   def get(env)
     puts json(env) # Get the JSON parameters which are sent to the server
     puts query(env) # Get the query parameters which are sent to the server
@@ -104,8 +99,6 @@ class Indexed < Grip::HttpConsumer
 end
 
 class Echo < Grip::WebSocketConsumer
-  route "/:id" # The routing is based on the kemal router which supports the same routing powers.
-
   def on_message(env, message)
     puts url(env) # This gets the hash instance of the route url specified variables
     puts headers(env) # This gets the http headers
@@ -133,7 +126,15 @@ after_all "*" do |env|
 end
 
 # Add the handlers to the handler list
-add_handlers [Index, Indexed, Echo]
+
+add_handlers(
+  {
+    Index => "/",
+    Indexed => "/:id",
+
+    Echo => "/:id"
+  }
+)
 
 # Run the server
 Grip.run

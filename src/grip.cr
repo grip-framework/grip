@@ -38,6 +38,7 @@ module Grip
       setup_400
       setup_401
       setup_404
+      setup_405
       setup_500
       setup_trap_signal
     end
@@ -70,8 +71,8 @@ module Grip
 
   def self.display_startup_message(config, server)
     addresses = server.addresses.map { |address| "#{config.scheme}://#{address}" }.join ", "
-    log "[\u001b[33m#{config.env}\u001b[0m] The request logging is on, which reduces the performance of the server."
-    log "[\u001b[33m#{config.env}\u001b[0m] Grip is listening at #{addresses}"
+    log "[\u001b[33mwarning\u001b[0m] The request logging is on, which reduces the performance of the server."
+    log "[\u001b[33mwarning\u001b[0m] Grip is listening at #{addresses}"
   end
 
   def self.stop
@@ -107,6 +108,15 @@ module Grip
       error 404 do |env|
         env.response.content_type = "application/json"
         {"status": "error", "message": "not_found"}.to_json
+      end
+    end
+  end
+
+  private def self.setup_405
+    unless Grip.config.error_handlers.has_key?(405)
+      error 405 do |env|
+        env.response.content_type = "application/json"
+        {"status": "error", "message": "method_not_allowed"}.to_json
       end
     end
   end
