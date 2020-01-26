@@ -3,6 +3,7 @@ module Grip
     include HTTP::Handler
 
     @@handler_path = String.new
+
     def initialize(handler_path)
       @@handler_path = handler_path
     end

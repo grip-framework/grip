@@ -7,6 +7,7 @@ module Grip
   # These methods are useful for the conditional execution of custom handlers .
   class HttpConsumer < BaseConsumer
     @@handler_methods : Array(String) = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+
     def initialize(handler_path)
       @@handler_path = handler_path
 
