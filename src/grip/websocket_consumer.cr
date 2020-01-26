@@ -150,11 +150,11 @@ module Grip
       @@handler_path = {{path}}
     end
 
-    def url(env)
+    macro url
       env.ws_route_lookup.params
     end
 
-    def headers(env : HTTP::Server::Context)
+    macro headers
       env.request.headers
     end
 

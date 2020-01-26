@@ -216,7 +216,7 @@ Grip allows you to use variables in your route path as placeholders for passing 
 ```ruby
 class Users < Grip::HttpConsumer
     def get(env)
-      id = url(env)["id"]
+      id = url["id"]
       {
         "status" => 200,
         "content" => id
@@ -224,7 +224,7 @@ class Users < Grip::HttpConsumer
     end
 
     def post(env)
-      id = url(env)["id"]
+      id = url["id"]
       {
         "status" => 200,
         "content" => id
@@ -246,8 +246,8 @@ To access query parameters, you use `query`.
 ```ruby
 class Resize < Grip::HttpConsumer
   def get(env)
-    width = query(env)["width"]
-    height = query(env)["height"]
+    width = query["width"]
+    height = query["height"]
 
     {
       "status" => HTTP::Status::OK,
@@ -275,8 +275,8 @@ You can easily access JSON payload from the parameters, or through the standard 
 ```ruby
 class SignIn < Grip::HttpConsumer
   def post(env)
-    username = json(env)["username"]
-    password = json(env)["password"]
+    username = json["username"]
+    password = json["password"]
         
     {
       "status" => HTTP::Status::OK,
@@ -365,7 +365,7 @@ Accessing headers of the initial HTTP request can be done via a `headers` method
 ```ruby
 class Echo < Grip::WebSocketConsumer
   def on_message(env, message)
-    puts headers(env) # This gets the http headers
+    puts headers # This gets the http headers
 
     if message == "close"
       close "Received a 'close' message, closing the connection!"
@@ -391,7 +391,7 @@ Dynamic URL parameters can be accessed via a `url` method:
 ```ruby
 class Echo < Grip::WebSocketConsumer
   def on_message(env, message)
-    puts url(env) # This gets the hash instance of the route url specified variables
+    puts url # This gets the hash instance of the route url specified variables
 
     if message == "close"
       close "Received a 'close' message, closing the connection!"

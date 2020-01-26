@@ -65,19 +65,19 @@ module Grip
       end
     end
 
-    def json(env : HTTP::Server::Context)
+    macro json
       env.params.json
     end
 
-    def query(env : HTTP::Server::Context)
+    macro query
       env.params.query
     end
 
-    def url(env : HTTP::Server::Context)
+    macro url
       env.params.url
     end
 
-    def headers(env : HTTP::Server::Context)
+    macro headers
       env.request.headers
     end
 

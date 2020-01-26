@@ -76,10 +76,10 @@ end
 
 class Indexed < Grip::HttpConsumer
   def get(env)
-    puts json(env) # Get the JSON parameters which are sent to the server
-    puts query(env) # Get the query parameters which are sent to the server
-    puts url(env) # Get the url specified parameters like the :id which are sent to the server
-    puts headers(env) # Get the headers which are sent to the server
+    puts json # Get the JSON parameters which are sent to the server
+    puts query # Get the query parameters which are sent to the server
+    puts url # Get the url specified parameters like the :id which are sent to the server
+    puts headers # Get the headers which are sent to the server
     
     # Set custom headers using this function
     headers(env, 
@@ -92,7 +92,7 @@ class Indexed < Grip::HttpConsumer
     {
       "status" => 200,
       "content" => {
-        url(env)
+        url
       }
     }
   end
@@ -100,8 +100,8 @@ end
 
 class Echo < Grip::WebSocketConsumer
   def on_message(env, message)
-    puts url(env) # This gets the hash instance of the route url specified variables
-    puts headers(env) # This gets the http headers
+    puts url # This gets the hash instance of the route url specified variables
+    puts headers # This gets the http headers
 
     if message == "close"
       close "Received a 'close' message, closing the connection!" # This closes the connection
