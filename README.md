@@ -29,7 +29,8 @@ class IndexHttpConsumer < Grip::HttpConsumer
   end
 
   def read(req)
-    # By default the response code is 200, this format of content conversion is okay since it gets converted to json by the router.
+    # By default the response code is 200, this format of content conversion is okay
+    # since it gets converted to json by the router.
     {
       "id": "#{UUID.random}"
     }
