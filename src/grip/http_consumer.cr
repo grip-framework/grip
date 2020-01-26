@@ -6,7 +6,7 @@ module Grip
   # It adds `route`, `route_match?`
   # These methods are useful for the conditional execution of custom handlers .
   class HttpConsumer < BaseConsumer
-    @@handler_methods : Array(String) = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    @@handler_methods : Array(String) = ["GET", "POST", "PUT", "DELETE"]
 
     def initialize(handler_path)
       @@handler_path = handler_path
@@ -17,68 +17,56 @@ module Grip
     end
 
     # Helper methods for control flow manipulation, etc.
-    def redirect(env, to)
-      env.redirect to
+    def redirect(req, to)
+      req.redirect to
     end
 
     # get post put patch delete options
-    def get(env : HTTP::Server::Context)
-      env.response.status_code = 404
+    def read(req : HTTP::Server::Context)
+      req.response.status_code = 405
     end
 
-    def post(env : HTTP::Server::Context)
-      env.response.status_code = 404
+    def create(req : HTTP::Server::Context)
+      req.response.status_code = 405
     end
 
-    def put(env : HTTP::Server::Context)
-      env.response.status_code = 404
+    def update(req : HTTP::Server::Context)
+      req.response.status_code = 405
     end
 
-    def patch(env : HTTP::Server::Context)
-      env.response.status_code = 404
+    def delete(req : HTTP::Server::Context)
+      req.response.status_code = 405
     end
 
-    def delete(env : HTTP::Server::Context)
-      env.response.status_code = 404
-    end
-
-    def options(env : HTTP::Server::Context)
-      env.response.status_code = 404
-    end
-
-    def call(env : HTTP::Server::Context)
-      case env.request.method
+    def call(req : HTTP::Server::Context)
+      case req.request.method
       when "GET"
-        get(env)
+        read(req)
       when "POST"
-        post(env)
+        create(req)
       when "PUT"
-        put(env)
-      when "PATCH"
-        patch(env)
+        update(req)
       when "DELETE"
-        delete(env)
-      when "OPTIONS"
-        options(env)
+        delete(req)
       else
-        call_next(env)
+        call_next(req)
       end
     end
 
     macro json
-      env.params.json
+      req.params.json
     end
 
     macro query
-      env.params.query
+      req.params.query
     end
 
     macro url
-      env.params.url
+      req.params.url
     end
 
     macro headers
-      env.request.headers
+      req.request.headers
     end
 
     def to_s(io)

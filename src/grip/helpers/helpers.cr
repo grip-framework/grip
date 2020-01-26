@@ -78,8 +78,8 @@ end
 #   headers(env, {"X-Custom-Header" => "This is a custom value"})
 # end
 # ```
-def headers(env : HTTP::Server::Context, additional_headers : Hash(String, String))
-  env.response.headers.merge!(additional_headers)
+macro headers(additional_headers)
+  req.response.headers.merge!({{additional_headers}})
 end
 
 # Configures an `HTTP::Server::Response` to compress the response

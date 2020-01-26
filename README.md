@@ -3,7 +3,7 @@
 
 # Grip
 
-Class oriented fork of the [Kemal](https://kemalcr.com) framework based on a JSON request/response model.
+Class oriented fork of the [Kemal](https://kemalcr.com) framework based on a JSON request/response model with a CRUDish look.
 
 Currently Grip is headed towards a JSON request/response type interface, which makes this framework non-HTML friendly, 
 it is still possible to render HTML but it is not advised to use Grip for that purpose.
@@ -18,88 +18,53 @@ So far at **158,762** requests/second, and still [going](https://github.com/the-
 require "grip"
 require "uuid" # Needed for the random UUID generation
 
-class Index < Grip::HttpConsumer
-  def get(env)
-    {
-      "status" => HTTP::Status::CONTINUE, # HTTP::Status is an enum which has all of the response codes.
-      "content" => {
-        "Bunch of content gathered up in one place"
+class IndexHttpConsumer < Grip::HttpConsumer
+  def create(req)
+    res(
+      HTTP::Status::OK, # The status code is a mix of a built-in and an integer.
+      {
+        "id": "#{UUID.random}"
       }
-    }
-  end
-
-  def post(env)
-    {
-      "status": 200, # Alternative to HTTP::Status you can use integers directly as response codes.
-      "content" => {
-        "Bunch of content gathered up in one place"
-      }
-    }
-  end
-
-  def put(env)
-    {
-      "status" => HTTP::Status::MULTIPLE_CHOICES,
-      "content" => {
-        "Bunch of content gathered up in one place"
-      }
-    }
-  end
-
-  def patch(env)
-    {
-      "status" => 400,
-      "content" => {
-        "Bunch of content gathered up in one place"
-      }
-    }
-  end
-
-  def delete(env)
-    {
-      "status" => HTTP::Status::INTERNAL_SERVER_ERROR,
-      "content" => {
-        "Bunch of content gathered up in one place"
-      }
-    }
-  end
-
-  def options(env)
-    {
-      "status" => 418,
-      "content" => {
-        "Bunch of content gathered up in one place"
-      }
-    }
-  end
-end
-
-class Indexed < Grip::HttpConsumer
-  def get(env)
-    puts json # Get the JSON parameters which are sent to the server
-    puts query # Get the query parameters which are sent to the server
-    puts url # Get the url specified parameters like the :id which are sent to the server
-    puts headers # Get the headers which are sent to the server
-    
-    # Set custom headers using this function
-    headers(env, 
-            {
-              "X-Custom-Header" => "This is a custom value",
-              "X-Custom-Header-Two" => "This is a custom value"
-            }
     )
+  end
 
+  def read(req)
+    # By default the response code is 200, this format of content conversion is okay since it gets converted to json by the router.
     {
-      "status" => 200,
-      "content" => {
-        url
-      }
+      "id": "#{UUID.random}"
     }
+  end
+
+  def update(req)
+    res(
+      HTTP::Status::OK,
+      {
+        "id": "#{UUID.random}"
+      }
+    )
+  end
+
+  def delete(req)
+    res(
+      HTTP::Status::OK,
+      {
+        "id": "#{UUID.random}"
+      }
+    )
   end
 end
 
-class Echo < Grip::WebSocketConsumer
-  def on_message(env, message)
+class IndexedHttpConsumer < Grip::HttpConsumer
+  def read(req)
+    res(
+      HTTP::Status::OK,
+      "Hello, World!"
+    )
+  end
+end
+
+class EchoWebSocketConsumer < Grip::WebSocketConsumer
+  def on_message(req, message)
     puts url # This gets the hash instance of the route url specified variables
     puts headers # This gets the http headers
 
@@ -110,29 +75,31 @@ class Echo < Grip::WebSocketConsumer
     send message
   end
 
-  def on_close(env, message)
+  def on_close(req, message)
     puts message
   end
 end
 
 # This gets executed before * (all) routes, the scope can be changed to a specific route
-before_all "*" do |env|
-  env.response.headers.merge!({"btag" => UUID.random.to_s})
+before_all "*" do |req|
+  req.response.headers.merge!({"btag" => UUID.random.to_s})
 end
 
 # This gets executed after * (all) routes, the scope can be changed to a specific route
-after_all "*" do |env|
-  env.response.headers.merge!({"atag" => UUID.random.to_s})
+after_all "*" do |req|
+  req.response.headers.merge!({"atag" => UUID.random.to_s})
 end
 
 # Add the handlers to the handler list
 
 add_handlers(
   {
-    Index => "/",
-    Indexed => "/:id",
+    # Http consumers
+    IndexHttpConsumer => "/",
+    IndexedHttpConsumer => "/:id",
 
-    Echo => "/:id"
+    # WebSocket consumers
+    EchoWebSocketConsumer => "/:id"
   }
 )
 

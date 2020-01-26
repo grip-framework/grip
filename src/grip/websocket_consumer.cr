@@ -18,19 +18,19 @@ module Grip
       Grip::WebSocketRouteHandler::INSTANCE.add_route(@@handler_path, self)
     end
 
-    def on_ping(env : HTTP::Server::Context, on_ping : String)
+    def on_ping(req : HTTP::Server::Context, on_ping : String)
     end
 
-    def on_pong(env : HTTP::Server::Context, on_pong : String)
+    def on_pong(req : HTTP::Server::Context, on_pong : String)
     end
 
-    def on_message(env : HTTP::Server::Context, on_message : String)
+    def on_message(req : HTTP::Server::Context, on_message : String)
     end
 
-    def on_binary(env : HTTP::Server::Context, on_binary : Bytes)
+    def on_binary(req : HTTP::Server::Context, on_binary : Bytes)
     end
 
-    def on_close(env : HTTP::Server::Context, on_close : String)
+    def on_close(req : HTTP::Server::Context, on_close : String)
     end
 
     protected def check_open
@@ -97,12 +97,12 @@ module Grip
       @ws.close(message)
     end
 
-    def run(env)
+    def run(req)
       loop do
         begin
           info = @ws.receive(@buffer)
         rescue IO::EOFError
-          on_close(env, "")
+          on_close(req, "")
           break
         end
 
@@ -111,33 +111,33 @@ module Grip
           @current_message.write @buffer[0, info.size]
           if info.final
             message = @current_message.to_s
-            on_ping(env, message)
+            on_ping(req, message)
             pong(message) unless closed?
             @current_message.clear
           end
         when HTTP::WebSocket::Protocol::Opcode::PONG
           @current_message.write @buffer[0, info.size]
           if info.final
-            on_pong(env, @current_message.to_s)
+            on_pong(req, @current_message.to_s)
             @current_message.clear
           end
         when HTTP::WebSocket::Protocol::Opcode::TEXT
           @current_message.write @buffer[0, info.size]
           if info.final
-            on_message(env, @current_message.to_s)
+            on_message(req, @current_message.to_s)
             @current_message.clear
           end
         when HTTP::WebSocket::Protocol::Opcode::BINARY
           @current_message.write @buffer[0, info.size]
           if info.final
-            on_binary(env, @current_message.to_slice)
+            on_binary(req, @current_message.to_slice)
             @current_message.clear
           end
         when HTTP::WebSocket::Protocol::Opcode::CLOSE
           @current_message.write @buffer[0, info.size]
           if info.final
             message = @current_message.to_s
-            on_close(env, message)
+            on_close(req, message)
             close(message) unless closed?
             @current_message.clear
             break
@@ -151,25 +151,25 @@ module Grip
     end
 
     macro url
-      env.ws_route_lookup.params
+      req.ws_route_lookup.params
     end
 
     macro headers
-      env.request.headers
+      req.request.headers
     end
 
-    def call(env)
-      if websocket_upgrade_request? env.request
-        response = env.response
+    def call(req)
+      if websocket_upgrade_request? req.request
+        response = req.response
 
-        version = env.request.headers["Sec-WebSocket-Version"]?
+        version = req.request.headers["Sec-WebSocket-Version"]?
         unless version == HTTP::WebSocket::Protocol::VERSION
           response.status = :upgrade_required
           response.headers["Sec-WebSocket-Version"] = HTTP::WebSocket::Protocol::VERSION
           return
         end
 
-        key = env.request.headers["Sec-WebSocket-Key"]?
+        key = req.request.headers["Sec-WebSocket-Key"]?
 
         unless key
           response.respond_with_status(:bad_request)
@@ -184,11 +184,11 @@ module Grip
         response.headers["Sec-WebSocket-Accept"] = accept_code
         response.upgrade do |io|
           @ws = HTTP::WebSocket::Protocol.new(io)
-          self.run(env)
+          self.run(req)
           io.close
         end
       else
-        call_next(env)
+        call_next(req)
       end
     end
 
