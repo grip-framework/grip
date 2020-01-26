@@ -10,7 +10,7 @@ it is still possible to render HTML but it is not advised to use Grip for that p
 
 So far at **158,762** requests/second, and still [going](https://github.com/the-benchmarker/web-frameworks).
 
-![Travis-CI](https://travis-ci.com/grkek/grip.svg?branch=master)
+[![Build Status](https://travis-ci.org/grkek/grip.svg?branch=master)](https://travis-ci.org/grkek/grip)
 
 # Super Simple ⚡️
 
