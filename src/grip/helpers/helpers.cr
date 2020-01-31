@@ -16,15 +16,6 @@ def add_handler(handler : HTTP::Handler, position : Int32)
   Grip.config.add_handler handler, position
 end
 
-macro add_handlers(handlers)
-  {{handlers}}.each do |handler|
-    instance = handler.first.new(handler.last)
-    if Grip.config.env == "development"
-      puts instance
-    end
-  end
-end
-
 # Logs the output via `logger`.
 # This is the built-in `Grip::LogHandler` by default which uses STDOUT.
 def log(message : String)
@@ -68,18 +59,6 @@ end
 def logger(logger : Grip::BaseLogHandler)
   Grip.config.logger = logger
   Grip.config.add_handler logger
-end
-
-# Helper for easily modifying response headers.
-# This can be used to modify a response header with the given hash.
-#
-# ```
-# def call(env)
-#   headers(env, {"X-Custom-Header" => "This is a custom value"})
-# end
-# ```
-macro headers(additional_headers)
-  req.response.headers.merge!({{additional_headers}})
 end
 
 # Configures an `HTTP::Server::Response` to compress the response

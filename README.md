@@ -19,26 +19,26 @@ require "grip"
 require "uuid" # Needed for the random UUID generation
 
 class IndexHttpConsumer < Grip::HttpConsumer
-  def create(req)
+  def get(req)
     res(
-      HTTP::Status::OK, # The status code is a mix of a built-in and an integer.
+      {
+        "id": "#{UUID.random}"
+      },
+      HTTP::Status::OK # The status code is a mix of a built-in and an integer,
+      # By default every res has a 200 OK status response.
+    )
+  end
+
+  def post(req)
+    res(
       {
         "id": "#{UUID.random}"
       }
     )
   end
 
-  def read(req)
-    # By default the response code is 200, this format of content conversion is okay
-    # since it gets converted to json by the router.
-    {
-      "id": "#{UUID.random}"
-    }
-  end
-
-  def update(req)
+  def put(req)
     res(
-      HTTP::Status::OK,
       {
         "id": "#{UUID.random}"
       }
@@ -47,7 +47,43 @@ class IndexHttpConsumer < Grip::HttpConsumer
 
   def delete(req)
     res(
-      HTTP::Status::OK,
+      {
+        "id": "#{UUID.random}"
+      }
+    )
+  end
+end
+
+
+class ExcludeHttpConsumer < Grip::HttpConsumer
+  def get(req)
+    res(
+      {
+        "id": "#{UUID.random}"
+      },
+      HTTP::Status::OK # The status code is a mix of a built-in and an integer,
+      # By default every res has a 200 OK status response.
+    )
+  end
+
+  def post(req)
+    res(
+      {
+        "id": "#{UUID.random}"
+      }
+    )
+  end
+
+  def put(req)
+    res(
+      {
+        "id": "#{UUID.random}"
+      }
+    )
+  end
+
+  def delete(req)
+    res(
       {
         "id": "#{UUID.random}"
       }
@@ -56,10 +92,29 @@ class IndexHttpConsumer < Grip::HttpConsumer
 end
 
 class IndexedHttpConsumer < Grip::HttpConsumer
-  def read(req)
+  def index(req)
+    puts url # This gets the hash instance of the route url specified variables
+    puts query # This gets the query parameters passed in with the url
+    puts json # This gets the JSON data which was passed into the route
+    puts headers # This gets the http headers
+
     res(
-      HTTP::Status::OK,
-      "Hello, World!"
+      {
+        "id": "#{UUID.random}"
+      }
+    )
+  end
+
+  def create(req)
+    puts url # This gets the hash instance of the route url specified variables
+    puts query # This gets the query parameters passed in with the url
+    puts json # This gets the JSON data which was passed into the route
+    puts headers # This gets the http headers
+
+    res(
+      {
+        "id": "#{UUID.random}"
+      }
     )
   end
 end
@@ -81,29 +136,14 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
   end
 end
 
-# This gets executed before * (all) routes, the scope can be changed to a specific route
-before_all "*" do |req|
-  req.response.headers.merge!({"btag" => UUID.random.to_s})
-end
+# Routing
+get "/:id", IndexedHttpConsumer, :index
+post "/:id", IndexedHttpConsumer, :create
 
-# This gets executed after * (all) routes, the scope can be changed to a specific route
-after_all "*" do |req|
-  req.response.headers.merge!({"atag" => UUID.random.to_s})
-end
+resource "/", IndexHttpConsumer, only: [:get, :post, :put, :delete]
+resource "/exclude", ExcludeHttpConsumer, exclude: [:get, :post]
 
-# Add the handlers to the handler list
-
-add_handlers(
-  {
-    # Http consumers
-    IndexHttpConsumer => "/",
-    IndexedHttpConsumer => "/:id",
-
-    # WebSocket consumers
-    EchoWebSocketConsumer => "/:id"
-  }
-)
-
+logging true
 # Run the server
 Grip.run
 ```

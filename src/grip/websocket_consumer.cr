@@ -10,12 +10,10 @@ module Grip
   class WebSocketConsumer < BaseConsumer
     getter? closed = false
 
-    def initialize(handler_path)
-      @@handler_path = handler_path
+    def initialize
       @ws = HTTP::WebSocket::Protocol.new(IO::Memory.new)
       @buffer = Bytes.new(4096)
       @current_message = IO::Memory.new
-      Grip::WebSocketRouteHandler::INSTANCE.add_route(@@handler_path, self)
     end
 
     def on_ping(req : HTTP::Server::Context, on_ping : String)
@@ -146,10 +144,6 @@ module Grip
       end
     end
 
-    macro route(path)
-      @@handler_path = {{path}}
-    end
-
     macro url
       req.ws_route_lookup.params
     end
@@ -197,10 +191,6 @@ module Grip
       return false unless upgrade.compare("websocket", case_insensitive: true) == 0
 
       request.headers.includes_word?("Connection", "Upgrade")
-    end
-
-    def to_s(io)
-      io << "[\u001b[32minfo\u001b[0m] #{typeof(self)} registered at '" << @@handler_path << "' and is reachable via a WebSocket connection."
     end
   end
 end

@@ -44,7 +44,6 @@ class IndexHttpConsumer < Grip::HttpConsumer
     def get(req)
       # HTTP::Status is an enum which has all of the response codes alternatively you can use an integer.
       res(
-        HTTP::Status::OK,
         {
           "id": "#{UUID.random}"
         }
@@ -52,11 +51,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
     end
 end
 
-add_handlers(
-  {
-    IndexHttpConsumer => "/"
-  }
-)
+resource "/", IndexHttpConsumer
 
 Grip.run
 ```
@@ -69,9 +64,33 @@ Starting your application is easy, simply run:
 $ crystal run src/your_app.cr
 ```
 
-If everything went well you should see a message that your route was registered.
+If everything went well you should see 0 errors.
 
 # Routing and Response
+
+## Routing
+You can route certain consumers to paths using several methods.
+
+Supported verbs are:
+- `resource` - Resource which defines all the verbs.
+- `get` - GET verb.
+- `post` - POST verb.
+- `put` - PUT verb.
+- `patch` - PATCH verb.
+- `delete` - DELETE verb.
+- `options` - OPTIONS verb.
+- `head` - HEAD verb.
+
+```ruby
+resource "/", IndexHttpConsumer #=> Routes requests to request methods.
+resource "/", IndexHttpConsumer, only: [:get, :post] #=> Routes requests 'GET' and 'POST' to methods `get` and `post`.
+resource "/", IndexHttpConsumer, exclude: [:get, :post] #=> Routes requests to request methods, except the `get` and the `post`.
+
+get "/", IndexHttpConsumer #=> Routes the GET request to the consumer `get` method.
+get "/", IndexHttpConsumer, :index #=> Routes GET request to the consumer `index` method.
+```
+
+
 
 ## Routes
 You can handle HTTP methods via pre-defining a set of available methods and then creating separate handlers for each. Each consumer is a separate resource located a single route, which uses radix trees for additional flexibility.
@@ -140,34 +159,19 @@ add_handler CustomHandler.new
 Vanilla middleware contains several helpful functions which differentiate the `BaseConsumer` class from the raw `HTTP::Handler` class.
 
 ```ruby
-class CustomBaseConsumer < Grip::BaseConsumer
-  def initialize(handler_path)
-    @@handler_path = handler_path
-    # You have to add the consumer somehow to the router, it is done by the initialize function,
-    # you can create your own custom router which can work fine but at this moment
-    # the default HttpRouteHandler and WebsocketRouteHandler are recommended.
-    @@handler_methods.each do |method|
-      Grip::HttpRouteHandler::INSTANCE.add_route(method.upcase, @@handler_path, self)
-    end
-  end
-
+class CustomBaseConsumer < Grip::HttpConsumer
   def call(req)
     # You can use the call_next and match? functions to control the flow of the middleware stack,
     # if it matches the route defined above it will execute the content below otherwise it calls the call_next function.
     return call_next(req) unless match?(req)
     res(
-      HTTP::Status::OK,
       "Some custom middleware processing was done here !"
     )
   end
 end
 
 # You can add the handler just by doing the same as you do to other consumer types.
-add_handlers(
-  {
-    CustomBaseConsumer => "/"
-  }
-)
+resource "/", CustomBaseConsumer
 ```
 
 ## Response Codes
@@ -177,14 +181,14 @@ The response codes are borrowed from HTTP::Status enum which contains all of the
 ```ruby
 # Enum based status code
 res(
-  HTTP::Status::OK,
-  "Wonderful JSON content."
+  "Wonderful JSON content.",
+  HTTP::Status::OK
 )
 
 # Integer based status code
 res(
-  200,
-  "Wonderful JSON content."
+  "Wonderful JSON content.",
+  200
 )
 ```
 
@@ -212,18 +216,16 @@ Grip allows you to use variables in your route path as placeholders for passing 
 
 ```ruby
 class UsersHttpConsumer < Grip::HttpConsumer
-    def read(req)
+    def get(req)
       res(
-        HTTP::Status::OK,
         {
           "id": url["id"]
         }
       )
     end
 
-    def create(req)
+    def post(req)
       res(
-        HTTP::Status::OK,
         {
           "id": url["id"]
         }
@@ -231,11 +233,7 @@ class UsersHttpConsumer < Grip::HttpConsumer
     end
 end
 
-add_handlers(
-  {
-    UsersHttpConsumer => "/users/:id"
-  }
-)
+resource "/:id", UserHttpConsumer, only: [:get, :post]
 ```
 
 ## Query Parameters
@@ -244,12 +242,11 @@ To access query parameters, you use `query`.
 
 ```ruby
 class ResizeHttpConsumer < Grip::HttpConsumer
-  def read(req)
+  def get(req)
     width = query["width"]
     height = query["height"]
 
     res(
-      HTTP::Status::OK,
       {
         "imageResolution": {
           "width": width,
@@ -260,11 +257,7 @@ class ResizeHttpConsumer < Grip::HttpConsumer
   end
 end
 
-add_handlers(
-  {
-    ResizeHttpConsumer => "/resize/"
-  }
-)
+get "/", ResizeHttpConsumer
 ```
 
 ## JSON Parameters
@@ -278,7 +271,6 @@ class SignInHttpConsumer < Grip::HttpConsumer
     password = json["password"]
         
     res(
-      HTTP::Status::OK,
       {
         "authorizationInformation": {
           "username": username,
@@ -289,11 +281,7 @@ class SignInHttpConsumer < Grip::HttpConsumer
   end
 end
 
-add_handlers(
-  {
-    SignInHttpConsumer => "/signin"
-  }
-)
+post "/", SignInHttpConsumer
 ```
 
 # HTTP Request / Response Context
@@ -338,7 +326,7 @@ Using WebSockets in Grip is pretty easy.
 
 An example echo server might look something like this:
 ```ruby
-class Echo < Grip::WebSocketConsumer
+class EchoWebSocketConsumer < Grip::WebSocketConsumer
   def on_message(req, message)
     if message == "close"
       close "Received a 'close' message, closing the connection!"
@@ -352,17 +340,13 @@ class Echo < Grip::WebSocketConsumer
   end
 end
 
-add_handlers(
-  {
-    Echo => "/"
-  }
-)
+ws "/", EchoWebSocketConsumer
 ```
 
 Accessing headers of the initial HTTP request can be done via a `headers` method:
 
 ```ruby
-class Echo < Grip::WebSocketConsumer
+class EchoWebSocketConsumer < Grip::WebSocketConsumer
   def on_message(req, message)
     puts headers # This gets the http headers
 
@@ -378,17 +362,13 @@ class Echo < Grip::WebSocketConsumer
   end
 end
 
-add_handlers(
-  {
-    Echo => "/"
-  }
-)
+ws "/", EchoWebSocketConsumer
 ```
 
 Dynamic URL parameters can be accessed via a `url` method:
 
 ```ruby
-class Echo < Grip::WebSocketConsumer
+class EchoWebSocketConsumer < Grip::WebSocketConsumer
   def on_message(req, message)
     puts url # This gets the hash instance of the route url specified variables
 
@@ -404,11 +384,7 @@ class Echo < Grip::WebSocketConsumer
   end
 end
 
-add_handlers(
-  {
-    Echo => "/:id"
-  }
-)
+ws "/:id", EchoWebSocketConsumer
 ```
 
 # SSL
@@ -432,16 +408,16 @@ You can use [heroku-buildpack-crystal](https://github.com/crystal-lang/heroku-bu
 
 You can cross-compile a Grip app by using this [guide](http://crystal-lang.org/docs/syntax_and_semantics/cross-compilation.html).
 
-# reqironment
+# environment
 
-Grip respects the `GRIP_req` reqironment variable and `Grip.config.req`. It is set to `development` by default.
+Grip respects the `GRIP_ENV` environment variable and `Grip.config.env`. It is set to `development` by default.
 
 To change this value to `production`, for example, use:
 ```bash
-$ export KEMAL_req=production
+$ export GRIP_ENV=production
 ```
 If you prefer to do this from within your application, use:
 
 ```ruby
-Grip.config.req = "production"
+Grip.config.env = "production"
 ```

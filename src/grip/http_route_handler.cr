@@ -18,10 +18,12 @@ module Grip
       process_request(context)
     end
 
-    # Adds a given route to routing tree. As an exception each `GET` route additionaly defines
-    # a corresponding `HEAD` route.
-    def add_route(method : String, path : String, handler : Grip::BaseConsumer)
+    def add_route(method : String, path : String, handler : Grip::HttpConsumer)
       add_to_radix_tree(method, path, HttpRoute.new(method, path, handler))
+    end
+
+    def add_route(method : String, path : String, handler : Grip::HttpConsumer, override : Proc(HTTP::Server::Context, String) | Nil)
+      add_to_radix_tree(method, path, HttpRoute.new(method, path, handler, override))
     end
 
     # Looks up the route from the Radix::Tree for the first time and caches to improve performance.
@@ -46,15 +48,18 @@ module Grip
     private def process_request(context)
       raise Grip::Exceptions::RouteNotFound.new(context) unless context.route_found?
       return if context.response.closed?
-      response = context.route.handler.call(context)
+
+      if context.route.override.is_a?(Proc(HTTP::Server::Context, String))
+        response = context.route.override.as(Proc(HTTP::Server::Context, String)).call(context)
+      else
+        response = context.route.handler.call(context)
+      end
+
       if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(context.response.status_code)
         raise Grip::Exceptions::CustomException.new(context)
       end
-      if !response.is_a?(HTTP::Server::Context | Nil)
-        context.response.print(response.to_json)
-      else
-        context.response.print(response)
-      end
+
+      context.response.print(response)
       context
     end
 
