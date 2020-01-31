@@ -1,4 +1,3 @@
-
 HTTP_METHODS = %i(get post put patch delete options head)
 
 macro res(content, status_code = HTTP::Status::OK)

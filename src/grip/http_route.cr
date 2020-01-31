@@ -1,4 +1,5 @@
 require "json"
+
 module Grip
   # Route is the main building block of Kemal.
   #
