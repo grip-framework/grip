@@ -143,6 +143,8 @@ post "/:id", IndexedHttpConsumer, :create
 resource "/", IndexHttpConsumer, only: [:get, :post, :put, :delete]
 resource "/exclude", ExcludeHttpConsumer, exclude: [:get, :post]
 
+ws "/:id", EchoWebSocketConsumer
+
 logging true
 # Run the server
 Grip.run
