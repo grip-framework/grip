@@ -8,7 +8,7 @@ Class oriented fork of the [Kemal](https://kemalcr.com) framework based on a JSO
 Currently Grip is headed towards a JSON request/response type interface, which makes this framework non-HTML friendly, 
 it is still possible to render HTML but it is not advised to use Grip for that purpose.
 
-So far at **158,762** requests/second, and still [going](https://github.com/the-benchmarker/web-frameworks).
+So far at **285,013** requests/second, and still [going](https://github.com/the-benchmarker/web-frameworks).
 
 [![Build Status](https://travis-ci.org/grkek/grip.svg?branch=master)](https://travis-ci.org/grkek/grip)
 
