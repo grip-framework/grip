@@ -16,104 +16,28 @@ So far at **158,762** requests/second, and still [going](https://github.com/the-
 
 ```ruby
 require "grip"
-require "uuid" # Needed for the random UUID generation
 
 class IndexHttpConsumer < Grip::HttpConsumer
   def get(req)
+    # The status code is a mix of a built-in and an integer,
+    # By default every res has a 200 OK status response.
     res(
       {
-        "id": "#{UUID.random}"
+        "id": 1
       },
-      HTTP::Status::OK # The status code is a mix of a built-in and an integer,
-      # By default every res has a 200 OK status response.
+      HTTP::Status::OK
     )
   end
 
   def post(req)
-    res(
-      {
-        "id": "#{UUID.random}"
-      }
-    )
-  end
-
-  def put(req)
-    res(
-      {
-        "id": "#{UUID.random}"
-      }
-    )
-  end
-
-  def delete(req)
-    res(
-      {
-        "id": "#{UUID.random}"
-      }
-    )
-  end
-end
-
-
-class ExcludeHttpConsumer < Grip::HttpConsumer
-  def get(req)
-    res(
-      {
-        "id": "#{UUID.random}"
-      },
-      HTTP::Status::OK # The status code is a mix of a built-in and an integer,
-      # By default every res has a 200 OK status response.
-    )
-  end
-
-  def post(req)
-    res(
-      {
-        "id": "#{UUID.random}"
-      }
-    )
-  end
-
-  def put(req)
-    res(
-      {
-        "id": "#{UUID.random}"
-      }
-    )
-  end
-
-  def delete(req)
-    res(
-      {
-        "id": "#{UUID.random}"
-      }
-    )
-  end
-end
-
-class IndexedHttpConsumer < Grip::HttpConsumer
-  def index(req)
     puts url # This gets the hash instance of the route url specified variables
     puts query # This gets the query parameters passed in with the url
     puts json # This gets the JSON data which was passed into the route
     puts headers # This gets the http headers
-
+    
     res(
       {
-        "id": "#{UUID.random}"
-      }
-    )
-  end
-
-  def create(req)
-    puts url # This gets the hash instance of the route url specified variables
-    puts query # This gets the query parameters passed in with the url
-    puts json # This gets the JSON data which was passed into the route
-    puts headers # This gets the http headers
-
-    res(
-      {
-        "id": "#{UUID.random}"
+        "id": url["id"]
       }
     )
   end
@@ -137,12 +61,8 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
 end
 
 # Routing
-get "/:id", IndexedHttpConsumer, :index
-post "/:id", IndexedHttpConsumer, :create
-
-resource "/", IndexHttpConsumer, only: [:get, :post, :put, :delete]
-resource "/exclude", ExcludeHttpConsumer, exclude: [:get, :post]
-
+get "/", IndexHttpConsumer
+post "/:id", IndexHttpConsumer
 ws "/:id", EchoWebSocketConsumer
 
 logging true
