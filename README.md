@@ -22,9 +22,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
     # The status code is a mix of a built-in and an integer,
     # By default every res has a 200 OK status response.
     res(
-      {
-        "id": 1
-      },
+      {"id": 1},
       HTTP::Status::OK
     )
   end
@@ -36,27 +34,15 @@ class IndexHttpConsumer < Grip::HttpConsumer
     puts headers # This gets the http headers
     
     res(
-      {
-        "id": url["id"]
-      }
+      {"id": url["id"]},
+      HTTP::Status::CREATED
     )
   end
 end
 
 class EchoWebSocketConsumer < Grip::WebSocketConsumer
   def on_message(req, message)
-    puts url # This gets the hash instance of the route url specified variables
-    puts headers # This gets the http headers
-
-    if message == "close"
-      close "Received a 'close' message, closing the connection!" # This closes the connection
-    end
-
     send message
-  end
-
-  def on_close(req, message)
-    puts message
   end
 end
 
