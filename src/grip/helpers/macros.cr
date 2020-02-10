@@ -8,19 +8,19 @@ module Grip::Helpers::Macros
 
   macro html(content, status_code = HTTP::Status::OK)
     req.response.status_code = {{status_code}}.to_i
-    req.response.headers.merge!({"Contet-Type" => "text/html"})
+    req.response.headers.merge!({"Content-Type" => "text/html"})
     {{content}}
   end
 
   macro text(content, status_code = HTTP::Status::OK)
     req.response.status_code = {{status_code}}.to_i
-    req.response.headers.merge!({"Contet-Type" => "text/plain"})
+    req.response.headers.merge!({"Content-Type" => "text/plain"})
     {{content}}
   end
 
   macro stream(content, status_code = HTTP::Status::OK)
     req.response.status_code = {{status_code}}.to_i
-    req.response.headers.merge!({"Contet-Type" => "application/octetstream"})
+    req.response.headers.merge!({"Content-Type" => "application/octetstream"})
     {{content}}
   end
 
