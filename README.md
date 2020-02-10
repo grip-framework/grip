@@ -3,7 +3,7 @@
 
 # Grip
 
-Class oriented fork of the [Kemal](https://kemalcr.com) framework based on a JSON request/response model with a CRUDish look.
+Class oriented fork of the [Kemal](https://kemalcr.com) framework based on a JSON request/response model.
 
 Currently Grip is headed towards a JSON request/response type interface, which makes this framework non-HTML friendly, 
 it is still possible to render HTML but it is not advised to use Grip for that purpose.
