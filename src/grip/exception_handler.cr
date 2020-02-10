@@ -2,6 +2,8 @@ module Grip
   # Handles all the exceptions, including 404, custom errors and 500.
   class ExceptionHandler
     include HTTP::Handler
+    include Grip::Helpers::Methods
+
     INSTANCE = new
 
     def call(context : HTTP::Server::Context)

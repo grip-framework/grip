@@ -4,6 +4,8 @@ module Grip
   # It adds `route`, `route_match?`
   # These methods are useful for the conditional execution of custom handlers .
   class HttpConsumer < BaseConsumer
+    include Grip::Helpers::Macros
+
     # Helper methods for control flow manipulation, etc.
     def redirect(req, to)
       req.redirect to

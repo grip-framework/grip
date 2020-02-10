@@ -21,10 +21,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
   def get(req)
     # The status code is a mix of a built-in and an integer,
     # By default every res has a 200 OK status response.
-    res(
-      {"id": 1},
-      HTTP::Status::OK
-    )
+    json({"id" => 1})
   end
 
   def post(req)
@@ -33,10 +30,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
     puts json # This gets the JSON data which was passed into the route
     puts headers # This gets the http headers
     
-    res(
-      {"id": url["id"]},
-      HTTP::Status::CREATED
-    )
+    json({"id" => url["id"]})
   end
 end
 
@@ -47,13 +41,17 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
 end
 
 # Routing
-get "/", IndexHttpConsumer
-post "/:id", IndexHttpConsumer
-ws "/:id", EchoWebSocketConsumer
+class IdApi < Grip::Application
+  scope do
+    get "/", IndexHttpConsumer
+    post "/:id", IndexHttpConsumer
+    ws "/:id", EchoWebSocketConsumer
+  end
+end
 
-logging true
 # Run the server
-Grip.run
+id_api = IdApi.new
+id_api.run
 ```
 
 The default port of the application is `3000`, 
@@ -61,12 +59,6 @@ you can set it by either compiling it and providing a `-p` flag or
 by changing it from the source code.
 
 Start your application!
-
-If you want logging to show up in the stdout put this line right above the `Grip.run` in your source code.
-
-```ruby
-logging true # Keep in mind that logging slows down the server since it is an IO bound operation
-```
 
 # Installation
 

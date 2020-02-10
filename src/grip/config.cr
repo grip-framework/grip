@@ -29,7 +29,7 @@ module Grip
       @host_binding = "0.0.0.0"
       @port = 3000
       @env = ENV["GRIP_ENV"]? || "development"
-      @logging = false
+      @logging = true
       @logger = nil
       @error_handler = nil
       @always_rescue = true
