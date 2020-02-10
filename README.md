@@ -21,7 +21,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
   def get(req)
     # The status code is a mix of a built-in and an integer,
     # By default every res has a 200 OK status response.
-    json({"id" => 1})
+    json({"id" => 1}, 200)
   end
 
   def post(req)
@@ -30,7 +30,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
     puts json # This gets the JSON data which was passed into the route
     puts headers # This gets the http headers
     
-    json({"id" => url["id"]})
+    json({"id" => url["id"]}, HTTP::Status::OK)
   end
 end
 
