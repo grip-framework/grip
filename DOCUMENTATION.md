@@ -43,7 +43,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
     # and the content value is precieved as the response content.
     def get(req)
       # HTTP::Status is an enum which has all of the response codes alternatively you can use an integer.
-      res(
+      json(
         {
           "id": "#{UUID.random}"
         }
@@ -51,9 +51,14 @@ class IndexHttpConsumer < Grip::HttpConsumer
     end
 end
 
-resource "/", IndexHttpConsumer
+class IdApi < Grip::Application
+  scope do
+    resource "/", IndexHttpConsumer
+  end
+end
 
-Grip.run
+id_api = IdApi.new
+id_api.run
 ```
 
 ## Running Grip
@@ -150,7 +155,14 @@ class CustomHandler
 end
 
 # You can add the middleware to the handler stack by using
-add_handler CustomHandler.new
+class IdApi < Grip::Application
+  scope do
+    add_handler CustomHandler.new
+  end
+end
+
+id_api = IdApi.new
+id_api.run
 ```
 
 
@@ -164,14 +176,21 @@ class CustomBaseConsumer < Grip::HttpConsumer
     # You can use the call_next and match? functions to control the flow of the middleware stack,
     # if it matches the route defined above it will execute the content below otherwise it calls the call_next function.
     return call_next(req) unless match?(req)
-    res(
+    html(
       "Some custom middleware processing was done here !"
     )
   end
 end
 
 # You can add the handler just by doing the same as you do to other consumer types.
-resource "/", CustomBaseConsumer
+class IdApi < Grip::Application
+  scope do
+    resource "/", CustomBaseConsumer
+  end
+end
+
+id_api = IdApi.new
+id_api.run
 ```
 
 ## Response Codes
@@ -180,15 +199,20 @@ The response codes are borrowed from HTTP::Status enum which contains all of the
 
 ```ruby
 # Enum based status code
-res(
+json(
   "Wonderful JSON content.",
   HTTP::Status::OK
 )
 
 # Integer based status code
-res(
+html(
   "Wonderful JSON content.",
   200
+)
+
+# Default is 200 OK
+text(
+  "Wonderful JSON content."
 )
 ```
 
@@ -197,13 +221,20 @@ res(
 Grip comes with a pre-defined error handlers for the JSON response type. You can customize the built-in error pages or even add your own with `error`.
 
 ```ruby
-error 404 do
-  "This is a customized 404 page."
+class IdApi < Grip::Application
+  scope do
+    error 404 do
+      "This is a customized 404 page."
+    end
+
+    error 403 do
+      "Access Forbidden!"
+    end
+  end
 end
 
-error 403 do
-  "Access Forbidden!"
-end
+id_api = IdApi.new
+id_api.run
 ```
 
 # HTTP Parameters
@@ -217,7 +248,7 @@ Grip allows you to use variables in your route path as placeholders for passing 
 ```ruby
 class UsersHttpConsumer < Grip::HttpConsumer
     def get(req)
-      res(
+      json(
         {
           "id": url["id"]
         }
@@ -225,7 +256,7 @@ class UsersHttpConsumer < Grip::HttpConsumer
     end
 
     def post(req)
-      res(
+      json(
         {
           "id": url["id"]
         }
@@ -233,7 +264,14 @@ class UsersHttpConsumer < Grip::HttpConsumer
     end
 end
 
-resource "/:id", UserHttpConsumer, only: [:get, :post]
+class IdApi < Grip::Application
+  scope do
+    resource "/:id", UserHttpConsumer, only: [:get, :post]
+  end
+end
+
+id_api = IdApi.new
+id_api.run
 ```
 
 ## Query Parameters
@@ -246,7 +284,7 @@ class ResizeHttpConsumer < Grip::HttpConsumer
     width = query["width"]
     height = query["height"]
 
-    res(
+    json(
       {
         "imageResolution": {
           "width": width,
@@ -257,7 +295,14 @@ class ResizeHttpConsumer < Grip::HttpConsumer
   end
 end
 
-get "/", ResizeHttpConsumer
+class IdApi < Grip::Application
+  scope do
+    get "/", ResizeHttpConsumer
+  end
+end
+
+id_api = IdApi.new
+id_api.run
 ```
 
 ## JSON Parameters
@@ -270,7 +315,7 @@ class SignInHttpConsumer < Grip::HttpConsumer
     username = json["username"]
     password = json["password"]
         
-    res(
+    json(
       {
         "authorizationInformation": {
           "username": username,
@@ -281,7 +326,14 @@ class SignInHttpConsumer < Grip::HttpConsumer
   end
 end
 
-post "/", SignInHttpConsumer
+class IdApi < Grip::Application
+  scope do
+    post "/", SignInHttpConsumer
+  end
+end
+
+id_api = IdApi.new
+id_api.run
 ```
 
 # HTTP Request / Response Context
@@ -340,7 +392,14 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
   end
 end
 
-ws "/", EchoWebSocketConsumer
+class IdApi < Grip::Application
+  scope do
+    ws "/", EchoWebSocketConsumer
+  end
+end
+
+id_api = IdApi.new
+id_api.run
 ```
 
 Accessing headers of the initial HTTP request can be done via a `headers` method:
@@ -362,7 +421,14 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
   end
 end
 
-ws "/", EchoWebSocketConsumer
+class IdApi < Grip::Application
+  scope do
+    ws "/", EchoWebSocketConsumer
+  end
+end
+
+id_api = IdApi.new
+id_api.run
 ```
 
 Dynamic URL parameters can be accessed via a `url` method:
@@ -384,7 +450,14 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
   end
 end
 
-ws "/:id", EchoWebSocketConsumer
+class IdApi < Grip::Application
+  scope do
+    ws "/", EchoWebSocketConsumer
+  end
+end
+
+id_api = IdApi.new
+id_api.run
 ```
 
 # SSL
