@@ -314,7 +314,7 @@ class SignInHttpConsumer < Grip::HttpConsumer
   def create(req)
     username = json["username"]
     password = json["password"]
-        
+
     json(
       {
         "authorizationInformation": {
@@ -469,6 +469,75 @@ To start your Grip with SSL support.
 ```bash
 crystal build --release src/your_app.cr
 ./your_app --ssl --ssl-key-file your_key_file --ssl-cert-file your_cert_file
+```
+
+# Testing
+
+[spec-kemal](https://github.com/kemalcr/spec-kemal) has been forked to make testing easy.
+
+Add [*spec-grip*](https://github.com/Whaxion/spec-grip) to your `shard.yml` file as a dependencie.
+
+```yaml
+dependencies:
+    grip:
+        github: grkek/grip
+    spec-grip:
+        github: Whaxion/spec-grip
+```
+
+Then run `shards` to get the dependencies:
+
+```bash
+$ shards install
+```
+
+Now you should require it before your files in your `spec/spec_helper.cr`
+
+```crystal
+require "spec-grip"
+require "../src/your-grip-app"
+```
+
+Your Grip application
+
+```crystal
+# src/your-grip-app.cr
+
+require "grip"
+
+class HelloWorldHttpConsumer < Grip::HttpConsumer
+  def get(req)
+    "Hello world"
+  end
+end
+
+class HelloWorld < Grip::Application
+  scope do
+    get "/", HelloWorldHttpConsumer
+  end
+end
+
+HelloWorld.new.run
+```
+
+Now you can easily test your `Grip` application in your `spec`s.
+
+```
+GRIP_ENV=test crystal spec
+```
+
+```crystal
+# spec/your-grip-app-spec.cr
+
+describe "Your::Grip::App" do
+
+  # You can use get,post,put,patch,delete to call the corresponding route.
+  it "renders /" do
+    get "/"
+    response.body.should eq "Hello World!"
+  end
+
+end
 ```
 
 # Deployment
