@@ -5,7 +5,7 @@ module Grip
 
     # Overload of `run` with the default startup logging.
     def run(port : Int32?, log_service_port : Int32?, args = ARGV)
-      run(port, args) { }
+      run(port, log_service_port, args) { }
     end
 
     # Overload of `run` without port.
