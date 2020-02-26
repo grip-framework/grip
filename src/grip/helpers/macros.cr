@@ -1,26 +1,26 @@
 module Grip::Helpers::Macros
   HTTP_METHODS = %i(get post put patch delete options head)
 
-  macro json(content, status_code = HTTP::Status::OK)
-    req.response.status_code = {{status_code}}.to_i
+  macro json(context, content, status_code = HTTP::Status::OK)
+    {{context}}.response.status_code = {{status_code}}.to_i
     {{content}}.to_json
   end
 
-  macro html(content, status_code = HTTP::Status::OK)
-    req.response.status_code = {{status_code}}.to_i
-    req.response.headers.merge!({"Content-Type" => "text/html"})
+  macro html(context, content, status_code = HTTP::Status::OK)
+    {{context}}.response.status_code = {{status_code}}.to_i
+    {{context}}.response.headers.merge!({"Content-Type" => "text/html"})
     {{content}}
   end
 
-  macro text(content, status_code = HTTP::Status::OK)
-    req.response.status_code = {{status_code}}.to_i
-    req.response.headers.merge!({"Content-Type" => "text/plain"})
+  macro text(context, content, status_code = HTTP::Status::OK)
+    {{context}}.response.status_code = {{status_code}}.to_i
+    {{context}}.response.headers.merge!({"Content-Type" => "text/plain"})
     {{content}}
   end
 
-  macro stream(content, status_code = HTTP::Status::OK)
-    req.response.status_code = {{status_code}}.to_i
-    req.response.headers.merge!({"Content-Type" => "application/octetstream"})
+  macro stream(context, content, status_code = HTTP::Status::OK)
+    {{context}}.response.status_code = {{status_code}}.to_i
+    {{context}}.response.headers.merge!({"Content-Type" => "application/octetstream"})
     {{content}}
   end
 
@@ -58,11 +58,11 @@ module Grip::Helpers::Macros
     Grip::WebSocketRouteHandler::INSTANCE.add_route({{ route }}, {{ resource }}.new)
   end
 
-  macro headers(additional_headers)
-    req.response.headers.merge!({{additional_headers}})
+  macro headers(context, additional_headers)
+    {{context}}.response.headers.merge!({{additional_headers}})
   end
 
-  macro headers(header, value)
-    req.response.headers[{{header}}] = {{value}}
+  macro headers(context, header, value)
+    {{context}}.response.headers[{{header}}] = {{value}}
   end
 end

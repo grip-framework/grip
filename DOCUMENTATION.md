@@ -41,9 +41,10 @@ class IndexHttpConsumer < Grip::HttpConsumer
     # The status and content of a response are mandatory, without it the router wont function.
     # The status value is precieved as the response code,
     # and the content value is precieved as the response content.
-    def get(req)
+    def get(context)
       # HTTP::Status is an enum which has all of the response codes alternatively you can use an integer.
       json(
+        context,
         {
           "id": "#{UUID.random}"
         }
@@ -52,7 +53,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
 end
 
 class IdApi < Grip::Application
-  scope do
+  def initialize
     resource "/", IndexHttpConsumer
   end
 end
@@ -102,19 +103,19 @@ You can handle HTTP methods via pre-defining a set of available methods and then
 
 ```ruby
 class IndexHttpConsumer < Grip::HttpConsumer
-    def create(req)
+    def create(context)
     .. create something ..
     end
 
-    def read(req)
+    def read(context)
     .. show something ..
     end
 
-    def update(req)
+    def update(context)
     .. update something ..
     end
 
-    def delete(req)
+    def delete(context)
     .. delete something ..
     end
 end
@@ -129,17 +130,17 @@ Important note: This should not be used by plugins/addons, instead they should d
 Before you define a `before_all` and `after_all` filter, you must have at least one `HttpConsumer`.
 
 ```ruby
-before_all "*" do |req|
+before_all "*" do |context|
   puts "Before all was triggered."
 end
 
-after_all "*" do |req|
+after_all "*" do |context|
   puts "After all was triggered."
 end
 ```
 
 ## Middleware
-In Grip middlewares are mentioned as handlers or consumers, when creating a handler or a consumer you inherit from HTTP::Handler or Grip::BaseConsumer.
+In Grip middlewares are mentioned as handlers or consumers, when creating a handler or a consumer you inherit from HTTP::Handler or Grip::HttpConsumer.
 
 ### Raw middleware
 
@@ -156,7 +157,7 @@ end
 
 # You can add the middleware to the handler stack by using
 class IdApi < Grip::Application
-  scope do
+  def initialize
     add_handler CustomHandler.new
   end
 end
@@ -171,12 +172,13 @@ id_api.run
 Vanilla middleware contains several helpful functions which differentiate the `BaseConsumer` class from the raw `HTTP::Handler` class.
 
 ```ruby
-class CustomBaseConsumer < Grip::HttpConsumer
-  def call(req)
+class CustomConsumer < Grip::HttpConsumer
+  def call(context)
     # You can use the call_next and match? functions to control the flow of the middleware stack,
     # if it matches the route defined above it will execute the content below otherwise it calls the call_next function.
-    return call_next(req) unless match?(req)
+    return call_next(context) unless match?(context)
     html(
+      context,
       "Some custom middleware processing was done here !"
     )
   end
@@ -184,7 +186,7 @@ end
 
 # You can add the handler just by doing the same as you do to other consumer types.
 class IdApi < Grip::Application
-  scope do
+  def initialize
     resource "/", CustomBaseConsumer
   end
 end
@@ -200,18 +202,21 @@ The response codes are borrowed from HTTP::Status enum which contains all of the
 ```ruby
 # Enum based status code
 json(
+  context,
   "Wonderful JSON content.",
   HTTP::Status::OK
 )
 
 # Integer based status code
 html(
+  context,
   "Wonderful JSON content.",
   200
 )
 
 # Default is 200 OK
 text(
+  context,
   "Wonderful JSON content."
 )
 ```
@@ -222,7 +227,7 @@ Grip comes with a pre-defined error handlers for the JSON response type. You can
 
 ```ruby
 class IdApi < Grip::Application
-  scope do
+  def initialize
     error 404 do
       "This is a customized 404 page."
     end
@@ -247,25 +252,29 @@ Grip allows you to use variables in your route path as placeholders for passing 
 
 ```ruby
 class UsersHttpConsumer < Grip::HttpConsumer
-    def get(req)
+    def get(context)
+      params = url(context)
       json(
+        context,
         {
-          "id": url["id"]
+          "id": params["id"]
         }
       )
     end
 
-    def post(req)
+    def post(context)
+      params = url(context)
       json(
+        context,
         {
-          "id": url["id"]
+          "id": params["id"]
         }
       )
     end
 end
 
 class IdApi < Grip::Application
-  scope do
+  def initialize
     resource "/:id", UserHttpConsumer, only: [:get, :post]
   end
 end
@@ -280,11 +289,13 @@ To access query parameters, you use `query`.
 
 ```ruby
 class ResizeHttpConsumer < Grip::HttpConsumer
-  def get(req)
-    width = query["width"]
-    height = query["height"]
+  def get(context)
+    params = query(context)
+    width = params["width"]
+    height = params["height"]
 
     json(
+      context,
       {
         "imageResolution": {
           "width": width,
@@ -296,7 +307,7 @@ class ResizeHttpConsumer < Grip::HttpConsumer
 end
 
 class IdApi < Grip::Application
-  scope do
+  def initialize
     get "/", ResizeHttpConsumer
   end
 end
@@ -311,11 +322,13 @@ You can easily access JSON payload from the parameters, or through the standard 
 
 ```ruby
 class SignInHttpConsumer < Grip::HttpConsumer
-  def create(req)
-    username = json["username"]
-    password = json["password"]
+  def create(context)
+    params = json(context)
+    username = params["username"]
+    password = params["password"]
 
     json(
+      context,
       {
         "authorizationInformation": {
           "username": username,
@@ -327,7 +340,7 @@ class SignInHttpConsumer < Grip::HttpConsumer
 end
 
 class IdApi < Grip::Application
-  scope do
+  def initialize
     post "/", SignInHttpConsumer
   end
 end
@@ -338,13 +351,13 @@ id_api.run
 
 # HTTP Request / Response Context
 
-The `req` parameter is of `HTTP::Server::Context` type and contains the request and response of the route.
+The `context` parameter is of `HTTP::Server::Context` type and contains the request and response of the route.
 
 You can easily change the properties of a response, dig in the [Crystal Documentation](https://crystal-lang.org/api/0.20.1/HTTP/Server/Context.html) to find out more.
 
 Request Properties
 
-Some common request information is available at req.request.*:
+Some common request information is available at context.request.*:
 
   - method - the HTTP method
         e.g. GET, POST, …
@@ -357,7 +370,7 @@ Some common request information is available at req.request.*:
   - resource - the uri path and query parameters
         e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context?lang=cr
   - cookies
-        e.g. req.request.cookies["cookie_name"].value
+        e.g. context.request.cookies["cookie_name"].value
 
 
 # Helper Functions
@@ -379,7 +392,7 @@ Using WebSockets in Grip is pretty easy.
 An example echo server might look something like this:
 ```ruby
 class EchoWebSocketConsumer < Grip::WebSocketConsumer
-  def on_message(req, message)
+  def on_message(context, message)
     if message == "close"
       close "Received a 'close' message, closing the connection!"
     end
@@ -387,13 +400,13 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
     send message
   end
 
-  def on_close(req, message)
+  def on_close(context, message)
     puts message
   end
 end
 
 class IdApi < Grip::Application
-  scope do
+  def initialize
     ws "/", EchoWebSocketConsumer
   end
 end
@@ -406,8 +419,8 @@ Accessing headers of the initial HTTP request can be done via a `headers` method
 
 ```ruby
 class EchoWebSocketConsumer < Grip::WebSocketConsumer
-  def on_message(req, message)
-    puts headers # This gets the http headers
+  def on_message(context, message)
+    puts headers(context) # This gets the http headers
 
     if message == "close"
       close "Received a 'close' message, closing the connection!"
@@ -416,13 +429,13 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
     send message
   end
 
-  def on_close(req, message)
+  def on_close(context, message)
     puts message
   end
 end
 
 class IdApi < Grip::Application
-  scope do
+  def initialize
     ws "/", EchoWebSocketConsumer
   end
 end
@@ -435,8 +448,8 @@ Dynamic URL parameters can be accessed via a `url` method:
 
 ```ruby
 class EchoWebSocketConsumer < Grip::WebSocketConsumer
-  def on_message(req, message)
-    puts url # This gets the hash instance of the route url specified variables
+  def on_message(context, message)
+    puts ws_url(context) # This gets the hash instance of the route url specified variables
 
     if message == "close"
       close "Received a 'close' message, closing the connection!"
@@ -445,13 +458,13 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
     send message
   end
 
-  def on_close(req, message)
+  def on_close(context, message)
     puts message
   end
 end
 
 class IdApi < Grip::Application
-  scope do
+  def initialize
     ws "/", EchoWebSocketConsumer
   end
 end
@@ -506,13 +519,13 @@ Your Grip application
 require "grip"
 
 class HelloWorldHttpConsumer < Grip::HttpConsumer
-  def get(req)
+  def get(context)
     "Hello world"
   end
 end
 
 class HelloWorld < Grip::Application
-  scope do
+  def initialize
     get "/", HelloWorldHttpConsumer
   end
 end

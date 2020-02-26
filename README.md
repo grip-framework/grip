@@ -18,31 +18,45 @@ So far at **285,013** requests/second, and still [going](https://github.com/the-
 require "grip"
 
 class IndexHttpConsumer < Grip::HttpConsumer
-  def get(req)
+  def get(context)
     # The status code is a mix of a built-in and an integer,
     # By default every res has a 200 OK status response.
-    json({"id" => 1}, 200)
+    json(
+      context,
+      {
+        "id" => 1
+      },
+      200
+    )
   end
 
-  def post(req)
-    puts url # This gets the hash instance of the route url specified variables
-    puts query # This gets the query parameters passed in with the url
-    puts json # This gets the JSON data which was passed into the route
-    puts headers # This gets the http headers
+  def post(context)
+    puts url(context) # This gets the hash instance of the route url specified variables
+    puts query(context) # This gets the query parameters passed in with the url
+    puts json(context) # This gets the JSON data which was passed into the route
+    puts headers(context) # This gets the http headers
     
-    json({"id" => url["id"]}, HTTP::Status::OK)
+    params = url(context)
+
+    json(
+      context,
+      {
+        "id" => params["id"]
+      },
+      HTTP::Status::OK
+    )
   end
 end
 
 class EchoWebSocketConsumer < Grip::WebSocketConsumer
-  def on_message(req, message)
+  def on_message(context, message)
     send message
   end
 end
 
 # Routing
 class IdApi < Grip::Application
-  scope do
+  def initialize
     get "/", IndexHttpConsumer
     post "/:id", IndexHttpConsumer
     ws "/:id", EchoWebSocketConsumer
@@ -67,7 +81,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   grip:
-    github: grkek/grip
+    github: grip-framework/grip
 ```
 
 # Features

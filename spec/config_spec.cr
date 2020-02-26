@@ -15,8 +15,8 @@ describe "Config" do
     config.env.should eq "production"
   end
 
-  it "sets default powered_by_header to true" do
-    Grip::Config.new.powered_by_header.should be_true
+  it "sets default server_header to true" do
+    Grip::Config.new.server_header.should be_true
   end
 
   it "sets host binding" do

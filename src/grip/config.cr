@@ -22,8 +22,7 @@ module Grip
 
     property host_binding, ssl, port, env, logging, running
     property always_rescue, server : HTTP::Server?, extra_options
-    property static_headers : (HTTP::Server::Response, String, File::Info -> Void)?
-    property powered_by_header : Bool = true
+    property server_header : Bool = true
 
     def initialize
       @host_binding = "0.0.0.0"
@@ -60,7 +59,7 @@ module Grip
     end
 
     def clear
-      @powered_by_header = true
+      @server_header = true
       @router_included = false
       @handler_position = 0
       @default_handlers_setup = false
@@ -69,18 +68,9 @@ module Grip
       FILTER_HANDLERS.clear
       ERROR_HANDLERS.clear
     end
-
-    def handlers
-      HANDLERS
-    end
-
+    
     def custom_handlers
       CUSTOM_HANDLERS
-    end
-
-    def handlers=(handlers : Array(HTTP::Handler))
-      clear
-      HANDLERS.replace(handlers)
     end
 
     def add_handler(handler : HTTP::Handler)
@@ -93,10 +83,6 @@ module Grip
 
     def add_filter_handler(handler : HTTP::Handler)
       FILTER_HANDLERS << handler
-    end
-
-    def add_router(handler : HTTP::Handler)
-      HANDLERS.insert(HANDLERS.size, handler)
     end
 
     def error_handlers

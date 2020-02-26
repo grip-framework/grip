@@ -7,7 +7,10 @@ require "base64"
 {% end %}
 
 module Grip
-  class WebSocketConsumer < BaseConsumer
+  class WebSocketConsumer
+    include HTTP::Handler
+    include Grip::Helpers::Methods
+    
     getter? closed = false
 
     def initialize
@@ -16,19 +19,19 @@ module Grip
       @current_message = IO::Memory.new
     end
 
-    def on_ping(req : HTTP::Server::Context, on_ping : String)
+    def on_ping(context : HTTP::Server::Context, on_ping : String)
     end
 
-    def on_pong(req : HTTP::Server::Context, on_pong : String)
+    def on_pong(context : HTTP::Server::Context, on_pong : String)
     end
 
-    def on_message(req : HTTP::Server::Context, on_message : String)
+    def on_message(context : HTTP::Server::Context, on_message : String)
     end
 
-    def on_binary(req : HTTP::Server::Context, on_binary : Bytes)
+    def on_binary(context : HTTP::Server::Context, on_binary : Bytes)
     end
 
-    def on_close(req : HTTP::Server::Context, on_close : String)
+    def on_close(context : HTTP::Server::Context, on_close : String)
     end
 
     protected def check_open
@@ -95,12 +98,12 @@ module Grip
       @ws.close(message)
     end
 
-    def run(req)
+    def run(context)
       loop do
         begin
           info = @ws.receive(@buffer)
         rescue IO::EOFError
-          on_close(req, "")
+          on_close(context, "")
           break
         end
 
@@ -109,33 +112,33 @@ module Grip
           @current_message.write @buffer[0, info.size]
           if info.final
             message = @current_message.to_s
-            on_ping(req, message)
+            on_ping(context, message)
             pong(message) unless closed?
             @current_message.clear
           end
         when HTTP::WebSocket::Protocol::Opcode::PONG
           @current_message.write @buffer[0, info.size]
           if info.final
-            on_pong(req, @current_message.to_s)
+            on_pong(context, @current_message.to_s)
             @current_message.clear
           end
         when HTTP::WebSocket::Protocol::Opcode::TEXT
           @current_message.write @buffer[0, info.size]
           if info.final
-            on_message(req, @current_message.to_s)
+            on_message(context, @current_message.to_s)
             @current_message.clear
           end
         when HTTP::WebSocket::Protocol::Opcode::BINARY
           @current_message.write @buffer[0, info.size]
           if info.final
-            on_binary(req, @current_message.to_slice)
+            on_binary(context, @current_message.to_slice)
             @current_message.clear
           end
         when HTTP::WebSocket::Protocol::Opcode::CLOSE
           @current_message.write @buffer[0, info.size]
           if info.final
             message = @current_message.to_s
-            on_close(req, message)
+            on_close(context, message)
             close(message) unless closed?
             @current_message.clear
             break
@@ -144,26 +147,18 @@ module Grip
       end
     end
 
-    macro url
-      req.ws_route_lookup.params
-    end
+    def call(context)
+      if websocket_upgrade_request? context.request
+        response = context.response
 
-    macro headers
-      req.request.headers
-    end
-
-    def call(req)
-      if websocket_upgrade_request? req.request
-        response = req.response
-
-        version = req.request.headers["Sec-WebSocket-Version"]?
+        version = context.request.headers["Sec-WebSocket-Version"]?
         unless version == HTTP::WebSocket::Protocol::VERSION
           response.status = :upgrade_required
           response.headers["Sec-WebSocket-Version"] = HTTP::WebSocket::Protocol::VERSION
           return
         end
 
-        key = req.request.headers["Sec-WebSocket-Key"]?
+        key = context.request.headers["Sec-WebSocket-Key"]?
 
         unless key
           response.respond_with_status(:bad_request)
@@ -178,11 +173,11 @@ module Grip
         response.headers["Sec-WebSocket-Accept"] = accept_code
         response.upgrade do |io|
           @ws = HTTP::WebSocket::Protocol.new(io)
-          self.run(req)
+          self.run(context)
           io.close
         end
       else
-        call_next(req)
+        call_next(context)
       end
     end
 

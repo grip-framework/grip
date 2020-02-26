@@ -8,6 +8,9 @@ authors:
 dependencies:
   radix:
     github: luislavena/radix
+  
+  simple_rpc:
+    github: kostya/simple_rpc
 
 development_dependencies:
   ameba:

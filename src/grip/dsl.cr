@@ -4,7 +4,7 @@
 #
 # - before_all, after_all
 # - error
-FILTER_METHODS = %w(all)
+FILTER_METHODS = %w(get post put patch delete options head all)
 
 def error(status_code : Int32, &block : HTTP::Server::Context, Exception -> _)
   Grip.config.add_error_handler status_code, &block

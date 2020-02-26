@@ -1,4 +1,24 @@
 module Grip::Helpers::Methods
+  def json(context : HTTP::Server::Context)
+    context.params.json
+  end
+
+  def query(context : HTTP::Server::Context)
+    context.params.query
+  end
+
+  def url(context : HTTP::Server::Context)
+    context.params.url
+  end
+
+  def ws_url(context : HTTP::Server::Context)
+    context.ws_route_lookup.params
+  end
+
+  def headers(context : HTTP::Server::Context)
+    context.request.headers
+  end
+
   def add_handler(handler : HTTP::Handler)
     Grip.config.add_handler handler
   end
@@ -18,9 +38,5 @@ module Grip::Helpers::Methods
   def logger(logger : Grip::BaseLogHandler)
     Grip.config.logger = logger
     Grip.config.add_handler logger
-  end
-
-  def gzip(status : Bool = false)
-    add_handler HTTP::CompressHandler.new if status
   end
 end

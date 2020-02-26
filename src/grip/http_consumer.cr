@@ -3,77 +3,58 @@ module Grip
   #
   # It adds `route`, `route_match?`
   # These methods are useful for the conditional execution of custom handlers .
-  class HttpConsumer < BaseConsumer
+  class HttpConsumer
+    include HTTP::Handler
+    include Grip::Helpers::Methods
     include Grip::Helpers::Macros
 
-    # Helper methods for control flow manipulation, etc.
-    def redirect(req, to)
-      req.redirect to
+    def get(context : HTTP::Server::Context)
+      context.response.status_code = 405
     end
 
-    def get(req : HTTP::Server::Context)
-      req.response.status_code = 404
+    def post(context : HTTP::Server::Context)
+      context.response.status_code = 405
     end
 
-    def post(req : HTTP::Server::Context)
-      req.response.status_code = 404
+    def put(context : HTTP::Server::Context)
+      context.response.status_code = 405
     end
 
-    def put(req : HTTP::Server::Context)
-      req.response.status_code = 404
+    def patch(context : HTTP::Server::Context)
+      context.response.status_code = 405
     end
 
-    def patch(req : HTTP::Server::Context)
-      req.response.status_code = 404
+    def delete(context : HTTP::Server::Context)
+      context.response.status_code = 405
     end
 
-    def delete(req : HTTP::Server::Context)
-      req.response.status_code = 404
+    def options(context : HTTP::Server::Context)
+      context.response.status_code = 405
     end
 
-    def options(req : HTTP::Server::Context)
-      req.response.status_code = 404
+    def head(context : HTTP::Server::Context)
+      context.response.status_code = 405
     end
 
-    def head(req : HTTP::Server::Context)
-      req.response.status_code = 404
-    end
-
-    def call(req : HTTP::Server::Context)
-      case req.request.method
+    def call(context : HTTP::Server::Context)
+      case context.request.method
       when "GET"
-        get(req)
+        get(context)
       when "POST"
-        post(req)
+        post(context)
       when "PUT"
-        put(req)
+        put(context)
       when "PATCH"
-        patch(req)
+        patch(context)
       when "DELETE"
-        delete(req)
+        delete(context)
       when "OPTIONS"
-        options(req)
+        options(context)
       when "HEAD"
-        head(req)
+        head(context)
       else
-        call_next(req)
+        call_next(context)
       end
-    end
-
-    macro json
-      req.params.json
-    end
-
-    macro query
-      req.params.query
-    end
-
-    macro url
-      req.params.url
-    end
-
-    macro headers
-      req.request.headers
     end
   end
 end

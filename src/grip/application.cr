@@ -17,11 +17,7 @@ module Grip
     def run(args = ARGV, &block)
       run(nil, args: args, &block)
     end
-
-    def self.scope(&block)
-      block.call
-    end
-
+    
     # The command to run a `Grip` application.
     #
     # If *port* is not given Grip will use `Grip::Config#port`
