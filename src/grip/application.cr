@@ -4,6 +4,11 @@ module Grip
     include Grip::Helpers::Methods
 
     # Overload of `run` with the default startup logging.
+    def run(port : Int32?, args = ARGV)
+      run(port, nil, args) { }
+    end
+
+    # Overload of `run` with the default startup logging.
     def run(port : Int32?, log_service_port : Int32?, args = ARGV)
       run(port, log_service_port, args) { }
     end
