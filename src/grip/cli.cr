@@ -22,6 +22,9 @@ module Grip
         opts.on("-p PORT", "--port PORT", "Port to listen for connections (defaults to 3000)") do |opt_port|
           @config.port = opt_port.to_i
         end
+        opts.on("-l PORT", "--log-service-port PORT", "Port to listen for connections to the logging service (defaults to 6000)") do |opt_port|
+          @config.port = opt_port.to_i
+        end
         opts.on("-s", "--ssl", "Enables SSL") do
           @ssl_enabled = true
         end

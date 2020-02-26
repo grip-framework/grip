@@ -10,7 +10,7 @@ dependencies:
     github: luislavena/radix
   
   simple_rpc:
-    github: kostya/simple_rpc
+    github: grkek/simple_rpc
 
 development_dependencies:
   ameba:

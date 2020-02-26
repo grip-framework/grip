@@ -13,7 +13,7 @@ module Grip
     end
 
     def write(message : String)
-      @io << message
+      @io << Time.utc << ' ' << message
       @io.flush
       @io
     end

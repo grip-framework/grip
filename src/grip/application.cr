@@ -4,7 +4,7 @@ module Grip
     include Grip::Helpers::Methods
 
     # Overload of `run` with the default startup logging.
-    def run(port : Int32?, args = ARGV)
+    def run(port : Int32?, log_service_port : Int32?, args = ARGV)
       run(port, args) { }
     end
 
@@ -24,11 +24,12 @@ module Grip
     #
     # To use custom command line arguments, set args to nil
     #
-    def run(port : Int32? = nil, args = ARGV, &block)
+    def run(port : Int32? = nil, log_service_port : Int32? = nil, args = ARGV, &block)
       Grip::CLI.new args
       config = Grip.config
       config.setup
       config.port = port if port
+      config.log_service_port = log_service_port if log_service_port
 
       # Test environment doesn't need to have signal trap and logging.
       if config.env != "test"
@@ -63,6 +64,12 @@ module Grip
 
       display_startup_message(config, server)
 
+      log_service = Grip::LogService::Server.new(config.host_binding, config.log_service_port)
+
+      spawn do
+        log_service.run unless config.env == "test"
+      end
+      
       server.listen unless config.env == "test"
     end
 
