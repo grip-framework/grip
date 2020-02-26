@@ -50,6 +50,10 @@ module Grip
     def router=(router)
       @router = router
     end
+    
+    def handlers
+      HANDLERS
+    end
 
     def logger=(logger : Grip::BaseLogHandler)
       @logger = logger
