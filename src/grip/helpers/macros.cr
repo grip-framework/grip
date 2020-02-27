@@ -1,29 +1,6 @@
 module Grip::Helpers::Macros
   HTTP_METHODS = %i(get post put patch delete options head)
 
-  macro json(context, content, status_code = HTTP::Status::OK)
-    {{context}}.response.status_code = {{status_code}}.to_i
-    {{content}}.to_json
-  end
-
-  macro html(context, content, status_code = HTTP::Status::OK)
-    {{context}}.response.status_code = {{status_code}}.to_i
-    {{context}}.response.headers.merge!({"Content-Type" => "text/html"})
-    {{content}}
-  end
-
-  macro text(context, content, status_code = HTTP::Status::OK)
-    {{context}}.response.status_code = {{status_code}}.to_i
-    {{context}}.response.headers.merge!({"Content-Type" => "text/plain"})
-    {{content}}
-  end
-
-  macro stream(context, content, status_code = HTTP::Status::OK)
-    {{context}}.response.status_code = {{status_code}}.to_i
-    {{context}}.response.headers.merge!({"Content-Type" => "application/octetstream"})
-    {{content}}
-  end
-
   {% for http_method in HTTP_METHODS %}
     macro {{http_method.id}}(route, resource)
       Grip::HttpRouteHandler::INSTANCE.add_route({{ http_method }}.to_s.upcase, \{{ route }}, \{{ resource }}.new, nil)
@@ -56,13 +33,5 @@ module Grip::Helpers::Macros
 
   macro ws(route, resource)
     Grip::WebSocketRouteHandler::INSTANCE.add_route({{ route }}, {{ resource }}.new)
-  end
-
-  macro headers(context, additional_headers)
-    {{context}}.response.headers.merge!({{additional_headers}})
-  end
-
-  macro headers(context, header, value)
-    {{context}}.response.headers[{{header}}] = {{value}}
   end
 end

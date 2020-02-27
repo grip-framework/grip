@@ -1,4 +1,35 @@
 module Grip::Helpers::Methods
+  def headers(context, additional_headers)
+    context.response.headers.merge!(additional_headers)
+  end
+
+  def headers(context, header, value)
+    context.response.headers[header] = value
+  end
+
+  def json(context, content, status_code = HTTP::Status::OK)
+    context.response.status_code = status_code.to_i
+    content.to_json
+  end
+
+  def html(context, content, status_code = HTTP::Status::OK)
+    context.response.status_code = status_code.to_i
+    context.response.headers.merge!({"Content-Type" => "text/html"})
+    content
+  end
+
+  def text(context, content, status_code = HTTP::Status::OK)
+    context.response.status_code = status_code.to_i
+    context.response.headers.merge!({"Content-Type" => "text/plain"})
+    content
+  end
+
+  def stream(context, content, status_code = HTTP::Status::OK)
+    context.response.status_code = status_code.to_i
+    context.response.headers.merge!({"Content-Type" => "application/octetstream"})
+    content
+  end
+
   def json(context : HTTP::Server::Context)
     context.params.json
   end
