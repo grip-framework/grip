@@ -20,14 +20,13 @@ module Grip
       @ssl : OpenSSL::SSL::Context::Server?
     {% end %}
 
-    property host_binding, ssl, port, log_service_port, env, logging, running
+    property host_binding, ssl, port, env, logging, running
     property always_rescue, server : HTTP::Server?, extra_options
     property server_header : Bool = true
 
     def initialize
       @host_binding = "0.0.0.0"
       @port = 3000
-      @log_service_port = 6000
       @env = ENV["GRIP_ENV"]? || "development"
       @logging = true
       @logger = nil
