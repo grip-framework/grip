@@ -10,7 +10,7 @@ module Grip
   class WebSocketConsumer
     include HTTP::Handler
     include Grip::Helpers::Methods
-    
+
     getter? closed = false
 
     def initialize

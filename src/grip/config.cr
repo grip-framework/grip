@@ -50,7 +50,7 @@ module Grip
     def router=(router)
       @router = router
     end
-    
+
     def handlers
       HANDLERS
     end
@@ -73,7 +73,7 @@ module Grip
       FILTER_HANDLERS.clear
       ERROR_HANDLERS.clear
     end
-    
+
     def custom_handlers
       CUSTOM_HANDLERS
     end

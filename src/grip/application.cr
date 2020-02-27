@@ -22,7 +22,7 @@ module Grip
     def run(args = ARGV, &block)
       run(nil, args: args, &block)
     end
-    
+
     # The command to run a `Grip` application.
     #
     # If *port* is not given Grip will use `Grip::Config#port`
@@ -74,7 +74,7 @@ module Grip
       spawn do
         log_service.run unless config.env == "test"
       end
-      
+
       server.listen unless config.env == "test"
     end
 
