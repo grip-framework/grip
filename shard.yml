@@ -8,10 +8,6 @@ authors:
 dependencies:
   radix:
     github: luislavena/radix
-  
-  simple_rpc:
-    github: grkek/simple_rpc
-    branch: master
 
 development_dependencies:
   ameba:
