@@ -12,6 +12,7 @@ require "uuid"
   require "openssl/sha1"
 {% end %}
 
+require "./grip/parser/*"
 require "./grip/dsl/*"
 require "./grip/extensions/*"
 require "./grip/core/*"
