@@ -15,10 +15,6 @@ describe "Config" do
     config.env.should eq "production"
   end
 
-  it "sets default server_header to true" do
-    Grip::Config.new.server_header.should be_true
-  end
-
   it "sets host binding" do
     config = Grip.config
     config.host_binding = "127.0.0.1"
