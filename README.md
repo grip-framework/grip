@@ -63,7 +63,7 @@ class IdApi < Grip::Application
       Grip::Pipe::PoweredByGrip.new
     ]
 
-    get "/", Index, via: :web
+    get "/", Index
     post "/:id", Index, via: :web, override: :create
     ws "/:id", Echo, via: :web
   end
