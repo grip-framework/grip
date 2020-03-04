@@ -1,11 +1,11 @@
 module Grip
   class Application
-    include Grip::Helpers::Macros
-    include Grip::Helpers::Methods
+    include Grip::DSL::Macros
+    include Grip::DSL::Methods
 
     # Overload of `run` with the default startup logging.
     def run(port : Int32?, args = ARGV)
-      run(port, nil, args) { }
+      run(port, args) { }
     end
 
     # Overload of `run` without port.
@@ -68,8 +68,7 @@ module Grip
 
     def display_startup_message(config, server)
       addresses = server.addresses.map { |address| "#{config.scheme}://#{address}" }.join ", "
-      log "[\u001b[33mwarning\u001b[0m] The request logging is on, which reduces the performance of the server."
-      log "[\u001b[33mwarning\u001b[0m] Grip is listening at #{addresses}"
+      puts "[\u001b[35minfo\u001b[0m] Grip is listening at #{addresses}"
     end
 
     def stop

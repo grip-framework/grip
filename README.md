@@ -17,7 +17,7 @@ So far at **285,013** requests/second, and still [going](https://github.com/the-
 ```ruby
 require "grip"
 
-class IndexHttpConsumer < Grip::HttpConsumer
+class Index < Grip::Controller::Http
   def get(context)
     # The status code is a mix of a built-in and an integer,
     # By default every res has a 200 OK status response.
@@ -30,7 +30,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
     )
   end
 
-  def post(context)
+  def create(context)
     puts url(context) # This gets the hash instance of the route url specified variables
     puts query(context) # This gets the query parameters passed in with the url
     puts json(context) # This gets the JSON data which was passed into the route
@@ -48,7 +48,7 @@ class IndexHttpConsumer < Grip::HttpConsumer
   end
 end
 
-class EchoWebSocketConsumer < Grip::WebSocketConsumer
+class Echo < Grip::Controller::WebSocket
   def on_message(context, message)
     send message
   end
@@ -57,9 +57,15 @@ end
 # Routing
 class IdApi < Grip::Application
   def initialize
-    get "/", IndexHttpConsumer
-    post "/:id", IndexHttpConsumer
-    ws "/:id", EchoWebSocketConsumer
+    pipeline :web, [
+      Grip::Pipe::Log.new,
+      Grip::Pipe::ClientIp.new,
+      Grip::Pipe::PoweredByGrip.new
+    ]
+
+    get "/", Index
+    post "/:id", Index, via: :web, override: :create
+    ws "/:id", Echo, via: :web
   end
 end
 
