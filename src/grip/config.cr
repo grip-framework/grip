@@ -20,16 +20,13 @@ module Grip
       @ssl : OpenSSL::SSL::Context::Server?
     {% end %}
 
-    property host_binding, ssl, port, env, logging, running
+    property host_binding, ssl, port, env, running
     property always_rescue, server : HTTP::Server?, extra_options
-    property server_header : Bool = true
 
     def initialize
       @host_binding = "0.0.0.0"
       @port = 3000
       @env = ENV["GRIP_ENV"]? || "development"
-      @logging = true
-      @logger = nil
       @error_handler = nil
       @always_rescue = true
       @router_included = false
@@ -42,10 +39,6 @@ module Grip
       @env
     end
 
-    def logger
-      @logger.not_nil!
-    end
-
     def router=(router)
       @router = router
     end
@@ -54,16 +47,11 @@ module Grip
       HANDLERS
     end
 
-    def logger=(logger : Grip::BaseLogHandler)
-      @logger = logger
-    end
-
     def scheme
       ssl ? "https" : "http"
     end
 
     def clear
-      @server_header = true
       @router_included = false
       @handler_position = 0
       @default_handlers_setup = false
@@ -103,35 +91,25 @@ module Grip
     def setup
       unless @default_handlers_setup && @router_included
         setup_init_handler
-        setup_log_handler
         setup_error_handler
         setup_custom_handlers
         setup_filter_handlers
+
         @default_handlers_setup = true
         @router_included = true
-        HANDLERS.insert(HANDLERS.size, Grip::WebSocketRouteHandler::INSTANCE)
-        HANDLERS.insert(HANDLERS.size, Grip::HttpRouteHandler::INSTANCE)
+        HANDLERS.insert(HANDLERS.size, Grip::Router::WebSocket::INSTANCE)
+        HANDLERS.insert(HANDLERS.size, Grip::Router::Http::INSTANCE)
       end
     end
 
     private def setup_init_handler
-      HANDLERS.insert(@handler_position, Grip::InitHandler::INSTANCE)
-      @handler_position += 1
-    end
-
-    private def setup_log_handler
-      @logger ||= if @logging
-                    Grip::LogHandler.new
-                  else
-                    Grip::NullLogHandler.new
-                  end
-      HANDLERS.insert(@handler_position, @logger.not_nil!)
+      HANDLERS.insert(@handler_position, Grip::Core::Init::INSTANCE)
       @handler_position += 1
     end
 
     private def setup_error_handler
       if @always_rescue
-        @error_handler ||= Grip::ExceptionHandler.new
+        @error_handler ||= Grip::Core::Exception.new
         HANDLERS.insert(@handler_position, @error_handler.not_nil!)
         @handler_position += 1
       end

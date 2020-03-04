@@ -37,7 +37,7 @@ Let's start with a simple example
 require "grip"
 require "uuid" # For random UUID generation.
 
-class IndexHttpConsumer < Grip::HttpConsumer
+class Index < Grip::Controller::Http
     # The status and content of a response are mandatory, without it the router wont function.
     # The status value is precieved as the response code,
     # and the content value is precieved as the response content.
@@ -52,14 +52,14 @@ class IndexHttpConsumer < Grip::HttpConsumer
     end
 end
 
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
-    resource "/", IndexHttpConsumer
+    get "/", Index
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 ## Running Grip
@@ -87,13 +87,25 @@ Supported verbs are:
 - `options` - OPTIONS verb.
 - `head` - HEAD verb.
 
-```ruby
-resource "/", IndexHttpConsumer #=> Routes requests to request methods.
-resource "/", IndexHttpConsumer, only: [:get, :post] #=> Routes requests 'GET' and 'POST' to methods `get` and `post`.
-resource "/", IndexHttpConsumer, exclude: [:get, :post] #=> Routes requests to request methods, except the `get` and the `post`.
+Supported actions are:
+- `only` - Annotate the methods which you want to be available.
+- `exclude` - Annotate the methods which are excluded.
+- `via` - Annotate the pipeline which you want the request to go through before it reaches the endpoint.
+- `override` - Annotate the method which takes the execution instead of the default verb.
 
-get "/", IndexHttpConsumer #=> Routes the GET request to the consumer `get` method.
-get "/", IndexHttpConsumer, :index #=> Routes GET request to the consumer `index` method.
+```ruby
+resource "/", Index #=> Routes requests to request methods.
+resource "/", Index, only: [:get, :post] #=> Routes requests 'GET' and 'POST' to methods `get` and `post`.
+resource "/", Index, exclude: [:get, :post] #=> Routes requests to request methods, except the `get` and the `post`.
+
+get "/", Index #=> Routes the GET request to the consumer `get` method.
+get "/", Index, override: :index #=> Routes GET request to the consumer `index` method.
+
+pipeline :web, [
+  Grip::Pipe::Log.new
+]
+
+get "/", Index, via: :web #=> Routes the GET request through the pipeline and to the endpoint.
 ```
 
 
@@ -102,16 +114,16 @@ get "/", IndexHttpConsumer, :index #=> Routes GET request to the consumer `index
 You can handle HTTP methods via pre-defining a set of available methods and then creating separate handlers for each. Each consumer is a separate resource located a single route, which uses radix trees for additional flexibility.
 
 ```ruby
-class IndexHttpConsumer < Grip::HttpConsumer
-    def create(context)
-    .. create something ..
-    end
-
-    def read(context)
+class Index < Grip::Controller::Http
+    def get(context)
     .. show something ..
     end
 
-    def update(context)
+    def post(context)
+    .. create something ..
+    end
+
+    def put(context)
     .. update something ..
     end
 
@@ -127,7 +139,7 @@ Before and after filters are evaluated before and after each request within the 
 
 Important note: This should not be used by plugins/addons, instead they should do all their work in their own middleware.
 
-Before you define a `before_all` and `after_all` filter, you must have at least one `HttpConsumer`.
+Before you define a `before_all` and `after_all` filter, you must have at least one ``.
 
 ```ruby
 before_all "*" do |context|
@@ -140,7 +152,7 @@ end
 ```
 
 ## Middleware
-In Grip middlewares are mentioned as handlers or consumers, when creating a handler or a consumer you inherit from HTTP::Handler or Grip::HttpConsumer.
+In Grip middlewares are mentioned as handlers or consumers, when creating a handler or a consumer you inherit from HTTP::Handler or Grip::Controller::Http.
 
 ### Raw middleware
 
@@ -156,43 +168,51 @@ class CustomHandler
 end
 
 # You can add the middleware to the handler stack by using
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
     add_handler CustomHandler.new
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
+### Plug middleware
 
-### Vanilla middleware
-
-Vanilla middleware contains several helpful functions which differentiate the `BaseConsumer` class from the raw `HTTP::Handler` class.
+Plug middleware is the building block of the framework, some helpful plugs are included with the framework. Creating a custom plug is as easy as creating an HTTP handler.
 
 ```ruby
-class CustomConsumer < Grip::HttpConsumer
+class Custom < Grip::Pipe::Base
   def call(context)
-    # You can use the call_next and match? functions to control the flow of the middleware stack,
-    # if it matches the route defined above it will execute the content below otherwise it calls the call_next function.
-    return call_next(context) unless match?(context)
-    html(
+    
+  end
+end
+
+class Index < Grip::Controller::Http
+  def get(context)
+    json(
       context,
-      "Some custom middleware processing was done here !"
+      {
+        "message" => "Hello, world!"
+      }
     )
   end
 end
 
 # You can add the handler just by doing the same as you do to other consumer types.
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
-    resource "/", CustomBaseConsumer
+    pipeline :web, [
+      Custom.new
+    ]
+
+    get "/", Index, via: :web
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 ## Response Codes
@@ -226,7 +246,7 @@ text(
 Grip comes with a pre-defined error handlers for the JSON response type. You can customize the built-in error pages or even add your own with `error`.
 
 ```ruby
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
     error 404 do
       "This is a customized 404 page."
@@ -238,8 +258,8 @@ class IdApi < Grip::Application
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 # HTTP Parameters
@@ -251,7 +271,7 @@ When passing data through an HTTP request, you will often need to use query para
 Grip allows you to use variables in your route path as placeholders for passing data. To access URL parameters, you use `url`.
 
 ```ruby
-class UsersHttpConsumer < Grip::HttpConsumer
+class Users < Grip::Controller::Http
     def get(context)
       params = url(context)
       json(
@@ -273,14 +293,14 @@ class UsersHttpConsumer < Grip::HttpConsumer
     end
 end
 
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
-    resource "/:id", UserHttpConsumer, only: [:get, :post]
+    resource "/:id", Users, only: [:get, :post]
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 ## Query Parameters
@@ -288,7 +308,7 @@ id_api.run
 To access query parameters, you use `query`.
 
 ```ruby
-class ResizeHttpConsumer < Grip::HttpConsumer
+class Resize < Grip::Controller::Http
   def get(context)
     params = query(context)
     width = params["width"]
@@ -306,14 +326,14 @@ class ResizeHttpConsumer < Grip::HttpConsumer
   end
 end
 
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
-    get "/", ResizeHttpConsumer
+    get "/", Resize
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 ## JSON Parameters
@@ -321,7 +341,7 @@ id_api.run
 You can easily access JSON payload from the parameters, or through the standard post body.
 
 ```ruby
-class SignInHttpConsumer < Grip::HttpConsumer
+class SignIn < Grip::Controller::Http
   def create(context)
     params = json(context)
     username = params["username"]
@@ -339,14 +359,14 @@ class SignInHttpConsumer < Grip::HttpConsumer
   end
 end
 
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
-    post "/", SignInHttpConsumer
+    post "/", SignIn
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 # HTTP Request / Response Context
@@ -378,6 +398,7 @@ Some common request information is available at context.request.*:
 Headers helper function allows you to set custom headers for a specific route response.
 ```ruby
 headers(
+  context,
   {
     "X-Custom-Header" => "This is a custom value",
     "X-Custom-Header-Two" => "This is a custom value"
@@ -391,7 +412,7 @@ Using WebSockets in Grip is pretty easy.
 
 An example echo server might look something like this:
 ```ruby
-class EchoWebSocketConsumer < Grip::WebSocketConsumer
+class Echo < Grip::Controller::WebSocket
   def on_message(context, message)
     if message == "close"
       close "Received a 'close' message, closing the connection!"
@@ -405,20 +426,20 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
   end
 end
 
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
-    ws "/", EchoWebSocketConsumer
+    ws "/", Echo
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 Accessing headers of the initial HTTP request can be done via a `headers` method:
 
 ```ruby
-class EchoWebSocketConsumer < Grip::WebSocketConsumer
+class Echo < Grip::Controller::WebSocket
   def on_message(context, message)
     puts headers(context) # This gets the http headers
 
@@ -434,20 +455,20 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
   end
 end
 
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
-    ws "/", EchoWebSocketConsumer
+    ws "/", Echo
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 Dynamic URL parameters can be accessed via a `url` method:
 
 ```ruby
-class EchoWebSocketConsumer < Grip::WebSocketConsumer
+class Echo < Grip::Controller::WebSocket
   def on_message(context, message)
     puts ws_url(context) # This gets the hash instance of the route url specified variables
 
@@ -463,14 +484,14 @@ class EchoWebSocketConsumer < Grip::WebSocketConsumer
   end
 end
 
-class IdApi < Grip::Application
+class Api < Grip::Application
   def initialize
-    ws "/", EchoWebSocketConsumer
+    ws "/", Echo
   end
 end
 
-id_api = IdApi.new
-id_api.run
+api = Api.new
+api.run
 ```
 
 # SSL
@@ -518,7 +539,7 @@ Your Grip application
 
 require "grip"
 
-class HelloWorldHttpConsumer < Grip::HttpConsumer
+class HelloWorld < Grip::Controller::Http
   def get(context)
     "Hello world"
   end
@@ -526,7 +547,7 @@ end
 
 class HelloWorld < Grip::Application
   def initialize
-    get "/", HelloWorldHttpConsumer
+    get "/", HelloWorld
   end
 end
 

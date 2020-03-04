@@ -9,6 +9,10 @@ dependencies:
   radix:
     github: luislavena/radix
 
+  redis:
+    github: stefanwille/crystal-redis
+    version: ~> 2.5.3
+
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba

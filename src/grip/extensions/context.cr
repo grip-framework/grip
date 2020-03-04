@@ -7,6 +7,7 @@ class HTTP::Server
   class Context
     # :nodoc:
     STORE_MAPPINGS = [Nil, String, Int32, Int64, Float64, Bool]
+    property client_ip : Socket::IPAddress?
 
     macro finished
       alias StoreTypes = Union({{ *STORE_MAPPINGS }})
@@ -31,7 +32,7 @@ class HTTP::Server
     end
 
     def route_lookup
-      Grip::HttpRouteHandler::INSTANCE.lookup_route(@request.method.as(String), @request.path)
+      Grip::Router::Http::INSTANCE.lookup_route(@request.method.as(String), @request.path)
     end
 
     def route_found?
@@ -39,7 +40,7 @@ class HTTP::Server
     end
 
     def ws_route_lookup
-      Grip::WebSocketRouteHandler::INSTANCE.lookup_ws_route(@request.path)
+      Grip::Router::WebSocket::INSTANCE.lookup_ws_route(@request.path)
     end
 
     def ws_route_found?
