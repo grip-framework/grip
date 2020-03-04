@@ -15,7 +15,7 @@ class HTTP::Server
     end
 
     def params
-      @params ||= Grip::ParamParser.new(@request, route_lookup.params)
+      @params ||= Grip::Parser::ParamParser.new(@request, route_lookup.params)
     end
 
     def redirect(url : String, status_code : Int32 = 302)
