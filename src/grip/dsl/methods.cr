@@ -7,12 +7,6 @@ module Grip
         end
       end
 
-      def pipe_through(name, context : HTTP::Server::Context)
-        Grip::Core::Pipeline::INSTANCE.pipeline[name].each do |pipe|
-          pipe.call(context)
-        end
-      end
-
       def error(status_code : Int32, &block : HTTP::Server::Context, Exception -> _)
         Grip.config.add_error_handler status_code, &block
       end
