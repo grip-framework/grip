@@ -1,11 +1,11 @@
 
-[![Grip](https://avatars0.githubusercontent.com/u/44188195?s=200&v=4)](https://github.com/grkek/grip)
+[![Grip](https://avatars0.githubusercontent.com/u/44188195?s=200&v=4)](https://github.com/grip-framework/grip)
 
 # Grip
 
 Class oriented fork of the [Kemal](https://kemalcr.com) framework based on a JSON request/response model.
 
-Currently Grip is headed towards a JSON request/response type interface, which makes this framework non-HTML friendly, 
+Currently Grip is headed towards a JSON request/response type interface, which makes this framework non-HTML friendly,
 it is still possible to render HTML but it is not advised to use Grip for that purpose.
 
 So far at **285,013** requests/second, and still [going](https://github.com/the-benchmarker/web-frameworks).
@@ -35,7 +35,7 @@ class Index < Grip::Controller::Http
     puts query(context) # This gets the query parameters passed in with the url
     puts json(context) # This gets the JSON data which was passed into the route
     puts headers(context) # This gets the http headers
-    
+
     params = url(context)
 
     json(
@@ -74,7 +74,7 @@ id_api = IdApi.new
 id_api.run
 ```
 
-The default port of the application is `3000`, 
+The default port of the application is `3000`,
 you can set it by either compiling it and providing a `-p` flag or
 by changing it from the source code.
 
@@ -101,7 +101,7 @@ dependencies:
 # Documentation
 
 - For the framework development just use the `crystal docs` feature and browse through the module.
-- Check out the official documentation available [here](https://github.com/grkek/grip/blob/master/DOCUMENTATION.md)
+- Check out the official documentation available [here](https://github.com/grip-framework/grip/blob/master/DOCUMENTATION.md)
 
 ## Thanks
 
