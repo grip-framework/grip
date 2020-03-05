@@ -20,7 +20,7 @@ Then add *Grip* to your `shard.yml` file as a dependencie.
 ```yaml
 dependencies:
     grip:
-        github: grkek/grip
+        github: grip-framework/grip
 ```
 
 Finally run `shards` to get the dependencies:
@@ -185,7 +185,7 @@ Plug middleware is the building block of the framework, some helpful plugs are i
 ```ruby
 class Custom < Grip::Pipe::Base
   def call(context)
-    
+
   end
 end
 
@@ -509,14 +509,14 @@ crystal build --release src/your_app.cr
 
 [spec-kemal](https://github.com/kemalcr/spec-kemal) has been forked to make testing easy.
 
-Add [*spec-grip*](https://github.com/Whaxion/spec-grip) to your `shard.yml` file as a dependencie.
+Add [*spec-grip*](https://github.com/grip-framework/spec-grip) to your `shard.yml` file as a dependencie.
 
 ```yaml
 dependencies:
     grip:
-        github: grkek/grip
+        github: grip-framework/grip
     spec-grip:
-        github: Whaxion/spec-grip
+        github: grip-framework/spec-grip
 ```
 
 Then run `shards` to get the dependencies:
