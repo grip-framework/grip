@@ -18,7 +18,7 @@ module Grip
           if value = context.request.headers[AUTH]
             if value.size > 0 && value.starts_with?(BEARER)
               begin
-                payload, header = JWT.decode(value[BEARER.size + 1..], @secret_key, @algorithm, **@claims)
+                payload, _ = JWT.decode(value[BEARER.size + 1..], @secret_key, @algorithm, **@claims)
                 context.jwt_payload = payload
                 return
               rescue exception
