@@ -1,9 +1,8 @@
 name: grip
-version: 0.27.5
+version: 0.28.0
 
 authors:
-  - Serdar Dogruyol <dogruyolserdar@gmail.com>
-  - Giorgi Kavrelishvili <giorgi.kavrelishvili@pm.me>
+  - Grip Team and Contributors <giorgi.kavrelishvili@pm.me>
 
 dependencies:
   radix:
