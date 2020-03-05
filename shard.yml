@@ -2,7 +2,7 @@ name: grip
 version: 0.28.0
 
 authors:
-  - Grip Team and Contributors <giorgi.kavrelishvili@pm.me>
+  - Grip Team and Contributors <https://github.com/grip-framework>
 
 dependencies:
   radix:
