@@ -3,12 +3,9 @@
 
 # Grip
 
-Class oriented fork of the [Kemal](https://kemalcr.com) framework based on a JSON request/response model.
+Grip is a microframework for building RESTful web applications. It is designed to be modular and easy, with the ability to scale up. It began as fork of the [Kemal](https://kemalcr.com) framework and has become one of the most interesting frameworks of the Crystal programming language.
 
-Currently Grip is headed towards a JSON request/response type interface, which makes this framework non-HTML friendly,
-it is still possible to render HTML but it is not advised to use Grip for that purpose.
-
-So far at **285,013** requests/second, and still [going](https://github.com/the-benchmarker/web-frameworks).
+Grip offers extensibility, it has integrated middleware called "pipes" which alter the parts of the request/response context and pass it on to the actual endpoint. It has a router which somewhat resembles that of [Phoenix framework](https://github.com/phoenixframework/phoenix)'s router and most of all it is fast, peaking at [285,013](https://github.com/the-benchmarker/web-frameworks) requests/second.
 
 [![Build Status](https://travis-ci.org/grip-framework/grip.svg?branch=master)](https://travis-ci.org/grip-framework/grip)
 [![Gitter](https://img.shields.io/gitter/room/grip-framework/grip)](https://gitter.im/grip-framework/community)
@@ -55,7 +52,7 @@ class Echo < Grip::Controller::WebSocket
 end
 
 # Routing
-class IdApi < Grip::Application
+class Application < Grip::Application
   def initialize
     pipeline :web, [
       Grip::Pipe::Log.new,
@@ -70,8 +67,8 @@ class IdApi < Grip::Application
 end
 
 # Run the server
-id_api = IdApi.new
-id_api.run
+app = Application.new
+app.run
 ```
 
 The default port of the application is `3000`,
