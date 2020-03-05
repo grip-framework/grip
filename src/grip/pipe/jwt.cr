@@ -1,8 +1,8 @@
 module Grip
   module Pipe
     class Jwt < Base
-      BEARER                 = "Bearer"
-      AUTH                   = "Authorization"
+      BEARER = "Bearer"
+      AUTH   = "Authorization"
 
       def initialize(
         @secret_key : String,
