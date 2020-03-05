@@ -5,19 +5,19 @@ module Grip
       AUTH                  = "Authorization"
       AUTH_MESSAGE          = "Could not verify your access level for that URL.\nYou have to login with proper credentials"
       HEADER_LOGIN_REQUIRED = "Basic realm=\"Login Required\""
-    
+
       def initialize(@credentials : Credentials)
       end
-    
+
       # backward compatibility
       def initialize(username : String, password : String)
-        initialize({ username => password })
+        initialize({username => password})
       end
-    
+
       def initialize(hash : Hash(String, String))
         initialize(Credentials.new(hash))
       end
-      
+
       def call(context)
         if context.request.headers[AUTH]?
           if value = context.request.headers[AUTH]
@@ -36,11 +36,11 @@ module Grip
           raise Grip::Exceptions::Unauthorized.new(context)
         end
       end
-    
+
       def authorize?(value) : String?
         username, password = Base64.decode_string(value[BASIC.size + 1..-1]).split(":")
         @credentials.authorize?(username, password)
       end
-    end    
+    end
   end
 end
