@@ -8,9 +8,10 @@ dependencies:
   radix:
     github: luislavena/radix
 
-  redis:
-    github: stefanwille/crystal-redis
-    version: ~> 2.5.3
+  jwt:
+    github: crystal-community/jwt
+  
+
 
 development_dependencies:
   ameba:

@@ -8,6 +8,7 @@ class HTTP::Server
     # :nodoc:
     STORE_MAPPINGS = [Nil, String, Int32, Int64, Float64, Bool]
     property client_ip : Socket::IPAddress?
+    property jwt_payload : JSON::Any?
 
     macro finished
       alias StoreTypes = Union({{ *STORE_MAPPINGS }})
