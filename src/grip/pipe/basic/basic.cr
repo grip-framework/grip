@@ -3,7 +3,6 @@ module Grip
     class Basic < Base
       BASIC                 = "Basic"
       AUTH                  = "Authorization"
-      AUTH_MESSAGE          = "Could not verify your access level for that URL.\nYou have to login with proper credentials"
       HEADER_LOGIN_REQUIRED = "Basic realm=\"Login Required\""
 
       def initialize(@credentials : Credentials)
@@ -28,9 +27,11 @@ module Grip
                 raise Grip::Exceptions::Unauthorized.new(context)
               end
             else
+              context.response.headers["WWW-Authenticate"] = HEADER_LOGIN_REQUIRED
               raise Grip::Exceptions::Unauthorized.new(context)
             end
           else
+            context.response.headers["WWW-Authenticate"] = HEADER_LOGIN_REQUIRED
             raise Grip::Exceptions::Unauthorized.new(context)
           end
         else
