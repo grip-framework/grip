@@ -7,7 +7,6 @@ module Grip
       def initialize(
         @secret_key : String = ENV["GRIP_JWT_SECRET"],
         claims : Hash(Symbol, String?) = {:aud => nil, :iss => nil, :sub => nil},
-        @raise_in_case_of_exceptions : Bool = false,
         @algorithm : JWT::Algorithm = JWT::Algorithm::HS256
       )
         @claims = NamedTuple(aud: String?, iss: String?, sub: String?).from(claims)
@@ -39,9 +38,7 @@ module Grip
                 context.jwt_payload = payload
               rescue exception
                 context.jwt_payload = nil
-                if @raise_in_case_of_exceptions
-                  raise exception
-                end
+                raise Grip::Exceptions::Unauthorized.new(context)
               end
             else
               raise Grip::Exceptions::Unauthorized.new(context)
