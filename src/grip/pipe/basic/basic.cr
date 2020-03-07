@@ -27,10 +27,13 @@ module Grip
               else
                 raise Grip::Exceptions::Unauthorized.new(context)
               end
+            else
+              raise Grip::Exceptions::Unauthorized.new(context)
             end
+          else
+            raise Grip::Exceptions::Unauthorized.new(context)
           end
         else
-          context.response.status_code = 401
           context.response.headers["WWW-Authenticate"] = HEADER_LOGIN_REQUIRED
           raise Grip::Exceptions::Unauthorized.new(context)
         end

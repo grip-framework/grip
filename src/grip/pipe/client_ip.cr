@@ -14,8 +14,6 @@ module Grip
             context.client_ip = Socket::IPAddress.new(addresses[0], 0)
           end
         end
-
-        context
       end
     end
   end
