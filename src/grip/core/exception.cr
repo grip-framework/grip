@@ -38,38 +38,10 @@ module Grip
           context.response.print Grip.config.error_handlers[status_code].call(context, exception)
           context
         else
-          case status_code
-          when 400
-            context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
-            context.response.status_code = status_code
-            context.response.print("400 Bad Request")
-            context
-          when 401
-            context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
-            context.response.status_code = status_code
-            context.response.print("401 Unauthorized")
-            context
-          when 403
-            context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
-            context.response.status_code = status_code
-            context.response.print("403 Forbidden")
-            context
-          when 404
-            context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
-            context.response.status_code = status_code
-            context.response.print("404 Not Found")
-            context
-          when 405
-            context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
-            context.response.status_code = status_code
-            context.response.print("405 Method Not Allowed")
-            context
-          when 500
-            context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
-            context.response.status_code = status_code
-            context.response.print("500 Internal Server Error")
-            context
-          end
+          context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
+          context.response.status_code = status_code
+          context.response.print(exception.message)
+          context    
         end
       end
     end
