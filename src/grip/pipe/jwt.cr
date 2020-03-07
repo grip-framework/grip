@@ -5,12 +5,29 @@ module Grip
       AUTH   = "Authorization"
 
       def initialize(
-        @secret_key : String,
-        claims : Hash(Symbol, String?) = {} of Symbol => String?,
+        @secret_key : String = ENV["GRIP_JWT_SECRET"],
+        claims : Hash(Symbol, String?) = {:aud => nil, :iss => nil, :sub => nil},
         @raise_in_case_of_exceptions : Bool = false,
         @algorithm : JWT::Algorithm = JWT::Algorithm::HS256
       )
         @claims = NamedTuple(aud: String?, iss: String?, sub: String?).from(claims)
+      end
+
+      def self.encode_and_sign(
+        data : Hash,
+        secret_key : String = ENV["GRIP_JWT_SECRET"],
+        algorithm : JWT::Algorithm = JWT::Algorithm::HS256
+      )
+        JWT.encode(data, secret_key, algorithm)
+      end
+
+      def self.decode_and_verify(
+        data : String,
+        claims : Hash = {:aud => nil, :iss => nil, :sub => nil},
+        secret_key : String = ENV["GRIP_JWT_SECRET"],
+        algorithm : JWT::Algorithm = JWT::Algorithm::HS256
+      )
+        JWT.decode(data, secret_key, algorithm, **NamedTuple(aud: String?, iss: String?, sub: String?).from(claims))
       end
 
       def call(context)
