@@ -30,13 +30,8 @@ module Grip
       config.setup
       config.port = port if port
 
-      # Test environment doesn't need to have signal trap and logging.
+      # Test environment doesn't need to have signal trap.
       if config.env != "test"
-        setup_400
-        setup_401
-        setup_404
-        setup_405
-        setup_500
         setup_trap_signal
       end
 
@@ -78,51 +73,6 @@ module Grip
         Grip.config.running = false
       else
         raise "Grip.config.server is not set. Please use Grip.run to set the server."
-      end
-    end
-
-    private def setup_400
-      unless Grip.config.error_handlers.has_key?(400)
-        error 400 do |env|
-          env.response.content_type = "application/json"
-          {"status": "error", "message": "bad_request"}.to_json
-        end
-      end
-    end
-
-    private def setup_401
-      unless Grip.config.error_handlers.has_key?(401)
-        error 401 do |env|
-          env.response.content_type = "application/json"
-          {"status": "error", "message": "not_authorized"}.to_json
-        end
-      end
-    end
-
-    private def setup_404
-      unless Grip.config.error_handlers.has_key?(404)
-        error 404 do |env|
-          env.response.content_type = "application/json"
-          {"status": "error", "message": "not_found"}.to_json
-        end
-      end
-    end
-
-    private def setup_405
-      unless Grip.config.error_handlers.has_key?(405)
-        error 405 do |env|
-          env.response.content_type = "application/json"
-          {"status": "error", "message": "method_not_allowed"}.to_json
-        end
-      end
-    end
-
-    private def setup_500
-      unless Grip.config.error_handlers.has_key?(500)
-        error 500 do |env|
-          env.response.content_type = "application/json"
-          {"status": "error", "message": "internal_server_error"}.to_json
-        end
       end
     end
 
