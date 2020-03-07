@@ -41,7 +41,7 @@ module Grip
           context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
           context.response.status_code = status_code
           context.response.print(exception.message)
-          context    
+          context
         end
       end
     end
