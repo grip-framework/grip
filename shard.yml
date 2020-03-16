@@ -1,5 +1,5 @@
 name: grip
-version: 0.28.0
+version: 0.28.1
 
 authors:
   - Grip Team and Contributors <https://github.com/grip-framework>
@@ -10,8 +10,6 @@ dependencies:
 
   jwt:
     github: crystal-community/jwt
-  
-
 
 development_dependencies:
   ameba:
