@@ -27,12 +27,7 @@ end
 
 class Application < Grip::Application
   def initialize
-    pipeline :web, [
-      Grip::Pipe::Log.new,
-      Grip::Pipe::PoweredByGrip.new,
-    ]
-
-    get "/", Index, via: :web
+    get "/", Index
   end
 end
 
