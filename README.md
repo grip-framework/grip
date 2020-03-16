@@ -1,4 +1,3 @@
-
 [![Grip](https://avatars0.githubusercontent.com/u/44188195?s=200&v=4)](https://github.com/grip-framework/grip)
 
 # Grip
@@ -9,6 +8,7 @@ Grip offers extensibility, it has integrated middleware called "pipes" which alt
 
 [![Build Status](https://travis-ci.org/grip-framework/grip.svg?branch=master)](https://travis-ci.org/grip-framework/grip)
 [![Gitter](https://img.shields.io/gitter/room/grip-framework/grip)](https://gitter.im/grip-framework/community)
+
 # Super Simple ⚡️
 
 ```ruby
@@ -16,57 +16,26 @@ require "grip"
 
 class Index < Grip::Controller::Http
   def get(context)
-    # The status code is a mix of a built-in and an integer,
-    # By default every res has a 200 OK status response.
     json(
       context,
       {
-        "id" => 1
-      },
-      200
-    )
-  end
-
-  def create(context)
-    puts url(context) # This gets the hash instance of the route url specified variables
-    puts query(context) # This gets the query parameters passed in with the url
-    puts json(context) # This gets the JSON data which was passed into the route
-    puts headers(context) # This gets the http headers
-
-    params = url(context)
-
-    json(
-      context,
-      {
-        "id" => params["id"]
-      },
-      HTTP::Status::OK
+        "id" => 1,
+      }
     )
   end
 end
 
-class Echo < Grip::Controller::WebSocket
-  def on_message(context, message)
-    send message
-  end
-end
-
-# Routing
 class Application < Grip::Application
   def initialize
     pipeline :web, [
       Grip::Pipe::Log.new,
-      Grip::Pipe::ClientIp.new,
-      Grip::Pipe::PoweredByGrip.new
+      Grip::Pipe::PoweredByGrip.new,
     ]
 
-    get "/", Index
-    post "/:id", Index, via: :web, override: :create
-    ws "/:id", Echo, via: :web
+    get "/", Index, via: :web
   end
 end
 
-# Run the server
 app = Application.new
 app.run
 ```

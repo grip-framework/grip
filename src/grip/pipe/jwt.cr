@@ -35,9 +35,8 @@ module Grip
             if value.size > 0 && value.starts_with?(BEARER)
               begin
                 payload, _ = JWT.decode(value[BEARER.size + 1..], @secret_key, @algorithm, **@claims)
-                context.jwt_payload = payload
+                context.assigns.jwt = payload
               rescue exception
-                context.jwt_payload = nil
                 raise Grip::Exceptions::Unauthorized.new(context)
               end
             else

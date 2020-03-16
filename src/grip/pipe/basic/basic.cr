@@ -22,7 +22,7 @@ module Grip
           if value = context.request.headers[AUTH]
             if value.size > 0 && value.starts_with?(BASIC)
               if username = authorize?(value)
-                context.basic_payload = username
+                context.assigns.basic = username
               else
                 raise Grip::Exceptions::Unauthorized.new(context)
               end

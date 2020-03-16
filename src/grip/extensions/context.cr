@@ -5,19 +5,16 @@
 # Instances of this class are passed to an `HTTP::Server` handler.
 class HTTP::Server
   class Context
-    # :nodoc:
-    STORE_MAPPINGS = [Nil, String, Int32, Int64, Float64, Bool]
+    struct Assigns
+      property ip : String?
+      property basic : String?
+      property jwt : JSON::Any?
+    end
 
-    #
-    # Pipe properties
-    #
-    property client_ip : Socket::IPAddress?
-    property jwt_payload : JSON::Any?
-    property basic_payload : String?
+    property assigns : Assigns
 
-    macro finished
-      alias StoreTypes = Union({{ *STORE_MAPPINGS }})
-      @store = {} of String => StoreTypes
+    def initialize(@request : Request, @response : Response)
+      @assigns = Assigns.new
     end
 
     def params
@@ -51,18 +48,6 @@ class HTTP::Server
 
     def ws_route_found?
       ws_route_lookup.found?
-    end
-
-    def get(name : String)
-      @store[name]
-    end
-
-    def set(name : String, value : StoreTypes)
-      @store[name] = value
-    end
-
-    def get?(name : String)
-      @store[name]?
     end
   end
 end

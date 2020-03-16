@@ -15,12 +15,12 @@ $ crystal init app your_app
 $ cd your_app
 ```
 
-Then add *Grip* to your `shard.yml` file as a dependencie.
+Then add _Grip_ to your `shard.yml` file as a dependencie.
 
 ```yaml
 dependencies:
-    grip:
-        github: grip-framework/grip
+  grip:
+    github: grip-framework/grip
 ```
 
 Finally run `shards` to get the dependencies:
@@ -75,9 +75,11 @@ If everything went well you should see 0 errors.
 # Routing and Response
 
 ## Routing
+
 You can route certain consumers to paths using several methods.
 
 Supported verbs are:
+
 - `resource` - Resource which defines all the verbs.
 - `get` - GET verb.
 - `post` - POST verb.
@@ -88,6 +90,7 @@ Supported verbs are:
 - `head` - HEAD verb.
 
 Supported actions are:
+
 - `only` - Annotate the methods which you want to be available.
 - `exclude` - Annotate the methods which are excluded.
 - `via` - Annotate the pipeline which you want the request to go through before it reaches the endpoint.
@@ -108,9 +111,8 @@ pipeline :web, [
 get "/", Index, via: :web #=> Routes the GET request through the pipeline and to the endpoint.
 ```
 
-
-
 ## Routes
+
 You can handle HTTP methods via pre-defining a set of available methods and then creating separate handlers for each. Each consumer is a separate resource located a single route, which uses radix trees for additional flexibility.
 
 ```ruby
@@ -152,6 +154,7 @@ end
 ```
 
 ## Middleware
+
 In Grip middlewares are mentioned as handlers or consumers, when creating a handler or a consumer you inherit from HTTP::Handler or Grip::Controller::Http.
 
 ### Raw middleware
@@ -178,9 +181,11 @@ api = Api.new
 api.run
 ```
 
-### Plug middleware
+### Pipe middleware
 
-Plug middleware is the building block of the framework, some helpful plugs are included with the framework. Creating a custom plug is as easy as creating an HTTP handler.
+Pipe middleware is the building block of the framework, some helpful pipes are included with the framework. Creating a custom pipe is as easy as creating an HTTP handler.
+
+Advantage of the pipe over a raw middleware is that you can controll what routes go through the middleware and what don't.
 
 ```ruby
 class Custom < Grip::Pipe::Base
@@ -377,25 +382,25 @@ You can easily change the properties of a response, dig in the [Crystal Document
 
 Request Properties
 
-Some common request information is available at context.request.*:
+Some common request information is available at context.request.\*:
 
-  - method - the HTTP method
-        e.g. GET, POST, …
-  - headers - a hash containing relevant request header information
-  - body - the request body
-  - version - the HTTP version
-        e.g. HTTP/1.1
-  - path - the uri path
-        e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context
-  - resource - the uri path and query parameters
-        e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context?lang=cr
-  - cookies
-        e.g. context.request.cookies["cookie_name"].value
-
+- method - the HTTP method
+  e.g. GET, POST, …
+- headers - a hash containing relevant request header information
+- body - the request body
+- version - the HTTP version
+  e.g. HTTP/1.1
+- path - the uri path
+  e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context
+- resource - the uri path and query parameters
+  e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context?lang=cr
+- cookies
+  e.g. context.request.cookies["cookie_name"].value
 
 # Helper Functions
 
 Headers helper function allows you to set custom headers for a specific route response.
+
 ```ruby
 headers(
   context,
@@ -411,17 +416,18 @@ headers(
 Using WebSockets in Grip is pretty easy.
 
 An example echo server might look something like this:
+
 ```ruby
 class Echo < Grip::Controller::WebSocket
-  def on_message(context, message)
+  def on_message(context, socket, message)
     if message == "close"
       close "Received a 'close' message, closing the connection!"
     end
 
-    send message
+    socket.send message
   end
 
-  def on_close(context, message)
+  def on_close(context, socket, message)
     puts message
   end
 end
@@ -440,17 +446,17 @@ Accessing headers of the initial HTTP request can be done via a `headers` method
 
 ```ruby
 class Echo < Grip::Controller::WebSocket
-  def on_message(context, message)
+  def on_message(context, socket, message)
     puts headers(context) # This gets the http headers
 
     if message == "close"
       close "Received a 'close' message, closing the connection!"
     end
 
-    send message
+    socket.send message
   end
 
-  def on_close(context, message)
+  def on_close(context, socket, message)
     puts message
   end
 end
@@ -469,17 +475,17 @@ Dynamic URL parameters can be accessed via a `url` method:
 
 ```ruby
 class Echo < Grip::Controller::WebSocket
-  def on_message(context, message)
+  def on_message(context, socket, message)
     puts ws_url(context) # This gets the hash instance of the route url specified variables
 
     if message == "close"
       close "Received a 'close' message, closing the connection!"
     end
 
-    send message
+    socket.send message
   end
 
-  def on_close(context, message)
+  def on_close(context, socket, message)
     puts message
   end
 end
@@ -493,6 +499,66 @@ end
 api = Api.new
 api.run
 ```
+
+# Pipes
+
+Grip has built-in pipeline system which is used for pipeing the connection through a series of middleware.
+
+```ruby
+pipeline :web, [
+  Grip::Pipe::Log.new,
+  Grip::Pipe::PoweredByGrip.new,
+]
+```
+
+Other than a `Log` and `PoweredByGrip` middleware there is also a
+
+- `Basic` authorization middleware, for basic authorization needs.
+- `Jwt` authorization middleware, for JWT authorization needs.
+- `SecureHeaders` middleware, for securing and hardening your headers.
+- `ClientIp` middleware, for grabbing the ip address of the incomming connection.
+
+Some of the pipes have built-in helper functions, for example the Jwt pipe has `encode_and_sign` and `decode_and_verify` functions which encode and sign the payload and decode and verify the token.
+
+Using authorization middleware requires additional configuration, for example:
+
+```ruby
+pipeline :web, [
+  Grip::Pipe::Basic.new("username", "password"),
+]
+```
+
+or even a more advanced authorization scheme:
+
+```ruby
+pipeline :web, [
+  Grip::Pipe::Jwt.new(
+    ENV["JWT_SECRET"], # This is the secret key which is used to decode the content of the token.
+    {:aud => "Authorization", :iss => "MyCoolCompany", :sub => nil} # These are the claims for the token, usually the sub is left nil for later re-use purposes.
+  ),
+]
+```
+
+Accessing the decoded payload of the pipe can be done through the `context.assigns` class which contains the properties of all the pipes.
+
+If you want to use the decoded payload from the Jwt pipeline just access the `context.assigns` for example:
+
+```ruby
+class Index < Grip::Controller::Http
+  def get(context)
+    json(
+      context,
+      {
+        "decoded" => context.assigns.jwt,
+      }
+    )
+  end
+end
+```
+
+You can extend the assigns class, create a pipe which uses the Jwt pipe to automatically grab the resource out of your database by the `sub` claim, now you have got yourself something equivalent of a `Guardian` package for the `Phoenix` framework.
+
+If you want detailed knowledge about the pipes and how they work just peak into the source code and you will understand easily.
 
 # SSL
 
@@ -509,14 +575,14 @@ crystal build --release src/your_app.cr
 
 [spec-kemal](https://github.com/kemalcr/spec-kemal) has been forked to make testing easy.
 
-Add [*spec-grip*](https://github.com/grip-framework/spec-grip) to your `shard.yml` file as a dependencie.
+Add [_spec-grip_](https://github.com/grip-framework/spec-grip) to your `shard.yml` file as a dependencie.
 
 ```yaml
 dependencies:
-    grip:
-        github: grip-framework/grip
-    spec-grip:
-        github: grip-framework/spec-grip
+  grip:
+    github: grip-framework/grip
+  spec-grip:
+    github: grip-framework/spec-grip
 ```
 
 Then run `shards` to get the dependencies:
@@ -527,14 +593,14 @@ $ shards install
 
 Now you should require it before your files in your `spec/spec_helper.cr`
 
-```crystal
+```ruby
 require "spec-grip"
 require "../src/your-grip-app"
 ```
 
 Your Grip application
 
-```crystal
+```ruby
 # src/your-grip-app.cr
 
 require "grip"
@@ -545,13 +611,13 @@ class HelloWorld < Grip::Controller::Http
   end
 end
 
-class HelloWorld < Grip::Application
+class HelloWorldApplication < Grip::Application
   def initialize
     get "/", HelloWorld
   end
 end
 
-HelloWorld.new.run
+HelloWorldApplication.new.run
 ```
 
 Now you can easily test your `Grip` application in your `spec`s.
@@ -560,7 +626,7 @@ Now you can easily test your `Grip` application in your `spec`s.
 GRIP_ENV=test crystal spec
 ```
 
-```crystal
+```ruby
 # spec/your-grip-app-spec.cr
 
 describe "Your::Grip::App" do
@@ -589,9 +655,11 @@ You can cross-compile a Grip app by using this [guide](http://crystal-lang.org/d
 Grip respects the `GRIP_ENV` environment variable and `Grip.config.env`. It is set to `development` by default.
 
 To change this value to `production`, for example, use:
+
 ```bash
 $ export GRIP_ENV=production
 ```
+
 If you prefer to do this from within your application, use:
 
 ```ruby
