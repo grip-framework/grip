@@ -1,4 +1,4 @@
-[![Grip](https://avatars0.githubusercontent.com/u/44188195?s=200&v=4)](https://github.com/grip-framework/grip)
+[![Grip](https://avatars0.githubusercontent.com/u/61389596?s=200&v=4)](https://github.com/grip-framework/grip)
 
 # Grip
 
