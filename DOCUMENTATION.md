@@ -421,7 +421,7 @@ An example echo server might look something like this:
 class Echo < Grip::Controller::WebSocket
   def on_message(context, socket, message)
     if message == "close"
-      close "Received a 'close' message, closing the connection!"
+      close(socket, "Received a 'close' message, closing the connection!")
     end
 
     socket.send message
@@ -450,7 +450,7 @@ class Echo < Grip::Controller::WebSocket
     puts headers(context) # This gets the http headers
 
     if message == "close"
-      close "Received a 'close' message, closing the connection!"
+      close(socket, "Received a 'close' message, closing the connection!")
     end
 
     socket.send message
@@ -479,7 +479,7 @@ class Echo < Grip::Controller::WebSocket
     puts ws_url(context) # This gets the hash instance of the route url specified variables
 
     if message == "close"
-      close "Received a 'close' message, closing the connection!"
+      close(socket, "Received a 'close' message, closing the connection!")
     end
 
     socket.send message
