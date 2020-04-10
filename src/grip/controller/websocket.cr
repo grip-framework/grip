@@ -34,7 +34,7 @@ module Grip
       def on_binary(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol, on_binary : Bytes)
       end
 
-      def on_close(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol, on_close : String)
+      def on_close(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol, close_code : HTTP::WebSocket::CloseCode, on_close : String)
       end
 
       protected def check_open
@@ -47,7 +47,7 @@ module Grip
       rescue exception
         if !closed?
           @closed = true
-          socket.close(exception.message)
+          socket.close(HTTP::WebSocket::CloseCode::InternalServerError, exception.message)
         end
         exception
       end
@@ -63,7 +63,7 @@ module Grip
       rescue exception
         if !closed?
           @closed = true
-          socket.close(exception.message)
+          socket.close(HTTP::WebSocket::CloseCode::InternalServerError, exception.message)
         end
         exception
       end
@@ -77,7 +77,7 @@ module Grip
       rescue exception
         if !closed?
           @closed = true
-          socket.close(exception.message)
+          socket.close(HTTP::WebSocket::CloseCode::InternalServerError, exception.message)
         end
         exception
       end
@@ -90,15 +90,19 @@ module Grip
       rescue exception
         if !closed?
           @closed = true
-          socket.close(exception.message)
+          socket.close(HTTP::WebSocket::CloseCode::InternalServerError, exception.message)
         end
         exception
       end
 
       def close(socket, message = nil)
+        close(socket, nil, message)
+      end
+
+      def close(socket, code : HTTP::WebSocket::CloseCode | Int? = nil, message = nil)
         return if closed?
         @closed = true
-        socket.close(message)
+        socket.close(code, message)
       end
 
       def run(context, socket)
@@ -111,7 +115,7 @@ module Grip
           begin
             info = socket.receive(@buffer)
           rescue IO::EOFError
-            on_close(context, socket, "")
+            on_close(context, socket, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
             break
           end
 
@@ -145,12 +149,24 @@ module Grip
           when HTTP::WebSocket::Protocol::Opcode::CLOSE
             @current_message.write @buffer[0, info.size]
             if info.final
-              message = @current_message.to_s
-              on_close(context, socket, message)
-              close(socket, message) unless closed?
+              @current_message.rewind
+
+              if @current_message.size >= 2
+                code = @current_message.read_bytes(UInt16, IO::ByteFormat::NetworkEndian).to_i
+                code = HTTP::WebSocket::CloseCode.new(code)
+              else
+                code = HTTP::WebSocket::CloseCode::NoStatusReceived
+              end
+              message = @current_message.gets_to_end
+
+              on_close(context, socket, code, message)
+              close(socket, code, message) unless closed?
+
               @current_message.clear
               break
             end
+          when HTTP::WebSocket::Protocol::Opcode::CONTINUATION
+            # This case wasn't originally handled, but it should be fine.
           end
         end
       end
