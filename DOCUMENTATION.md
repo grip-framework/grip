@@ -427,8 +427,8 @@ class Echo < Grip::Controller::WebSocket
     socket.send message
   end
 
-  def on_close(context, socket, message)
-    puts message
+  def on_close(context, socket, code, message)
+    puts code, message
   end
 end
 
@@ -456,8 +456,8 @@ class Echo < Grip::Controller::WebSocket
     socket.send message
   end
 
-  def on_close(context, socket, message)
-    puts message
+  def on_close(context, socket, code, message)
+    puts code, message
   end
 end
 
@@ -485,8 +485,8 @@ class Echo < Grip::Controller::WebSocket
     socket.send message
   end
 
-  def on_close(context, socket, message)
-    puts message
+  def on_close(context, socket, code, message)
+    puts code, message
   end
 end
 
