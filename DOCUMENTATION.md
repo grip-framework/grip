@@ -155,19 +155,19 @@ You can handle HTTP methods via pre-defining a set of available modifiers and th
 ```ruby
 class Index < Grip::Controller::Http
   def get(context)
-    .. show something ..
+    "Hello, GET!"
   end
 
   def post(context)
-    .. create something ..
+    "Hello, POST!"
   end
 
   def put(context)
-    .. update something ..
+    "Hello, PUT!"
   end
 
   def delete(context)
-    .. delete something ..
+    "Hello, DELETE!"
   end
 end
 ```
@@ -180,7 +180,7 @@ Important note: This should not be used by plugins/addons, instead they should d
 
 The current filter supports all of the verbs which are RESTful, for example defining a `before_get` filter looks like this:
 
-```
+```ruby
 before_get "/" do |context|
   context.response.content_type = "application/json"
 end
