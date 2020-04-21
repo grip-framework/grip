@@ -36,6 +36,7 @@ require "grip"
 require "uuid" # For random UUID generation.
 
 class Index < Grip::Controller::Http
+  #
   # `context` contains the `request` and the `response` of an HTTP connection,
   # the `json` function expands to:
   #
