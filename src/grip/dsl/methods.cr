@@ -22,7 +22,7 @@ module Grip
       def json(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "application/json"})
-        context.print(content.to_json)
+        context.response.print(content.to_json)
         context.response
       end
 
