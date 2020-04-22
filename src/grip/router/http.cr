@@ -23,20 +23,19 @@ module Grip
         end
 
         if context.route.override
-          response = context.route.override.not_nil!.call(context)
+          context.route.override.not_nil!.call(context)
         else
-          response = context.route.handler.call(context)
+          context.route.handler.call(context)
         end
 
         if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(context.response.status_code)
           raise Grip::Exceptions::Generic.new(context)
         end
 
-        context.response.print(response)
         context
       end
 
-      def add_route(method : String, path : String, handler : Grip::Controller::Base, via : Symbol?, override : Proc(HTTP::Server::Context, String)?)
+      def add_route(method : String, path : String, handler : Grip::Controller::Base, via : Symbol?, override : Proc(HTTP::Server::Context, HTTP::Server::Response)?)
         add_to_radix_tree(method, path, Route.new(method, path, handler, via, override))
       end
 

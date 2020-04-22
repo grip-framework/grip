@@ -90,7 +90,6 @@ module Grip
 
     def setup
       unless @default_handlers_setup && @router_included
-        setup_init_handler
         setup_error_handler
         setup_custom_handlers
         setup_filter_handlers
@@ -100,11 +99,6 @@ module Grip
         HANDLERS.insert(HANDLERS.size, Grip::Router::WebSocket::INSTANCE)
         HANDLERS.insert(HANDLERS.size, Grip::Router::Http::INSTANCE)
       end
-    end
-
-    private def setup_init_handler
-      HANDLERS.insert(@handler_position, Grip::Core::Init::INSTANCE)
-      @handler_position += 1
     end
 
     private def setup_error_handler

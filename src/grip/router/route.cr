@@ -3,7 +3,7 @@ module Grip
     struct Route
       getter method, path, handler, override, via
 
-      def initialize(@method : String, @path : String, @handler : Grip::Controller::Base, @via : Symbol?, @override : Proc(HTTP::Server::Context, String)?)
+      def initialize(@method : String, @path : String, @handler : Grip::Controller::Base, @via : Symbol?, @override : Proc(HTTP::Server::Context, HTTP::Server::Response)?)
       end
     end
   end

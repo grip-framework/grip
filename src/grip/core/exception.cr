@@ -22,7 +22,10 @@ module Grip
       rescue ex : Grip::Exceptions::Generic
         call_exception_with_status_code(context, ex, context.response.status_code)
       rescue ex : ::Exception
-        puts("Exception: #{ex.inspect_with_backtrace}\n\nContext: #{context}")
+        unless Grip.config.env == "production"
+          puts("\n#{ex.inspect_with_backtrace}\n")
+        end
+
         return call_exception_with_status_code(context, ex, 500) if Grip.config.error_handlers.has_key?(500)
 
         context.response.status_code = 500

@@ -22,25 +22,29 @@ module Grip
       def json(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "application/json"})
-        content.to_json
+        context.print(content.to_json)
+        context.response
       end
 
       def html(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "text/html"})
-        content
+        context.response.print(content)
+        context.response
       end
 
       def text(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "text/plain"})
-        content
+        context.response.print(content)
+        context.response
       end
 
       def stream(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "application/octetstream"})
-        content
+        context.response.print(content)
+        context.response
       end
 
       def json(context : HTTP::Server::Context)
