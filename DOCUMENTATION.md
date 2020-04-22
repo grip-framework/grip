@@ -156,19 +156,31 @@ You can handle HTTP methods via pre-defining a set of available modifiers and th
 ```ruby
 class Index < Grip::Controller::Http
   def get(context)
-    "Hello, GET!"
+    text(
+      context,
+      "Hello, GET!"
+    )
   end
 
   def post(context)
-    "Hello, POST!"
+    text(
+      context,
+      "Hello, POST!"
+    )
   end
 
   def put(context)
-    "Hello, PUT!"
+    text(
+      context,
+      "Hello, PUT!"
+    )
   end
 
   def delete(context)
-    "Hello, DELETE!"
+    text(
+      context,
+      "Hello, DELETE!"
+    )
   end
 end
 ```
@@ -622,7 +634,10 @@ require "grip"
 
 class Index < Grip::Controller::Http
   def get(context)
-    "Hello, World!"
+    text(
+      context,
+      "Hello, World!"
+    )
   end
 end
 
