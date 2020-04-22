@@ -3,37 +3,37 @@ module Grip
     class Http < Base
       def get(context : HTTP::Server::Context)
         context.response.status_code = 405
-        context.response
+        context
       end
 
       def post(context : HTTP::Server::Context)
         context.response.status_code = 405
-        context.response
+        context
       end
 
       def put(context : HTTP::Server::Context)
         context.response.status_code = 405
-        context.response
+        context
       end
 
       def patch(context : HTTP::Server::Context)
         context.response.status_code = 405
-        context.response
+        context
       end
 
       def delete(context : HTTP::Server::Context)
         context.response.status_code = 405
-        context.response
+        context
       end
 
       def options(context : HTTP::Server::Context)
         context.response.status_code = 405
-        context.response
+        context
       end
 
       def head(context : HTTP::Server::Context)
         context.response.status_code = 405
-        context.response
+        context
       end
 
       def call(context : HTTP::Server::Context)

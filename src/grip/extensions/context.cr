@@ -21,12 +21,6 @@ class HTTP::Server
       @params ||= Grip::Parser::ParamParser.new(@request, route_lookup.params)
     end
 
-    def redirect(url : String, status_code : Int32 = 302, *, body : String? = nil)
-      @response.headers.add "Location", url
-      @response.status_code = status_code
-      @response.print(body) if body
-    end
-
     def route
       route_lookup.payload
     end

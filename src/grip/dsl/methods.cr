@@ -1,6 +1,10 @@
 module Grip
   module DSL
     module Methods
+      #
+      # DSL for pipeline and error declaration.
+      #
+
       def pipeline(name, pipes)
         pipes.each do |pipe|
           Grip::Core::Pipeline::INSTANCE.add_pipe(name, pipe)
@@ -11,41 +15,48 @@ module Grip
         Grip.config.add_error_handler status_code, &block
       end
 
-      def headers(context, additional_headers)
-        context.response.headers.merge!(additional_headers)
-      end
-
-      def headers(context, header, value)
-        context.response.headers[header] = value
-      end
+      #
+      # Request flow control
+      #
 
       def json(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "application/json"})
         context.response.print(content.to_json)
-        context.response
+        context
       end
 
       def html(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "text/html"})
         context.response.print(content)
-        context.response
+        context
       end
 
       def text(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "text/plain"})
         context.response.print(content)
-        context.response
+        context
       end
 
       def stream(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
         context.response.headers.merge!({"Content-Type" => "application/octetstream"})
         context.response.print(content)
-        context.response
+        context
       end
+
+      def redirect(context, url : String, status_code = HTTP::Status::FOUND, *, body : String? = nil)
+        context.response.headers.add "Location", url
+        context.response.status_code = status_code.to_i
+        context.response.print(body) if body
+        context
+      end
+
+      #
+      # Parsed parameter shortcuts
+      #
 
       def json(context : HTTP::Server::Context)
         context.params.json
@@ -56,16 +67,36 @@ module Grip
       end
 
       def url(context : HTTP::Server::Context)
-        context.params.url
-      end
-
-      def ws_url(context : HTTP::Server::Context)
-        context.ws_route_lookup.params
+        if context.params.url.size != 0
+          context.params.url
+        elsif context.ws_route_lookup.params.size != 0
+          context.ws_route_lookup.params
+        else
+          context.params.url || context.ws_route_lookup.params
+        end
       end
 
       def headers(context : HTTP::Server::Context)
         context.request.headers
       end
+
+      #
+      # Header parameter control
+      #
+
+      def headers(context, additional_headers)
+        context.response.headers.merge!(additional_headers)
+        context
+      end
+
+      def headers(context, header, value)
+        context.response.headers[header] = value
+        context
+      end
+
+      #
+      # Middleware control
+      #
 
       def add_handler(handler : HTTP::Handler)
         Grip.config.add_handler handler
