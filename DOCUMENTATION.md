@@ -2,9 +2,7 @@
 
 This guide assumes that you already have Crystal installed. If not, check out the [Crystal installation methods](https://crystal-lang.org/install/) and come back when you’re done.
 
-Keep in mind that this framework is not for HTML based request-response model, it only supports a JSON pure REST based API model, it is possible to switch to HTML via some hacking but it is not recommended.
-
-Most of the legacy `cookbook` parts still work in Grip, the configuration parts are still the same.
+Most of the [Kemal](https://kemalcr.com/cookbook/hello_world/) framework parts still work in Grip, which makes porting your source code easy.
 
 ## Installing Grip
 
@@ -15,7 +13,7 @@ $ crystal init app your_app
 $ cd your_app
 ```
 
-Then add _Grip_ to your `shard.yml` file as a dependencie.
+Then add _Grip_ to your `shard.yml` file as a dependency.
 
 ```yaml
 dependencies:
@@ -38,29 +36,41 @@ require "grip"
 require "uuid" # For random UUID generation.
 
 class Index < Grip::Controller::Http
-    # The status and content of a response are mandatory, without it the router wont function.
-    # The status value is precieved as the response code,
-    # and the content value is precieved as the response content.
-    def get(context)
-      # HTTP::Status is an enum which has all of the response codes alternatively you can use an integer.
-      json(
-        context,
-        {
-          "id": "#{UUID.random}"
-        }
-      )
-    end
+  #
+  # `context` contains the `request` and the `response` of an HTTP connection,
+  # the `json` function expands to:
+  #
+  #   def json(context, content, status_code = HTTP::Status::OK)
+  #     context.response.status_code = status_code.to_i 
+  #     context.response.headers.merge!({"Content-Type" => "application/json"})
+  #     content.to_json
+  #   end
+  #
+  # and it is a "helper" function which helps you by avoiding so much boilerplate.
+  #
+    
+  def get(context)
+    # HTTP::Status is an enum which has all of the response codes alternatively you can use an integer.
+    json(
+      context,
+      {
+        "id": "#{UUID.random}"
+      }
+    )
+  end
 end
 
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     get "/", Index
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
+
+Keep in mind that the context modifier must return a `String` literal otherwise the router will panic and the application won't compile.
 
 ## Running Grip
 
@@ -70,7 +80,7 @@ Starting your application is easy, simply run:
 $ crystal run src/your_app.cr
 ```
 
-If everything went well you should see 0 errors.
+If everything went well you should see no errors and a message which indicates the server address.
 
 # Routing and Response
 
@@ -78,60 +88,88 @@ If everything went well you should see 0 errors.
 
 You can route certain consumers to paths using several methods.
 
-Supported verbs are:
+Avaliable HTTP verbs are: `GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD`.
 
-- `resource` - Resource which defines all the verbs.
-- `get` - GET verb.
-- `post` - POST verb.
-- `put` - PUT verb.
-- `patch` - PATCH verb.
-- `delete` - DELETE verb.
-- `options` - OPTIONS verb.
-- `head` - HEAD verb.
+### Resource
 
-Supported actions are:
+Resource annotation routes all of the avaliable verbs to appropriate method modifiers,
+you can alter the selected methods which must be included or excluded from the resource.
 
-- `only` - Annotate the methods which you want to be available.
-- `exclude` - Annotate the methods which are excluded.
-- `via` - Annotate the pipeline which you want the request to go through before it reaches the endpoint.
-- `override` - Annotate the method which takes the execution instead of the default verb.
+#### Default
 
 ```ruby
-resource "/", Index #=> Routes requests to request methods.
-resource "/", Index, only: [:get, :post] #=> Routes requests 'GET' and 'POST' to methods `get` and `post`.
-resource "/", Index, exclude: [:get, :post] #=> Routes requests to request methods, except the `get` and the `post`.
+# Routes requests to appropriate requested method modifiers.
+resource "/", Index
+```
 
-get "/", Index #=> Routes the GET request to the consumer `get` method.
-get "/", Index, override: :index #=> Routes GET request to the consumer `index` method.
+#### Only
 
+```ruby
+# Only routes requests to the `GET` and `POST` modifiers.
+resource "/", Index, only: [:get, :post]
+```
+
+#### Exclude
+
+```ruby
+# Routes requests to appropriate requested method modifiers, except `GET` and `POST` requests.
+resource "/", Index, exclude: [:get, :post]
+```
+
+### HTTP verbs
+
+All of the modifier verbs are interchangeable, you can combine and use `override` and `via` together.
+
+#### Default
+
+```ruby
+# Routes `GET` requests to the appropriate modifier of the Index controller.
+get "/", Index
+```
+
+#### Via
+
+```ruby
+# Routes `GET` requests to the appropriate modifier but before that happens it routes the request through a pipeline,
+# which contains several pre-defined middleware native to Grip or handwritten by the user which modifies the request
+# and passes it on to the next pipe until it reaches the desired endpoint.
 pipeline :web, [
   Grip::Pipe::Log.new
 ]
 
-get "/", Index, via: :web #=> Routes the GET request through the pipeline and to the endpoint.
+get "/", Index, via: :web
 ```
+
+#### Override
+
+```ruby
+# Routes `GET` requests to the `index` modifier of the `Index` controller, instead of using the default `get` modifier
+# defined in the controller it uses an `index` modifier which also must be defined in the controller for it to work.
+get "/", Index, override: :index
+```
+
 
 ## Routes
 
-You can handle HTTP methods via pre-defining a set of available methods and then creating separate handlers for each. Each consumer is a separate resource located a single route, which uses radix trees for additional flexibility.
+You can handle HTTP methods via pre-defining a set of available modifiers and then creating separate handlers for each. Each consumer is a separate resource located in a single route, which uses radix trees for additional flexibility.
 
 ```ruby
 class Index < Grip::Controller::Http
-    def get(context)
-    .. show something ..
-    end
+  def get(context)
+    "Hello, GET!"
+  end
 
-    def post(context)
-    .. create something ..
-    end
+  def post(context)
+    "Hello, POST!"
+  end
 
-    def put(context)
-    .. update something ..
-    end
+  def put(context)
+    "Hello, PUT!"
+  end
 
-    def delete(context)
-    .. delete something ..
-    end
+  def delete(context)
+    "Hello, DELETE!"
+  end
 end
 ```
 
@@ -141,17 +179,15 @@ Before and after filters are evaluated before and after each request within the 
 
 Important note: This should not be used by plugins/addons, instead they should do all their work in their own middleware.
 
-Before you define a `before_all` and `after_all` filter, you must have at least one ``.
+The current filter supports all of the verbs which are RESTful, for example defining a `before_get` filter looks like this:
 
 ```ruby
-before_all "*" do |context|
-  puts "Before all was triggered."
-end
-
-after_all "*" do |context|
-  puts "After all was triggered."
+before_get "/" do |context|
+  context.response.content_type = "application/json"
 end
 ```
+
+For a more detailed explanation read the [filter section](https://kemalcr.com/guide/#filters) of the Kemal framework.
 
 ## Middleware
 
@@ -171,14 +207,14 @@ class CustomHandler
 end
 
 # You can add the middleware to the handler stack by using
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     add_handler CustomHandler.new
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 ### Pipe middleware
@@ -206,7 +242,7 @@ class Index < Grip::Controller::Http
 end
 
 # You can add the handler just by doing the same as you do to other consumer types.
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     pipeline :web, [
       Custom.new
@@ -216,8 +252,8 @@ class Api < Grip::Application
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 ## Response Codes
@@ -251,7 +287,7 @@ text(
 Grip comes with a pre-defined error handlers for the JSON response type. You can customize the built-in error pages or even add your own with `error`.
 
 ```ruby
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     error 404 do
       "This is a customized 404 page."
@@ -263,8 +299,8 @@ class Api < Grip::Application
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 # HTTP Parameters
@@ -277,35 +313,35 @@ Grip allows you to use variables in your route path as placeholders for passing 
 
 ```ruby
 class Users < Grip::Controller::Http
-    def get(context)
-      params = url(context)
-      json(
-        context,
-        {
-          "id": params["id"]
-        }
-      )
-    end
+  def get(context)
+    params = url(context)
+    json(
+      context,
+      {
+        "id": params["id"]
+      }
+    )
+  end
 
-    def post(context)
-      params = url(context)
-      json(
-        context,
-        {
-          "id": params["id"]
-        }
-      )
-    end
+  def post(context)
+    params = url(context)
+    json(
+      context,
+      {
+        "id": params["id"]
+      }
+    )
+  end
 end
 
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     resource "/:id", Users, only: [:get, :post]
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 ## Query Parameters
@@ -331,14 +367,14 @@ class Resize < Grip::Controller::Http
   end
 end
 
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     get "/", Resize
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 ## JSON Parameters
@@ -364,61 +400,40 @@ class SignIn < Grip::Controller::Http
   end
 end
 
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     post "/", SignIn
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 # HTTP Request / Response Context
 
 The `context` parameter is of `HTTP::Server::Context` type and contains the request and response of the route.
 
-You can easily change the properties of a response, dig in the [Crystal Documentation](https://crystal-lang.org/api/0.20.1/HTTP/Server/Context.html) to find out more.
-
-Request Properties
-
-Some common request information is available at context.request.\*:
-
-- method - the HTTP method
-  e.g. GET, POST, …
-- headers - a hash containing relevant request header information
-- body - the request body
-- version - the HTTP version
-  e.g. HTTP/1.1
-- path - the uri path
-  e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context
-- resource - the uri path and query parameters
-  e.g. http://kemalcr.com/docs/context?lang=cr => /docs/context?lang=cr
-- cookies
-  e.g. context.request.cookies["cookie_name"].value
+You can easily change the properties of a response, dig in the [Crystal Documentation](https://crystal-lang.org/api/0.34.0/HTTP/Server/Context.html) to find out more.
 
 # Helper Functions
 
-Headers helper function allows you to set custom headers for a specific route response.
-
-```ruby
-headers(
-  context,
-  {
-    "X-Custom-Header" => "This is a custom value",
-    "X-Custom-Header-Two" => "This is a custom value"
-  }
-)
-```
+Helper functions are defined in: [DSL/Methods](https://github.com/grip-framework/grip/blob/master/src/grip/dsl/methods.cr), [Extensions/Context](https://github.com/grip-framework/grip/blob/master/src/grip/extensions/context.cr). Taking a quick look will help you understand more of the innerworkings of the Grip framework.
 
 # WebSockets
 
 Using WebSockets in Grip is pretty easy.
 
+Keep in mind the `Via` modifier is supported by the websocket verb, which gives you the ability to put additional pipelines on the websocket route.
+
 An example echo server might look something like this:
 
 ```ruby
 class Echo < Grip::Controller::WebSocket
+  def on_open(context, socket)
+    puts "An user has connected to the websocket endpoint."  
+  end
+  
   def on_message(context, socket, message)
     if message == "close"
       close(socket, "Received a 'close' message, closing the connection!")
@@ -432,14 +447,14 @@ class Echo < Grip::Controller::WebSocket
   end
 end
 
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     ws "/", Echo
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 Accessing headers of the initial HTTP request can be done via a `headers` method:
@@ -461,14 +476,14 @@ class Echo < Grip::Controller::WebSocket
   end
 end
 
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     ws "/", Echo
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 Dynamic URL parameters can be accessed via a `url` method:
@@ -490,14 +505,14 @@ class Echo < Grip::Controller::WebSocket
   end
 end
 
-class Api < Grip::Application
+class App < Grip::Application
   def initialize
     ws "/", Echo
   end
 end
 
-api = Api.new
-api.run
+app = App.new
+app.run
 ```
 
 # Pipes
@@ -605,19 +620,20 @@ Your Grip application
 
 require "grip"
 
-class HelloWorld < Grip::Controller::Http
+class Index < Grip::Controller::Http
   def get(context)
-    "Hello world"
+    "Hello, World!"
   end
 end
 
-class HelloWorldApplication < Grip::Application
+class App < Grip::Application
   def initialize
-    get "/", HelloWorld
+    get "/", Index
   end
 end
 
-HelloWorldApplication.new.run
+app = App.new
+app.run
 ```
 
 Now you can easily test your `Grip` application in your `spec`s.
@@ -630,11 +646,10 @@ GRIP_ENV=test crystal spec
 # spec/your-grip-app-spec.cr
 
 describe "Your::Grip::App" do
-
   # You can use get,post,put,patch,delete to call the corresponding route.
   it "renders /" do
     get "/"
-    response.body.should eq "Hello World!"
+    response.body.should eq "Hello, World!"
   end
 
 end
