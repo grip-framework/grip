@@ -1,5 +1,5 @@
 name: grip
-version: 0.28.4
+version: 0.28.5
 
 authors:
   - Grip Team and Contributors <https://github.com/grip-framework>
@@ -15,6 +15,6 @@ development_dependencies:
   ameba:
     github: crystal-ameba/ameba
 
-crystal: 0.34.0
+crystal: 0.35.1
 
 license: MIT
