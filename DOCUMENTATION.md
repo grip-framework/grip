@@ -503,7 +503,7 @@ Dynamic URL parameters can be accessed via a `url` method:
 ```ruby
 class Echo < Grip::Controller::WebSocket
   def on_message(context, socket, message)
-    puts ws_url(context) # This gets the hash instance of the route url specified variables
+    puts url(context) # This gets the hash instance of the route url specified variables
 
     if message == "close"
       close(socket, "Received a 'close' message, closing the connection!")
