@@ -21,9 +21,7 @@ module Grip
           end
         end
 
-        content = context.websocket.handler.call(context)
-        context.response.print(content)
-        context
+        context.websocket.handler.call(context)
       end
 
       def lookup_ws_route(path : String)
