@@ -6,6 +6,8 @@ Grip is a microframework for building RESTful web applications. It is designed t
 
 Grip offers extensibility, it has integrated middleware called "pipes" which alter the parts of the request/response context and pass it on to the actual endpoint. It has a router which somewhat resembles that of [Phoenix framework](https://github.com/phoenixframework/phoenix)'s router and most of all it is fast, peaking at [821,864](https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=json&l=zdk8an-1r) requests/second.
 
+A [cookiecutter](https://github.com/grip-framework/cookiecutter-grip-api) template which gives you an example structure of a Grip API project.
+
 [![Build Status](https://travis-ci.org/grip-framework/grip.svg?branch=master)](https://travis-ci.org/grip-framework/grip)
 [![Gitter](https://img.shields.io/gitter/room/grip-framework/grip)](https://gitter.im/grip-framework/community)
 
