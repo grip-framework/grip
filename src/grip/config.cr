@@ -1,6 +1,4 @@
 module Grip
-  VERSION = {{ `shards version #{__DIR__}`.chomp.stringify }}
-
   # Stores all the configuration options for a Grip application.
   # It's a singleton and you can access it like.
   #
@@ -25,8 +23,8 @@ module Grip
 
     def initialize
       @host_binding = "0.0.0.0"
-      @port = 3000
-      @env = ENV["GRIP_ENV"]? || "development"
+      @port = 5000
+      @env = ENV["APP_ENV"]? || "development"
       @error_handler = nil
       @always_rescue = true
       @router_included = false

@@ -18,7 +18,7 @@ An example project containing a basic CRUD application is at [this](https://gith
 ```ruby
 require "grip"
 
-class Index < Grip::Controller::Http
+class Index < Grip::Controllers::Http
   def get(context)
     json(
       context,

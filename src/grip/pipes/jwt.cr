@@ -1,11 +1,11 @@
 module Grip
-  module Pipe
+  module Pipes
     class Jwt < Base
       BEARER = "Bearer"
       AUTH   = "Authorization"
 
       def initialize(
-        @secret_key : String = ENV["GRIP_JWT_SECRET"],
+        @secret_key : String = ENV["JWT_SECRET"],
         claims : Hash(Symbol, String?) = {:aud => nil, :iss => nil, :sub => nil},
         @algorithm : JWT::Algorithm = JWT::Algorithm::HS256
       )
@@ -14,7 +14,7 @@ module Grip
 
       def self.encode_and_sign(
         data : Hash,
-        secret_key : String = ENV["GRIP_JWT_SECRET"],
+        secret_key : String = ENV["JWT_SECRET"],
         algorithm : JWT::Algorithm = JWT::Algorithm::HS256
       )
         JWT.encode(data, secret_key, algorithm)
@@ -23,7 +23,7 @@ module Grip
       def self.decode_and_verify(
         data : String,
         claims : Hash = {:aud => nil, :iss => nil, :sub => nil},
-        secret_key : String = ENV["GRIP_JWT_SECRET"],
+        secret_key : String = ENV["JWT_SECRET"],
         algorithm : JWT::Algorithm = JWT::Algorithm::HS256
       )
         JWT.decode(data, secret_key, algorithm, **NamedTuple(aud: String?, iss: String?, sub: String?).from(claims))

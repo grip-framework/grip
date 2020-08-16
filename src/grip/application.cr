@@ -63,7 +63,7 @@ module Grip
 
     def display_startup_message(config, server)
       addresses = server.addresses.map { |address| "#{config.scheme}://#{address}" }.join ", "
-      puts "Grip is listening at #{addresses}" if Grip.config.env == "development"
+      puts "[#{Grip.config.env}] Grip is listening at #{addresses}"
     end
 
     def stop

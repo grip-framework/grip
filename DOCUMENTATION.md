@@ -21,6 +21,8 @@ dependencies:
     github: grip-framework/grip
 ```
 
+Or just use a cookiecutter template hosted [here](https://github.com/grip-framework/cookiecutter-grip-api) which gives you a headstart on how the structure should look for a Grip project.
+
 Finally run `shards` to get the dependencies:
 
 ```bash
@@ -35,7 +37,7 @@ Let's start with a simple example
 require "grip"
 require "uuid" # For random UUID generation.
 
-class Index < Grip::Controller::Http
+class Index < Grip::Controllers::Http
   #
   # `context` contains the `request` and the `response` of an HTTP connection,
   # the `json` function expands to:
@@ -134,7 +136,7 @@ get "/", Index
 # which contains several pre-defined middleware native to Grip or handwritten by the user which modifies the request
 # and passes it on to the next pipe until it reaches the desired endpoint.
 pipeline :web, [
-  Grip::Pipe::Log.new
+  Grip::Pipes::Log.new
 ]
 
 get "/", Index, via: :web
@@ -154,7 +156,7 @@ get "/", Index, override: :index
 You can handle HTTP methods via pre-defining a set of available modifiers and then creating separate handlers for each. Each consumer is a separate resource located in a single route, which uses radix trees for additional flexibility.
 
 ```ruby
-class Index < Grip::Controller::Http
+class Index < Grip::Controllers::Http
   def get(context)
     text(
       context,
@@ -203,7 +205,7 @@ For a more detailed explanation read the [filter section](https://kemalcr.com/gu
 
 ## Middleware
 
-In Grip middlewares are mentioned as handlers or consumers, when creating a handler or a consumer you inherit from HTTP::Handler or Grip::Controller::Http.
+In Grip middlewares are mentioned as handlers or consumers, when creating a handler or a consumer you inherit from HTTP::Handler or Grip::Controllers::Http.
 
 ### Raw middleware
 
@@ -236,13 +238,13 @@ Pipe middleware is the building block of the framework, some helpful pipes are i
 Advantage of the pipe over a raw middleware is that you can controll what routes go through the middleware and what don't.
 
 ```ruby
-class Custom < Grip::Pipe::Base
+class Custom < Grip::Pipes::Base
   def call(context)
 
   end
 end
 
-class Index < Grip::Controller::Http
+class Index < Grip::Controllers::Http
   def get(context)
     json(
       context,
@@ -324,7 +326,7 @@ When passing data through an HTTP request, you will often need to use query para
 Grip allows you to use variables in your route path as placeholders for passing data. To access URL parameters, you use `url`.
 
 ```ruby
-class Users < Grip::Controller::Http
+class Users < Grip::Controllers::Http
   def get(context)
     params = url(context)
     json(
@@ -361,7 +363,7 @@ app.run
 To access query parameters, you use `query`.
 
 ```ruby
-class Resize < Grip::Controller::Http
+class Resize < Grip::Controllers::Http
   def get(context)
     params = query(context)
     width = params["width"]
@@ -394,7 +396,7 @@ app.run
 You can easily access JSON payload from the parameters, or through the standard post body.
 
 ```ruby
-class SignIn < Grip::Controller::Http
+class SignIn < Grip::Controllers::Http
   def create(context)
     params = json(context)
     username = params["username"]
@@ -441,7 +443,7 @@ Keep in mind the `Via` modifier is supported by the websocket verb, which gives 
 An example echo server might look something like this:
 
 ```ruby
-class Echo < Grip::Controller::WebSocket
+class Echo < Grip::Controllers::WebSocket
   def on_open(context, socket)
     puts "An user has connected to the websocket endpoint."  
   end
@@ -472,7 +474,7 @@ app.run
 Accessing headers of the initial HTTP request can be done via a `headers` method:
 
 ```ruby
-class Echo < Grip::Controller::WebSocket
+class Echo < Grip::Controllers::WebSocket
   def on_message(context, socket, message)
     puts headers(context) # This gets the http headers
 
@@ -501,7 +503,7 @@ app.run
 Dynamic URL parameters can be accessed via a `url` method:
 
 ```ruby
-class Echo < Grip::Controller::WebSocket
+class Echo < Grip::Controllers::WebSocket
   def on_message(context, socket, message)
     puts url(context) # This gets the hash instance of the route url specified variables
 
@@ -533,12 +535,12 @@ Grip has built-in pipeline system which is used for pipeing the connection throu
 
 ```ruby
 pipeline :web, [
-  Grip::Pipe::Log.new,
-  Grip::Pipe::PoweredByGrip.new,
+  Grip::Pipes::Log.new,
+  Grip::Pipes::PoweredByHeader.new,
 ]
 ```
 
-Other than a `Log` and `PoweredByGrip` middleware there is also a
+Other than a `Log` and `PoweredByHeader` middleware there is also a
 
 - `Basic` authorization middleware, for basic authorization needs.
 - `Jwt` authorization middleware, for JWT authorization needs.
@@ -551,7 +553,7 @@ Using authorization middleware requires additional configuration, for example:
 
 ```ruby
 pipeline :web, [
-  Grip::Pipe::Basic.new("username", "password"),
+  Grip::Pipes::Basic.new("username", "password"),
 ]
 ```
 
@@ -559,7 +561,7 @@ or even a more advanced authorization scheme:
 
 ```ruby
 pipeline :web, [
-  Grip::Pipe::Jwt.new(
+  Grip::Pipes::Jwt.new(
     ENV["JWT_SECRET"], # This is the secret key which is used to decode the content of the token.
     {:aud => "Authorization", :iss => "MyCoolCompany", :sub => nil} # These are the claims for the token, usually the sub is left nil for later re-use purposes.
   ),
@@ -571,7 +573,7 @@ Accessing the decoded payload of the pipe can be done through the `context.assig
 If you want to use the decoded payload from the Jwt pipeline just access the `context.assigns` for example:
 
 ```ruby
-class Index < Grip::Controller::Http
+class Index < Grip::Controllers::Http
   def get(context)
     json(
       context,
@@ -632,7 +634,7 @@ Your Grip application
 
 require "grip"
 
-class Index < Grip::Controller::Http
+class Index < Grip::Controllers::Http
   def get(context)
     text(
       context,
@@ -654,7 +656,7 @@ app.run
 Now you can easily test your `Grip` application in your `spec`s.
 
 ```
-GRIP_ENV=test crystal spec
+APP_ENV=test crystal spec
 ```
 
 ```ruby
@@ -682,12 +684,12 @@ You can cross-compile a Grip app by using this [guide](http://crystal-lang.org/d
 
 # environment
 
-Grip respects the `GRIP_ENV` environment variable and `Grip.config.env`. It is set to `development` by default.
+Grip respects the `APP_ENV` environment variable and `Grip.config.env`. It is set to `development` by default.
 
 To change this value to `production`, for example, use:
 
 ```bash
-$ export GRIP_ENV=production
+$ export APP_ENV=production
 ```
 
 If you prefer to do this from within your application, use:

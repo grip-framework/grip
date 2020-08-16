@@ -10,7 +10,7 @@ module Grip
             Grip::Router::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
-              \{{ resource }}.new.as(Grip::Controller::Base),
+              \{{ resource }}.new.as(Grip::Controllers::Base),
               \{{kwargs[:via]}},
               -> (context : HTTP::Server::Context) {
                 \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
@@ -19,7 +19,7 @@ module Grip
             Grip::Router::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
-              \{{ resource }}.new.as(Grip::Controller::Base),
+              \{{ resource }}.new.as(Grip::Controllers::Base),
               nil,
               -> (context : HTTP::Server::Context) {
                 \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
@@ -28,7 +28,7 @@ module Grip
             Grip::Router::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
-              \{{ resource }}.new.as(Grip::Controller::Base),
+              \{{ resource }}.new.as(Grip::Controllers::Base),
               \{{kwargs[:via]}},
               nil
             )
@@ -36,7 +36,7 @@ module Grip
             Grip::Router::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
-              \{{ resource }}.new.as(Grip::Controller::Base),
+              \{{ resource }}.new.as(Grip::Controllers::Base),
               nil,
               nil
             )

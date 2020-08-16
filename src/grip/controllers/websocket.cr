@@ -1,5 +1,5 @@
 module Grip
-  module Controller
+  module Controllers
     class WebSocket < Base
       getter? closed = false
 

@@ -1,8 +1,8 @@
 name: grip
-version: 0.28.6
+version: 0.29.0
 
 authors:
-  - Grip Team and Contributors <https://github.com/grip-framework>
+  - Grip and its Contributors <https://github.com/grip-framework/>
 
 dependencies:
   radix:

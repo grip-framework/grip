@@ -1,5 +1,5 @@
 module Grip
-  module Pipe
+  module Pipes
     class Basic < Base
       BASIC                 = "Basic"
       AUTH                  = "Authorization"
