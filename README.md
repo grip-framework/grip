@@ -8,6 +8,8 @@ Grip offers extensibility, it has integrated middleware called "pipes" which alt
 
 A [cookiecutter](https://github.com/grip-framework/cookiecutter-grip-api) template which gives you an example structure of a Grip API project.
 
+An example project containing a basic CRUD application is at [this](https://github.com/grkek/prognoz) repository, make sure to check it out.
+
 [![Build Status](https://travis-ci.org/grip-framework/grip.svg?branch=master)](https://travis-ci.org/grip-framework/grip)
 [![Gitter](https://img.shields.io/gitter/room/grip-framework/grip)](https://gitter.im/grip-framework/community)
 
