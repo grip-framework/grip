@@ -39,7 +39,7 @@ app = Application.new
 app.run
 ```
 
-The default port of the application is `3000`,
+The default port of the application is `5000`,
 you can set it by either compiling it and providing a `-p` flag or
 by changing it from the source code.
 

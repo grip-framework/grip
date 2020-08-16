@@ -33,22 +33,28 @@ module Grip
       @handler_position = 0
     end
 
+    # Returns the current application environment.
     def env
       @env
     end
 
+    # Sets the router for the current application.
     def router=(router)
       @router = router
     end
 
+    # Returns an array of `HTTP::Handler` registered in the configuration class.
     def handlers
       HANDLERS
     end
-
+    
+    # Returns the scheme of the request if the SSL is configured it returns
+    # `https`, otherwise it returns `http`
     def scheme
       ssl ? "https" : "http"
     end
 
+    # Clears out the entire configuration file.
     def clear
       @router_included = false
       @handler_position = 0
@@ -59,33 +65,41 @@ module Grip
       ERROR_HANDLERS.clear
     end
 
+    # Returns an array of `HTTP::Handler` which were registered by the end user.
     def custom_handlers
       CUSTOM_HANDLERS
     end
 
+    # Adds a `HTTP::Handler` to the `CUSTOM_HANDLERS` array.
     def add_handler(handler : HTTP::Handler)
       CUSTOM_HANDLERS << {nil, handler}
     end
 
+    # Adds a `HTTP::Handler` to the `CUSTOM_HANDLERS` array with a defined position.
     def add_handler(handler : HTTP::Handler, position : Int32)
       CUSTOM_HANDLERS << {position, handler}
     end
 
+    # Adds a `HTTP::Handler` to the `FILTER_HANDLERS` array.
     def add_filter_handler(handler : HTTP::Handler)
       FILTER_HANDLERS << handler
     end
 
+    # Adds a `HTTP::Handler` to the `ERROR_HANDLERS` array.
     def error_handlers
       ERROR_HANDLERS
     end
 
+    # Adds an error handler which is a simple block of an expression.
     def add_error_handler(status_code : Int32, &handler : HTTP::Server::Context, Exception -> _)
       ERROR_HANDLERS[status_code] = ->(context : HTTP::Server::Context, error : Exception) { handler.call(context, error).to_s }
     end
-
+    
+    # Gathers up extra options from the `OptionParser`.
     def extra_options(&@extra_options : OptionParser ->)
     end
 
+    # Sets up the configuration file.
     def setup
       unless @default_handlers_setup && @router_included
         setup_error_handler

@@ -1,7 +1,18 @@
 require "option_parser"
 
 module Grip
-  # Handles all the initialization from the command line.
+  # `Grip::CLI` is a built-in class and it handles all of the CLI commands
+  # which are provided to the compiled binary file of a `Grip` application.
+  #
+  # It is responsible for loading the SSL/TLS certificate file and configuring
+  # the application to accept the encrypted data.
+  #
+  # It is responsible for updating the `HOST` and the `PORT` of the configuration
+  # as well as prompting the help by using an `OptionParser` class.
+  #
+  # ```
+  # cli = Grip::CLI.new(ARGV)
+  # ```
   class CLI
     def initialize(args)
       @ssl_enabled = false
