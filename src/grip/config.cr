@@ -47,7 +47,7 @@ module Grip
     def handlers
       HANDLERS
     end
-    
+
     # Returns the scheme of the request if the SSL is configured it returns
     # `https`, otherwise it returns `http`
     def scheme
@@ -94,7 +94,7 @@ module Grip
     def add_error_handler(status_code : Int32, resource : Grip::Controllers::Exception)
       ERROR_HANDLERS[status_code] = resource
     end
-    
+
     # Gathers up extra options from the `OptionParser`.
     def extra_options(&@extra_options : OptionParser ->)
     end

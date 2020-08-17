@@ -7,7 +7,7 @@ module Grip
     # class Example
     #   include Grip::DSL::Methods
     #   include HTTP::Handler
-    #   
+    #
     #   def call(context)
     #     json!(
     #       context,

@@ -8,7 +8,7 @@ module Grip
       getter modification_time : Time?
       getter read_time : Time?
       getter size : UInt64?
-  
+
       def initialize(upload)
         @tempfile = File.tempfile
         ::File.open(@tempfile.path, "w") do |file|

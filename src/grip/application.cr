@@ -6,7 +6,7 @@ module Grip
   # class Application < Grip::Application
   #   def initialize
   #     pipeline :api, [
-  #       Grip::Pipes::PoweredByHeader.new
+  #       Grip::Pipes::PoweredByHeader.new,
   #     ]
   #   end
   # end
@@ -67,7 +67,7 @@ module Grip
       end
 
       display_startup_message(config, server)
-      
+
       server.listen unless config.env == "test"
     end
 

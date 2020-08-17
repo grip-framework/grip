@@ -1,7 +1,7 @@
 module Grip
   module DSL
     module Macros
-      HTTP_METHODS   = %i(get post put patch delete options head)
+      HTTP_METHODS = %i(get post put patch delete options head)
 
       macro pipeline(name, pipes)
         {{pipes}}.each do |pipe|
