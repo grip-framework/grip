@@ -22,7 +22,7 @@ module Grip
         context.response.status_code = status_code.to_i
         raise exception
       end
-      
+
       # `Grip::DSL::Methods#json!` responds with JSON content.
       def json!(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i
