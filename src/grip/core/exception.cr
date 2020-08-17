@@ -19,16 +19,14 @@ module Grip
         call_exception_with_status_code(context, ex, 405)
       rescue ex : Grip::Exceptions::InternalServerError
         call_exception_with_status_code(context, ex, 500)
-      rescue ex : Grip::Exceptions::Generic
-        call_exception_with_status_code(context, ex, context.response.status_code)
       rescue ex : ::Exception
         STDOUT.print("\n#{ex.inspect_with_backtrace}\n")
         STDOUT.flush
 
-        return call_exception_with_status_code(context, ex, 500) if Grip.config.error_handlers.has_key?(500)
+        return call_exception_with_status_code(context, ex, context.response.status_code) if Grip.config.error_handlers.has_key?(context.response.status_code)
 
         context.response.status_code = 500
-        context.response.print("500 Internal Server Error")
+        context.response.print("<pre>#{ex.inspect_with_backtrace}\n</pre>") if Grip.config.env == "development"
 
         return context
       end
@@ -38,6 +36,7 @@ module Grip
         if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(status_code)
           context.response.status_code = status_code
           context.exception = exception
+
           return Grip.config.error_handlers[status_code].call(context)
         else
           context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
