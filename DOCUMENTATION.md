@@ -342,26 +342,24 @@ class NotFoundController < Grip::Controllers::Exception
   # To keep the structure of the project
   # we still inherit from the Base class which forces us
   # to define the default `call` function.
-  def call(context); end
-  def call(context, exception, status_code)
+  def call(context)
     json!(
       context,
       {
-        "error" => ["Resource was not found!"]
-      },
-      status_code
+        "errors" => [context.exception.not_nil!.to_s]
+      }
     )
   end
 end
 
 class ForbiddenController < Grip::Controllers::Exception
-  def call(context, exception, status_code)
+  def call(context)
     json!(
       context,
       {
         "error" => ["You lack privileges to access the current resource!"]
       },
-      status_code
+      403
     )
   end
 end
