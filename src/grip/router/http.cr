@@ -29,7 +29,7 @@ module Grip
         end
 
         if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(context.response.status_code)
-          raise Crystal::Exception.new("Routing layer has failed to process the request.")
+          raise ::Exception.new("Routing layer has failed to process the request.")
         end
 
         context

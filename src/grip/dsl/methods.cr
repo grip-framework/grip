@@ -17,6 +17,12 @@ module Grip
     # end
     # ```
     module Methods
+      # `Grip::DSL::Methods#raise` raises an exception with a specific status_code.
+      def raise(context, exception, status_code = HTTP::Status::BAD_REQUEST)
+        context.response.status_code = status_code.to_i
+        raise exception
+      end
+      
       # `Grip::DSL::Methods#json!` responds with JSON content.
       def json!(context, content, status_code = HTTP::Status::OK)
         context.response.status_code = status_code.to_i

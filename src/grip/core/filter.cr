@@ -17,7 +17,7 @@ module Grip
         call_block_for_path_type("ALL", context.request.path, :before, context)
         call_block_for_path_type(context.request.method, context.request.path, :before, context)
         if Grip.config.error_handlers.has_key?(context.response.status_code)
-          raise Exception.new("Filtering layer has failed to process the request.")
+          raise ::Exception.new("Filtering layer has failed to process the request.")
         end
         call_next(context)
         call_block_for_path_type(context.request.method, context.request.path, :after, context)
