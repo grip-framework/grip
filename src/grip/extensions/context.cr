@@ -16,7 +16,6 @@ class HTTP::Server
 
     def initialize(@request : Request, @response : Response)
       @assigns = Assigns.new
-
     end
 
     def params
