@@ -12,9 +12,11 @@ class HTTP::Server
     end
 
     property assigns : Assigns
+    property exception : Exception?
 
     def initialize(@request : Request, @response : Response)
       @assigns = Assigns.new
+
     end
 
     def params
