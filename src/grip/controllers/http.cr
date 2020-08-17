@@ -1,5 +1,5 @@
 module Grip
-  module Controller
+  module Controllers
     class Http < Base
       def get(context : HTTP::Server::Context)
         context.response.status_code = 405

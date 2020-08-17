@@ -2,7 +2,7 @@ module Grip
   module Exceptions
     class Generic < Exception
       def initialize(context : HTTP::Server::Context)
-        super "Generic exception"
+        super "Sorry, something went wrong, please try again later."
       end
     end
   end

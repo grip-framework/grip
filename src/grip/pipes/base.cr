@@ -1,9 +1,7 @@
 module Grip
-  module Controller
+  module Pipes
     abstract class Base
       include HTTP::Handler
-      include Grip::DSL::Macros
-      include Grip::DSL::Methods
 
       abstract def call(context : HTTP::Server::Context)
     end

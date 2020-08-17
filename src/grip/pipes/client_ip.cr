@@ -1,5 +1,5 @@
 module Grip
-  module Pipe
+  module Pipes
     class ClientIp < Base
       def initialize(header : String = "X-Forwarded-For")
         @headers = [header]

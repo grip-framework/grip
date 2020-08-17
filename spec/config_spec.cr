@@ -1,8 +1,8 @@
 require "./spec_helper"
 
 describe "Config" do
-  it "sets default port to 3000" do
-    Grip::Config.new.port.should eq 3000
+  it "sets default port to 5000" do
+    Grip::Config.new.port.should eq 5000
   end
 
   it "sets default environment to development" do

@@ -1,5 +1,5 @@
 module Grip
-  module Pipe
+  module Pipes
     class Basic
       class Credentials
         def initialize(@entries : Hash(String, String) = Hash(String, String).new)

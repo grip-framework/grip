@@ -1,8 +1,13 @@
 module Grip
   module DSL
     module Macros
-      HTTP_METHODS   = %i(get post put patch delete options head)
-      FILTER_METHODS = %w(get post put patch delete options head all)
+      HTTP_METHODS = %i(get post put patch delete options head)
+
+      macro pipeline(name, pipes)
+        {{pipes}}.each do |pipe|
+          Grip::Core::Pipeline::INSTANCE.add_pipe({{name}}, pipe)
+        end
+      end
 
       {% for http_method in HTTP_METHODS %}
         macro {{http_method.id}}(route, resource, **kwargs)
@@ -10,7 +15,7 @@ module Grip
             Grip::Router::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
-              \{{ resource }}.new.as(Grip::Controller::Base),
+              \{{ resource }}.new.as(Grip::Controllers::Base),
               \{{kwargs[:via]}},
               -> (context : HTTP::Server::Context) {
                 \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
@@ -19,7 +24,7 @@ module Grip
             Grip::Router::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
-              \{{ resource }}.new.as(Grip::Controller::Base),
+              \{{ resource }}.new.as(Grip::Controllers::Base),
               nil,
               -> (context : HTTP::Server::Context) {
                 \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
@@ -28,7 +33,7 @@ module Grip
             Grip::Router::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
-              \{{ resource }}.new.as(Grip::Controller::Base),
+              \{{ resource }}.new.as(Grip::Controllers::Base),
               \{{kwargs[:via]}},
               nil
             )
@@ -36,20 +41,12 @@ module Grip
             Grip::Router::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
-              \{{ resource }}.new.as(Grip::Controller::Base),
+              \{{ resource }}.new.as(Grip::Controllers::Base),
               nil,
               nil
             )
           \{% end %}
         end
-      {% end %}
-
-      {% for type in ["before", "after"] %}
-        {% for method in FILTER_METHODS %}
-          def {{type.id}}_{{method.id}}(path : String = "*", &block : HTTP::Server::Context -> _)
-            Grip::Core::Filter::INSTANCE.{{type.id}}({{method}}.upcase, path, &block)
-          end
-        {% end %}
       {% end %}
 
       macro resource(route, resource, **kwargs)
@@ -101,6 +98,18 @@ module Grip
           Grip::Router::WebSocket::INSTANCE.add_route({{ route }}, {{ resource }}.new, {{ kwargs[:via] }}, nil)
         {% else %}
           Grip::Router::WebSocket::INSTANCE.add_route({{ route }}, {{ resource }}.new, nil, nil)
+        {% end %}
+      end
+
+      macro error(error_code, resource)
+        Grip.config.add_error_handler({{error_code}}, {{resource}}.new)
+      end
+
+      macro filter(type, method, path, resource, **kwargs)
+        {% if kwargs[:via] %}
+          Grip::Core::Filter::INSTANCE.{{type.id}}({{method}}.to_s.upcase, {{path}}, {{resource}}.new, {{kwargs[:via]}})
+        {% else %}
+          Grip::Core::Filter::INSTANCE.{{type.id}}({{method}}.to_s.upcase, {{path}}, {{resource}}.new, nil)
         {% end %}
       end
     end

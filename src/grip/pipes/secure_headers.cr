@@ -1,5 +1,5 @@
 module Grip
-  module Pipe
+  module Pipes
     class SecureHeaders < Base
       def call(context : HTTP::Server::Context)
         context.response.headers["X-XSS-Protection"] = "1; mode=block" unless context.response.headers.has_key?("X-XSS-Protection")
