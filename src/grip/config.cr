@@ -10,7 +10,7 @@ module Grip
     HANDLERS        = [] of HTTP::Handler
     CUSTOM_HANDLERS = [] of Tuple(Nil | Int32, HTTP::Handler)
     FILTER_HANDLERS = [] of HTTP::Handler
-    ERROR_HANDLERS  = {} of Int32 => HTTP::Server::Context, Exception -> String
+    ERROR_HANDLERS  = {} of Int32 => Grip::Controllers::Exception
 
     {% if flag?(:without_openssl) %}
       @ssl : Bool?
@@ -91,8 +91,8 @@ module Grip
     end
 
     # Adds an error handler which is a simple block of an expression.
-    def add_error_handler(status_code : Int32, &handler : HTTP::Server::Context, Exception -> _)
-      ERROR_HANDLERS[status_code] = ->(context : HTTP::Server::Context, error : Exception) { handler.call(context, error).to_s }
+    def add_error_handler(status_code : Int32, resource : Grip::Controllers::Exception)
+      ERROR_HANDLERS[status_code] = resource
     end
     
     # Gathers up extra options from the `OptionParser`.

@@ -28,27 +28,27 @@ module Grip
       # :nodoc: This shouldn't be called directly, it's not private because
       # I need to call it for testing purpose since I can't call the macros in the spec.
       # It adds the block for the corresponding verb/path/type combination to the tree.
-      def _add_route_filter(verb : String, path, type, &block : HTTP::Server::Context -> _)
+      def _add_route_filter(verb : String, path, type, resource : Grip::Controllers::Filter, via : Symbol?)
         lookup = lookup_filters_for_path_type(verb, path, type)
         if lookup.found? && lookup.payload.is_a?(Array(FilterBlock))
-          lookup.payload << FilterBlock.new(&block)
+          lookup.payload << FilterBlock.new(resource, via)
         else
-          @tree.add radix_path(verb, path, type), [FilterBlock.new(&block)]
+          @tree.add radix_path(verb, path, type), [FilterBlock.new(resource, via)]
         end
       end
 
       # This can be called directly but it's simpler to just use the macros,
       # it will check if another filter is not already defined for this
       # verb/path/type and proceed to call `add_route_filter`
-      def before(verb : String, path : String = "*", &block : HTTP::Server::Context -> _)
-        _add_route_filter verb, path, :before, &block
+      def before(verb : String, path : String, resource : Grip::Controllers::Filter, via : Symbol?)
+        _add_route_filter verb, path, :before, resource, via
       end
 
       # This can be called directly but it's simpler to just use the macros,
       # it will check if another filter is not already defined for this
       # verb/path/type and proceed to call `add_route_filter`
-      def after(verb : String, path : String = "*", &block : HTTP::Server::Context -> _)
-        _add_route_filter verb, path, :after, &block
+      def after(verb : String, path : String, resource : Grip::Controllers::Filter, via : Symbol?)
+        _add_route_filter verb, path, :after, resource, via
       end
 
       # This will fetch the block for the verb/path/type from the tree and call it.
@@ -77,14 +77,19 @@ module Grip
 
       # :nodoc:
       class FilterBlock
-        property block : HTTP::Server::Context -> String
+        property resource : Grip::Controllers::Filter
+        property via : Symbol?
 
-        def initialize(&block : HTTP::Server::Context -> _)
-          @block = ->(context : HTTP::Server::Context) { block.call(context).to_s }
-        end
+        def initialize(@resource : Grip::Controllers::Filter, @via : Symbol?); end
 
         def call(context : HTTP::Server::Context)
-          @block.call(context)
+          if @via
+            Grip::Core::Pipeline::INSTANCE.pipeline[@via].each do |pipe|
+              pipe.call(context)
+            end
+          end
+
+          @resource.call(context)
         end
       end
     end

@@ -28,6 +28,7 @@ module Grip
   #   def get(context)
   #   end
   # end
+  # ```
   #
   # An example `Grip::Controllers::WebSocket` class inheritor.
   # Contains `Grip::Controllers::WebSocket#on_open`, `Grip::Controllers::WebSocket#on_ping`,
@@ -41,5 +42,6 @@ module Grip
   #   def on_open(context, socket)
   #   end
   # end
+  # ```
   module Controllers; end
 end

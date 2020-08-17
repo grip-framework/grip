@@ -53,7 +53,7 @@ class Index < Grip::Controllers::Http
     
   def get(context)
     # HTTP::Status is an enum which has all of the response codes alternatively you can use an integer.
-    json(
+    json!(
       context,
       {
         "id": "#{UUID.random}"
@@ -158,28 +158,28 @@ You can handle HTTP methods via pre-defining a set of available modifiers and th
 ```ruby
 class Index < Grip::Controllers::Http
   def get(context)
-    text(
+    text!(
       context,
       "Hello, GET!"
     )
   end
 
   def post(context)
-    text(
+    text!(
       context,
       "Hello, POST!"
     )
   end
 
   def put(context)
-    text(
+    text!
       context,
       "Hello, PUT!"
     )
   end
 
   def delete(context)
-    text(
+    text!(
       context,
       "Hello, DELETE!"
     )
@@ -193,11 +193,45 @@ Before and after filters are evaluated before and after each request within the 
 
 Important note: This should not be used by plugins/addons, instead they should do all their work in their own middleware.
 
-The current filter supports all of the verbs which are RESTful, for example defining a `before_get` filter looks like this:
+The current filter supports all of the verbs which are RESTful, for example defining a before get filter looks like this:
 
 ```ruby
-before_get "/" do |context|
-  context.response.content_type = "application/json"
+class ExampleFilterController < Grip::Controllers::Filter
+  def call(context)
+    json!(
+      context,
+      "Hello, World!"
+    )
+  end
+end
+
+class Application < Grip::Application
+  def initialize
+    filter :before, :get, "/", ExampleFilterController
+  end
+end
+```
+
+You can even use the pipeline in before the filter is executed:
+
+```ruby
+class ExampleFilterController < Grip::Controllers::Filter
+  def call(context)
+    json!(
+      context,
+      "Hello, World!"
+    )
+  end
+end
+
+class Application < Grip::Application
+  def initialize
+    pipeline :api, [
+      Grip::Pipes::Log.new()
+    ]
+
+    filter :before, :get, "/", ExampleFilterController, via: :api
+  end
 end
 ```
 
@@ -209,7 +243,10 @@ In Grip middlewares are mentioned as handlers or consumers, when creating a hand
 
 ### Raw middleware
 
-Raw middleware is the `HTTP::Handler` class.
+Raw middleware is an `HTTP::Handler` class inheritor.
+
+Using the raw middleware is not recommended since it is a global handler which most of the time
+is reserved for the core functionality.
 
 ```ruby
 class CustomHandler
@@ -223,7 +260,7 @@ end
 # You can add the middleware to the handler stack by using
 class App < Grip::Application
   def initialize
-    add_handler CustomHandler.new
+    Grip.config.add_handler CustomHandler.new
   end
 end
 
@@ -276,21 +313,21 @@ The response codes are borrowed from HTTP::Status enum which contains all of the
 
 ```ruby
 # Enum based status code
-json(
+json!(
   context,
   "Wonderful JSON content.",
   HTTP::Status::OK
 )
 
 # Integer based status code
-html(
+html!(
   context,
   "Wonderful JSON content.",
   200
 )
 
 # Default is 200 OK
-text(
+text!(
   context,
   "Wonderful JSON content."
 )
@@ -301,15 +338,34 @@ text(
 Grip comes with a pre-defined error handlers for the JSON response type. You can customize the built-in error pages or even add your own with `error`.
 
 ```ruby
+class NotFoundController < Grip::Controllers::Exception
+  def call(context, exception, status_code)
+    json!(
+      context,
+      {
+        "error" => ["Resource was not found!"]
+      },
+      status_code
+    )
+  end
+end
+
+class ForbiddenController < Grip::Controllers::Exception
+  def call(context, exception, status_code)
+    json!(
+      context,
+      {
+        "error" => ["You lack privileges to access the current resource!"]
+      },
+      status_code
+    )
+  end
+end
+
 class App < Grip::Application
   def initialize
-    error 404 do
-      "This is a customized 404 page."
-    end
-
-    error 403 do
-      "Access Forbidden!"
-    end
+    error 403, ForbiddenController
+    error 404, NotFoundController
   end
 end
 
@@ -328,8 +384,8 @@ Grip allows you to use variables in your route path as placeholders for passing 
 ```ruby
 class Users < Grip::Controllers::Http
   def get(context)
-    params = url(context)
-    json(
+    params = url?(context)
+    json!(
       context,
       {
         "id": params["id"]
@@ -338,8 +394,8 @@ class Users < Grip::Controllers::Http
   end
 
   def post(context)
-    params = url(context)
-    json(
+    params = url?(context)
+    json!(
       context,
       {
         "id": params["id"]
@@ -365,11 +421,11 @@ To access query parameters, you use `query`.
 ```ruby
 class Resize < Grip::Controllers::Http
   def get(context)
-    params = query(context)
+    params = query?(context)
     width = params["width"]
     height = params["height"]
 
-    json(
+    json!(
       context,
       {
         "imageResolution": {
@@ -398,11 +454,11 @@ You can easily access JSON payload from the parameters, or through the standard 
 ```ruby
 class SignIn < Grip::Controllers::Http
   def create(context)
-    params = json(context)
+    params = json?(context)
     username = params["username"]
     password = params["password"]
 
-    json(
+    json!(
       context,
       {
         "authorizationInformation": {
