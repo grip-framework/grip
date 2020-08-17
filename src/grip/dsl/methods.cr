@@ -64,9 +64,9 @@ module Grip
         context.params.body
       end
 
-      # `Grip::DSL::Methods#files?` returns the parsed multipart data from an endpoint.
-      def files?(context : HTTP::Server::Context)
-        context.params.files
+      # `Grip::DSL::Methods#file?` returns the parsed multipart data from an endpoint.
+      def file?(context : HTTP::Server::Context)
+        context.params.file
       end
 
       # `Grip::DSL::Methods#url?` returns the parsed URL data from an endpoint.

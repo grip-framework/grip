@@ -283,7 +283,7 @@ end
 
 class Index < Grip::Controllers::Http
   def get(context)
-    json(
+    json!(
       context,
       {
         "message" => "Hello, world!"
@@ -339,6 +339,10 @@ Grip comes with a pre-defined error handlers for the JSON response type. You can
 
 ```ruby
 class NotFoundController < Grip::Controllers::Exception
+  # To keep the structure of the project
+  # we still inherit from the Base class which forces us
+  # to define the default `call` function.
+  def call(context); end
   def call(context, exception, status_code)
     json!(
       context,
@@ -473,6 +477,60 @@ end
 class App < Grip::Application
   def initialize
     post "/", SignIn
+  end
+end
+
+app = App.new
+app.run
+```
+
+## Multipart Parameters
+
+You can easily access mutlipart parameters.
+
+```ruby
+class Images < Grip::Controllers::Http
+  params = file?(context)
+
+  pp params["exampleFile"].tempfile.gets_to_end
+
+  json!(
+    context,
+    {} of String => String
+  )
+end
+
+class App < Grip::Application
+  def initialize
+    post "/", Images
+  end
+end
+
+app = App.new
+app.run
+```
+
+## Body Parameters
+
+You can easily access body parameters.
+
+```ruby
+class Blocks < Grip::Controllers::Http
+  def post(context)
+    params = body?(context)
+
+    pp params
+
+    json!(
+      context,
+      {} of String => String
+    )
+  end
+end
+
+class App < Grip::Application
+  def initialize
+    post "/", Blocks
   end
 end
 
@@ -631,7 +689,7 @@ If you want to use the decoded payload from the Jwt pipeline just access the `co
 ```ruby
 class Index < Grip::Controllers::Http
   def get(context)
-    json(
+    json!(
       context,
       {
         "decoded" => context.assigns.jwt,
@@ -692,7 +750,7 @@ require "grip"
 
 class Index < Grip::Controllers::Http
   def get(context)
-    text(
+    text!(
       context,
       "Hello, World!"
     )

@@ -36,7 +36,7 @@ module Grip
       private def call_exception_with_status_code(context : HTTP::Server::Context, exception : ::Exception, status_code : Int32)
         return if context.response.closed?
         if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(status_code)
-          return Grip.config.error_handlers[status_code].call(context, exception, status_code)
+          return Grip.config.error_handlers[status_code].call_exception_with_status_code(context, exception, status_code)
         else
           context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
           context.response.status_code = status_code

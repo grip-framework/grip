@@ -20,7 +20,7 @@ require "grip"
 
 class Index < Grip::Controllers::Http
   def get(context)
-    json(
+    json!(
       context,
       {
         "id" => 1,
