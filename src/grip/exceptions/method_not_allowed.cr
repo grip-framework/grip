@@ -1,6 +1,6 @@
 module Grip
   module Exceptions
-    class MethodNotAllowed < Exception
+    class MethodNotAllowed < Base
       def initialize(context : HTTP::Server::Context)
         @status = HTTP::Status::METHOD_NOT_ALLOWED
         super "Please provide a proper request to the endpoint."
