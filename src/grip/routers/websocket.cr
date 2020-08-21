@@ -41,7 +41,7 @@ module Grip
         route
       end
 
-      def add_route(path : String, handler : Grip::Controllers::WebSocket, via : Symbol?, override)
+      def add_route(path : String, handler : Grip::Controllers::WebSocket, via : Symbol?, _override)
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
       end
 

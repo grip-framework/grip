@@ -26,6 +26,43 @@ class ExampleController < Grip::Controllers::Http
   end
 end
 
+class MatchController < Grip::Controllers::WebSocket
+  def on_open(context, socket)
+    socket.send("Match")
+  end
+end
+
+class NoMatchController < Grip::Controllers::WebSocket
+  def on_open(context, socket)
+    socket.send("No Match")
+  end
+end
+
+class UrlParametersController < Grip::Controllers::WebSocket
+  def on_open(context, socket)
+    url?(context)["id"]
+  end
+end
+
+class BlankController < Grip::Controllers::WebSocket
+end
+
+def create_ws_request_and_return_io_and_context(handler, request)
+  io = IO::Memory.new
+  response = HTTP::Server::Response.new(io)
+  context = HTTP::Server::Context.new(request, response)
+  begin
+    handler.call context
+  rescue IO::Error
+    # Raises because the IO::Memory is empty
+  end
+  {% if compare_versions(Crystal::VERSION, "0.35.0-0") >= 0 %}
+    response.upgrade_handler.try &.call(io)
+  {% end %}
+  io.rewind
+  {io, context}
+end
+
 def call_request_on_app(request)
   io = IO::Memory.new
   response = HTTP::Server::Response.new(io)
