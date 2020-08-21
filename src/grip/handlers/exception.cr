@@ -8,10 +8,9 @@ module Grip
       def call(context : HTTP::Server::Context)
         call_next(context)
       rescue ex
-        case ex
-        when Grip::Exceptions::Base
+        if ex.is_a?(Grip::Exceptions::Base)
           call_exception_with_status_code(context, ex, ex.status_code)
-        when ::Exception
+        else
           STDOUT.print("\n#{ex.inspect_with_backtrace}")
           STDOUT.flush
 
