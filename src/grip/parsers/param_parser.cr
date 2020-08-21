@@ -34,7 +34,7 @@ module Grip
         def {{method.id}}
           # check memoization
           return @{{method.id}} if @{{method.id}}_parsed
-  
+
           parse_{{method.id}}
           # memoize
           @{{method.id}}_parsed = true

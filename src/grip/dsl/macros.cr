@@ -89,7 +89,7 @@ module Grip
         {% else %}
           {% for http_method in HTTP_METHODS %}
             Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{ kwargs[:via] }}, nil)
-          {% end %} 
+          {% end %}
         {% end %}
       end
 

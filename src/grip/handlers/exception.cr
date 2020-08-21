@@ -28,7 +28,7 @@ module Grip
         context.response.status_code = 500
         context.response.print("<pre>#{ex.inspect_with_backtrace}\n</pre>") if Grip.config.env == "development"
 
-        return context
+        context
       end
 
       private def call_exception_with_status_code(context : HTTP::Server::Context, exception : ::Exception, status_code : Int32)
@@ -37,13 +37,13 @@ module Grip
           context.response.status_code = status_code
           context.exception = exception
 
-          return Grip.config.error_handlers[status_code].call(context)
+          Grip.config.error_handlers[status_code].call(context)
         else
           context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
           context.response.status_code = status_code
           context.response.print(exception.message)
 
-          return context
+          context
         end
       end
     end
