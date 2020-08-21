@@ -16,14 +16,14 @@ module Grip
 
           return call_exception_with_status_code(context, ex, context.response.status_code) if Grip.config.error_handlers.has_key?(context.response.status_code)
 
-          context.response.status_code = 500
+          context.response.status_code = 500 if context.response.status_code == 200
 
           context.response.print(
             Grip::DevelopmentExceptionPage.for_runtime_exception(context, ex).to_s
           ) if Grip.config.env == "development"
 
           context.response.print(
-            "500 Internal Server Error"
+            "An error has occured with the current endpoint, please try again later."
           ) if Grip.config.env == "production"
 
           context
