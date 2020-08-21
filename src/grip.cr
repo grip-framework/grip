@@ -23,6 +23,6 @@ require "./grip/pipes/*"
 require "./grip/pipes/basic/*"
 require "./grip/controllers/*"
 require "./grip/routers/*"
-require "./grip/**"
+require "./grip/*"
 
 module Grip; end
