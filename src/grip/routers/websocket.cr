@@ -1,5 +1,5 @@
 module Grip
-  module Router
+  module Routers
     class WebSocket
       include HTTP::Handler
 
@@ -16,7 +16,7 @@ module Grip
         return call_next(context) unless context.ws_route_found? && websocket_upgrade_request?(context)
 
         if context.websocket.via
-          Grip::Core::Pipeline::INSTANCE.pipeline[context.websocket.via].each do |pipe|
+          Grip::Handlers::Pipeline::INSTANCE.pipeline[context.websocket.via].each do |pipe|
             pipe.call(context)
           end
         end

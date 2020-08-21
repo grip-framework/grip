@@ -19,7 +19,7 @@ class HTTP::Server
     end
 
     def params
-      @params ||= Grip::Parser::ParamParser.new(@request, route_lookup.params)
+      @params ||= Grip::Parsers::ParameterBox.new(@request, route_lookup.params)
     end
 
     def route
@@ -31,7 +31,7 @@ class HTTP::Server
     end
 
     def route_lookup
-      Grip::Router::Http::INSTANCE.lookup_route(@request.method.as(String), @request.path)
+      Grip::Routers::Http::INSTANCE.lookup_route(@request.method.as(String), @request.path)
     end
 
     def route_found?
@@ -39,7 +39,7 @@ class HTTP::Server
     end
 
     def ws_route_lookup
-      Grip::Router::WebSocket::INSTANCE.lookup_ws_route(@request.path)
+      Grip::Routers::WebSocket::INSTANCE.lookup_ws_route(@request.path)
     end
 
     def ws_route_found?

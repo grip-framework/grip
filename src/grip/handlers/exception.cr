@@ -1,5 +1,5 @@
 module Grip
-  module Core
+  module Handlers
     class Exception
       include HTTP::Handler
 

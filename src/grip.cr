@@ -1,4 +1,5 @@
 require "http"
+require "http/web_socket"
 require "json"
 require "uri"
 require "base64"
@@ -14,14 +15,14 @@ require "crypto/subtle"
 {% end %}
 
 require "./grip/exceptions/*"
-require "./grip/parser/*"
+require "./grip/parsers/*"
 require "./grip/dsl/*"
 require "./grip/extensions/*"
-require "./grip/core/*"
+require "./grip/handlers/*"
 require "./grip/pipes/*"
 require "./grip/pipes/basic/*"
 require "./grip/controllers/*"
-require "./grip/router/*"
+require "./grip/routers/*"
 require "./grip/**"
 
 module Grip; end

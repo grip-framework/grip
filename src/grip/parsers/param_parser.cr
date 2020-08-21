@@ -1,9 +1,9 @@
 module Grip
-  module Parser
+  module Parsers
     # Parses the request contents including query_params and body
     # and converts them into a params hash which you can use within
     # the environment context.
-    class ParamParser
+    class ParameterBox
       URL_ENCODED_FORM = "application/x-www-form-urlencoded"
       APPLICATION_JSON = "application/json"
       MULTIPART_FORM   = "multipart/form-data"

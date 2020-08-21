@@ -1,5 +1,5 @@
 module Grip
-  module Parser
+  module Parsers
     struct FileUpload
       getter tempfile : File
       getter filename : String?

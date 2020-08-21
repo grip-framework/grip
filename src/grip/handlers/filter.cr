@@ -1,5 +1,5 @@
 module Grip
-  module Core
+  module Handlers
     # :nodoc:
     class Filter
       include HTTP::Handler
@@ -84,7 +84,7 @@ module Grip
 
         def call(context : HTTP::Server::Context)
           if @via
-            Grip::Core::Pipeline::INSTANCE.pipeline[@via].each do |pipe|
+            Grip::Handlers::Pipeline::INSTANCE.pipeline[@via].each do |pipe|
               pipe.call(context)
             end
           end

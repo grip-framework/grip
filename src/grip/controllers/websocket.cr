@@ -1,55 +1,40 @@
 module Grip
   module Controllers
-    class WebSocket < Base
+    class WebSocket < Grip::Controllers::Base
       getter? closed = false
+      property ws : HTTP::WebSocket::Protocol?
 
-      #
-      # Initialize the websocket controller with 4096 bytes equivalent buffer size.
-      #
+      # :nodoc:
       def initialize
         @buffer = Bytes.new(4096)
         @current_message = IO::Memory.new
       end
 
-      #
-      # Initialize the websocket controller with a specific buffer size.
-      #
-      def initialize(buffer_size : Int32)
-        @buffer = Bytes.new(buffer_size)
-        @current_message = IO::Memory.new
+      def on_open(context, socket)
       end
 
-      def on_open(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol)
+      def on_ping(context, socket, ping)
       end
 
-      def on_ping(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol, on_ping : String)
+      def on_pong(context, socket, pong)
       end
 
-      def on_pong(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol, on_pong : String)
+      def on_message(context, socket, message)
       end
 
-      def on_message(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol, on_message : String)
+      def on_binary(context, socket, binary)
       end
 
-      def on_binary(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol, on_binary : Bytes)
-      end
-
-      def on_close(context : HTTP::Server::Context, socket : HTTP::WebSocket::Protocol, close_code : HTTP::WebSocket::CloseCode, on_close : String)
+      def on_close(context, socket, close_code, message)
       end
 
       protected def check_open
         raise IO::Error.new "Closed socket" if closed?
       end
 
-      def send(socket, message)
+      def send(message)
         check_open
-        socket.send(message)
-      rescue exception
-        if !closed?
-          @closed = true
-          socket.close(HTTP::WebSocket::CloseCode::InternalServerError, exception.message)
-        end
-        exception
+        @ws.not_nil!.send(message)
       end
 
       # It's possible to send a PING frame, which the client must respond to
@@ -57,96 +42,80 @@ module Grip
       # which the client should not respond to.
       #
       # See `#pong`.
-      def ping(socket, message = nil)
+      def ping(message = nil)
         check_open
-        socket.ping(message)
-      rescue exception
-        if !closed?
-          @closed = true
-          socket.close(HTTP::WebSocket::CloseCode::InternalServerError, exception.message)
-        end
-        exception
+        @ws.not_nil!.ping(message)
       end
 
       # Server can send an unsolicited PONG frame which the client should not respond to.
       #
       # See `#ping`.
-      def pong(socket, message = nil)
+      def pong(message = nil)
         check_open
-        socket.pong(message)
-      rescue exception
-        if !closed?
-          @closed = true
-          socket.close(HTTP::WebSocket::CloseCode::InternalServerError, exception.message)
-        end
-        exception
+        @ws.not_nil!.pong(message)
       end
 
-      def stream(socket, binary = true, frame_size = 1024)
+      def stream(binary = true, frame_size = 1024)
         check_open
-        socket.stream(binary: binary, frame_size: frame_size) do |io|
+        @ws.not_nil!.stream(binary: binary, frame_size: frame_size) do |io|
           yield io
         end
-      rescue exception
-        if !closed?
-          @closed = true
-          socket.close(HTTP::WebSocket::CloseCode::InternalServerError, exception.message)
-        end
-        exception
       end
 
-      def close(socket, message = nil)
-        close(socket, nil, message)
+      @[Deprecated("Use WebSocket#close(code, message) instead")]
+      def close(message)
+        close(nil, message)
       end
 
-      def close(socket, code : HTTP::WebSocket::CloseCode | Int? = nil, message = nil)
+      def close(code : HTTP::WebSocket::CloseCode | Int? = nil, message = nil)
         return if closed?
         @closed = true
-        socket.close(code, message)
+        @ws.not_nil!.close(code, message)
       end
 
-      def run(context, socket)
-        #
-        # Trigger an on_open function call when a client connects to our endpoint
-        #
-        on_open(context, socket)
+      def run(context)
+        on_open(context, @ws.not_nil!)
 
         loop do
           begin
-            info = socket.receive(@buffer)
-          rescue IO::EOFError
-            on_close(context, socket, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
+            info = @ws.not_nil!.receive(@buffer)
+          rescue
+            on_close(context, @ws, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
+            @closed = true
             break
           end
 
           case info.opcode
-          when HTTP::WebSocket::Protocol::Opcode::PING
+          when .ping?
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
-              on_ping(context, socket, message)
-              pong(socket, message) unless closed?
+              on_pong(context, @ws, message)
+              pong(message) unless closed?
               @current_message.clear
             end
-          when HTTP::WebSocket::Protocol::Opcode::PONG
+          when .pong?
             @current_message.write @buffer[0, info.size]
             if info.final
-              on_pong(context, socket, @current_message.to_s)
+              message = @current_message.to_s
+              on_pong(context, @ws, message)
               @current_message.clear
             end
-          when HTTP::WebSocket::Protocol::Opcode::TEXT
+          when .text?
             @current_message.write @buffer[0, info.size]
             if info.final
-              on_message(context, socket, @current_message.to_s)
+              message = @current_message.to_s
+              on_message(context, @ws, message)
               @current_message.clear
             end
-          when HTTP::WebSocket::Protocol::Opcode::BINARY
+          when .binary?
             @current_message.write @buffer[0, info.size]
             if info.final
-              on_binary(context, socket, @current_message.to_slice)
+              message = @current_message.to_slice
+              on_binary(context, @ws, message)
               @current_message.clear
             end
-          when HTTP::WebSocket::Protocol::Opcode::CLOSE
+          when .close?
             @current_message.write @buffer[0, info.size]
             if info.final
               @current_message.rewind
@@ -159,19 +128,19 @@ module Grip
               end
               message = @current_message.gets_to_end
 
-              on_close(context, socket, code, message)
-              close(socket, code, message) unless closed?
+              on_close(context, @ws, code, message)
+              close(code)
 
               @current_message.clear
               break
             end
           when HTTP::WebSocket::Protocol::Opcode::CONTINUATION
-            # This case wasn't originally handled, but it should be fine.
+            # TODO: (asterite) I think this is good, but this case wasn't originally handled
           end
         end
       end
 
-      def call(context : HTTP::Server::Context)
+      def call(context)
         if websocket_upgrade_request? context.request
           response = context.response
 
@@ -196,11 +165,12 @@ module Grip
           response.headers["Connection"] = "Upgrade"
           response.headers["Sec-WebSocket-Accept"] = accept_code
           response.upgrade do |io|
-            self.run(context, HTTP::WebSocket::Protocol.new(io))
+            @ws = HTTP::WebSocket::Protocol.new(io, sync_close: true)
+            run(context)
             io.close
           end
         else
-          call_next(context)
+          raise context, ::Exception.new, 500
         end
       end
 

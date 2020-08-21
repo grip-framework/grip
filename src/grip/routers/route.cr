@@ -1,5 +1,5 @@
 module Grip
-  module Router
+  module Routers
     struct Route
       getter method, path, handler, override, via
 

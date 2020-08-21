@@ -1,5 +1,5 @@
 module Grip
-  module Router
+  module Routers
     class Http
       include HTTP::Handler
 
@@ -17,7 +17,7 @@ module Grip
         return if context.response.closed?
 
         if context.route.via
-          Grip::Core::Pipeline::INSTANCE.pipeline[context.route.via].each do |pipe|
+          Grip::Handlers::Pipeline::INSTANCE.pipeline[context.route.via].each do |pipe|
             pipe.call(context)
           end
         end

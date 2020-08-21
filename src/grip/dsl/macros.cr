@@ -5,14 +5,14 @@ module Grip
 
       macro pipeline(name, pipes)
         {{pipes}}.each do |pipe|
-          Grip::Core::Pipeline::INSTANCE.add_pipe({{name}}, pipe)
+          Grip::Handlers::Pipeline::INSTANCE.add_pipe({{name}}, pipe)
         end
       end
 
       {% for http_method in HTTP_METHODS %}
         macro {{http_method.id}}(route, resource, **kwargs)
           \{% if kwargs[:override] && kwargs[:via] %}
-            Grip::Router::Http::INSTANCE.add_route(
+            Grip::Routers::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
               \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -21,7 +21,7 @@ module Grip
                 \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
             )
           \{% elsif kwargs[:override] %}
-            Grip::Router::Http::INSTANCE.add_route(
+            Grip::Routers::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
               \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -30,7 +30,7 @@ module Grip
                 \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
             )
           \{% elsif kwargs[:via] %}
-            Grip::Router::Http::INSTANCE.add_route(
+            Grip::Routers::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
               \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -38,7 +38,7 @@ module Grip
               nil
             )
           \{% else %}
-            Grip::Router::Http::INSTANCE.add_route(
+            Grip::Routers::Http::INSTANCE.add_route(
               {{ http_method }}.to_s.upcase,
               \{{ route }},
               \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -52,9 +52,9 @@ module Grip
       macro resource(route, resource, **kwargs)
         {% for http_method in HTTP_METHODS %}
           {% if kwargs[:via] %}
-            Grip::Router::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{kwargs[:via]}}, nil)
+            Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{kwargs[:via]}}, nil)
           {% else %}
-            Grip::Router::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, nil, nil)
+            Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, nil, nil)
           {% end %}
         {% end %}
       end
@@ -62,42 +62,42 @@ module Grip
       macro resource(route, resource, **kwargs)
         {% if kwargs[:only] && kwargs[:via] %}
           {% for http_method in kwargs[:only] %}
-            Grip::Router::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{kwargs[:via]}}, nil)
+            Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{kwargs[:via]}}, nil)
           {% end %}
         {% elsif kwargs[:exclude] && kwargs[:via] %}
           {% for http_method in HTTP_METHODS %}
             if !{{kwargs[:exclude]}}.any?({{http_method}})
-              Grip::Router::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{kwargs[:via]}}, nil)
+              Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{kwargs[:via]}}, nil)
             end
           {% end %}
         {% elsif kwargs[:only] %}
           {% for http_method in kwargs[:only] %}
-            Grip::Router::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, nil, nil)
+            Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, nil, nil)
           {% end %}
         {% elsif kwargs[:exclude] %}
           {% for http_method in HTTP_METHODS %}
             if !{{kwargs[:exclude]}}.any?({{http_method}})
-              Grip::Router::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, nil, nil)
+              Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, nil, nil)
             end
           {% end %}
         {% elsif kwargs[:via] %}
           {% for http_method in HTTP_METHODS %}
             if {{ kwargs[:via] }}
-              Grip::Router::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{ kwargs[:via] }}, nil)
+              Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{ kwargs[:via] }}, nil)
             end
           {% end %}
         {% else %}
           {% for http_method in HTTP_METHODS %}
-            Grip::Router::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{ kwargs[:via] }}, nil)
+            Grip::Routers::Http::INSTANCE.add_route({{ http_method }}.to_s.upcase, {{ route }}, {{ resource }}.new, {{ kwargs[:via] }}, nil)
           {% end %} 
         {% end %}
       end
 
       macro ws(route, resource, **kwargs)
         {% if kwargs[:via] %}
-          Grip::Router::WebSocket::INSTANCE.add_route({{ route }}, {{ resource }}.new, {{ kwargs[:via] }}, nil)
+          Grip::Routers::WebSocket::INSTANCE.add_route({{ route }}, {{ resource }}.new, {{ kwargs[:via] }}, nil)
         {% else %}
-          Grip::Router::WebSocket::INSTANCE.add_route({{ route }}, {{ resource }}.new, nil, nil)
+          Grip::Routers::WebSocket::INSTANCE.add_route({{ route }}, {{ resource }}.new, nil, nil)
         {% end %}
       end
 
@@ -107,9 +107,9 @@ module Grip
 
       macro filter(type, method, path, resource, **kwargs)
         {% if kwargs[:via] %}
-          Grip::Core::Filter::INSTANCE.{{type.id}}({{method}}.to_s.upcase, {{path}}, {{resource}}.new, {{kwargs[:via]}})
+          Grip::Handlers::Filter::INSTANCE.{{type.id}}({{method}}.to_s.upcase, {{path}}, {{resource}}.new, {{kwargs[:via]}})
         {% else %}
-          Grip::Core::Filter::INSTANCE.{{type.id}}({{method}}.to_s.upcase, {{path}}, {{resource}}.new, nil)
+          Grip::Handlers::Filter::INSTANCE.{{type.id}}({{method}}.to_s.upcase, {{path}}, {{resource}}.new, nil)
         {% end %}
       end
     end

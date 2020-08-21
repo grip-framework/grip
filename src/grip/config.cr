@@ -108,14 +108,14 @@ module Grip
 
         @default_handlers_setup = true
         @router_included = true
-        HANDLERS.insert(HANDLERS.size, Grip::Router::WebSocket::INSTANCE)
-        HANDLERS.insert(HANDLERS.size, Grip::Router::Http::INSTANCE)
+        HANDLERS.insert(HANDLERS.size, Grip::Routers::WebSocket::INSTANCE)
+        HANDLERS.insert(HANDLERS.size, Grip::Routers::Http::INSTANCE)
       end
     end
 
     private def setup_error_handler
       if @always_rescue
-        @error_handler ||= Grip::Core::Exception.new
+        @error_handler ||= Grip::Handlers::Exception.new
         HANDLERS.insert(@handler_position, @error_handler.not_nil!)
         @handler_position += 1
       end
