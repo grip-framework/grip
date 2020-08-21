@@ -8,6 +8,9 @@ Spec.before_each do
   config.env = "development"
 end
 
+class ContextController < Grip::Controllers::Http
+end
+
 class ExampleController < Grip::Controllers::Http
   def get(context)
     context
@@ -24,6 +27,28 @@ class ExampleController < Grip::Controllers::Http
   def delete(context)
     context
   end
+end
+
+def call_request_on_app(request)
+  io = IO::Memory.new
+  response = HTTP::Server::Response.new(io)
+  context = HTTP::Server::Context.new(request, response)
+  main_handler = build_main_handler
+  main_handler.call context
+  response.close
+  io.rewind
+  HTTP::Client::Response.from_io(io, decompress: false)
+end
+
+def build_main_handler
+  Grip.config.setup
+  main_handler = Grip.config.handlers.first
+  current_handler = main_handler
+  Grip.config.handlers.each do |handler|
+    current_handler.next = handler
+    current_handler = handler
+  end
+  main_handler
 end
 
 def create_request_and_return_io_and_context(handler, request)
