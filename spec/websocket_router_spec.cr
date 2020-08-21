@@ -52,7 +52,7 @@ describe "Grip::Routers::WebSocket" do
   it "matches correct verb" do
     handler = Grip::Routers::WebSocket::INSTANCE
     handler.next = Grip::Routers::Http::INSTANCE
-    
+
     handler.add_route "/", BlankController.new, nil, nil
 
     Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do

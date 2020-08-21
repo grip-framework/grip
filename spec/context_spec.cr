@@ -6,7 +6,7 @@ describe "Context" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/content_type", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
         context.response.headers.merge!({"Content-Type" => "application/json"})
         context
-      end 
+      end
 
       request = HTTP::Request.new("GET", "/content_type")
       client_response = call_request_on_app(request)
@@ -18,7 +18,7 @@ describe "Context" do
         name = context.request.headers["name"]
         context.response.print("Hello #{name}")
         context
-      end 
+      end
 
       headers = HTTP::Headers.new
       headers["name"] = "grip"
@@ -31,7 +31,7 @@ describe "Context" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/response_headers", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
         context.response.headers.add "Accept-Language", "ge"
         context
-      end 
+      end
 
       request = HTTP::Request.new("GET", "/response_headers")
       client_response = call_request_on_app(request)
