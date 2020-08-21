@@ -8,26 +8,25 @@ module Grip
       def call(context : HTTP::Server::Context)
         call_next(context)
       rescue ex
+        STDOUT.print("\n#{ex.inspect_with_backtrace}")
+        STDOUT.flush
+        context.response.status_code = 500 if context.response.status_code == 200
+
         if ex.is_a?(Grip::Exceptions::Base)
-          call_exception_with_status_code(context, ex, ex.status_code)
+          return call_exception_with_status_code(context, ex, ex.status_code) if Grip.config.error_handlers.has_key?(ex.status_code)
         else
-          STDOUT.print("\n#{ex.inspect_with_backtrace}")
-          STDOUT.flush
-
           return call_exception_with_status_code(context, ex, context.response.status_code) if Grip.config.error_handlers.has_key?(context.response.status_code)
-
-          context.response.status_code = 500 if context.response.status_code == 200
-
-          context.response.print(
-            Grip::DevelopmentExceptionPage.for_runtime_exception(context, ex).to_s
-          ) if Grip.config.env == "development"
-
-          context.response.print(
-            "An error has occured with the current endpoint, please try again later."
-          ) if Grip.config.env == "production"
-
-          context
         end
+
+        context.response.print(
+          Grip::DevelopmentExceptionPage.for_runtime_exception(context, ex).to_s
+        ) if Grip.config.env == "development"
+
+        context.response.print(
+          "An error has occured with the current endpoint, please try again later."
+        ) if Grip.config.env == "production"
+
+        context
       end
 
       private def call_exception_with_status_code(context : HTTP::Server::Context, exception : ::Exception, status_code : Int32)
@@ -37,12 +36,6 @@ module Grip
           context.exception = exception
 
           Grip.config.error_handlers[status_code].call(context)
-        else
-          context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
-          context.response.status_code = status_code
-          context.response.print(exception.message)
-
-          context
         end
       end
     end
