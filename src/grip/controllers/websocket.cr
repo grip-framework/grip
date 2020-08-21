@@ -80,7 +80,7 @@ module Grip
           begin
             info = @ws.not_nil!.receive(@buffer)
           rescue
-            on_close(context, @ws, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
+            on_close(context, @ws.not_nil!, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
             @closed = true
             break
           end
@@ -90,7 +90,7 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
-              on_pong(context, @ws, message)
+              on_pong(context, @ws.not_nil!, message)
               pong(message) unless closed?
               @current_message.clear
             end
@@ -98,21 +98,21 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
-              on_pong(context, @ws, message)
+              on_pong(context, @ws.not_nil!, message)
               @current_message.clear
             end
           when .text?
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
-              on_message(context, @ws, message)
+              on_message(context, @ws.not_nil!, message)
               @current_message.clear
             end
           when .binary?
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_slice
-              on_binary(context, @ws, message)
+              on_binary(context, @ws.not_nil!, message)
               @current_message.clear
             end
           when .close?
@@ -128,7 +128,7 @@ module Grip
               end
               message = @current_message.gets_to_end
 
-              on_close(context, @ws, code, message)
+              on_close(context, @ws.not_nil!, code, message)
               close(code)
 
               @current_message.clear
