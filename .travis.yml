@@ -7,7 +7,7 @@ script:
   - crystal spec
   - crystal spec --release --no-debug
   - crystal tool format --check
-  - bin/ameba --only Lint/UselessAssign
+  - bin/ameba
 
 matrix:
   allow_failures:
