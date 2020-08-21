@@ -4,7 +4,7 @@
 
 Grip is a microframework for building RESTful web applications. It is designed to be modular and easy, with the ability to scale up. It began as a fork of the [Kemal](https://kemalcr.com) framework and has become one of the most interesting frameworks of the Crystal programming language.
 
-Grip offers extensibility, it has integrated middleware called "pipes" which alter the parts of the request/response context and pass it on to the actual endpoint. It has a router which somewhat resembles that of [Phoenix framework](https://github.com/phoenixframework/phoenix)'s router and most of all it is fast, peaking at [821,864](https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=json&l=zdk8an-1r) requests/second.
+Grip offers extensibility, it has integrated middleware called "pipes" which alter the parts of the request/response context and pass it on to the actual endpoint. It has a router which somewhat resembles that of [Phoenix framework](https://github.com/phoenixframework/phoenix)'s router and most of all it is fast, peaking at [1,663,946](https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=json&l=zdk8an-1r) requests/second.
 
 A [cookiecutter](https://github.com/grip-framework/cookiecutter-grip-api) template which gives you an example structure of a Grip API project.
 
