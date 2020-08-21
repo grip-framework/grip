@@ -7,6 +7,7 @@ require "radix"
 require "uuid"
 require "jwt"
 require "crypto/subtle"
+require "exception_page"
 
 {% if flag?(:without_openssl) %}
   require "digest/sha1"
@@ -14,6 +15,7 @@ require "crypto/subtle"
   require "openssl/sha1"
 {% end %}
 
+require "./grip/exception_page"
 require "./grip/exceptions/base"
 require "./grip/exceptions/*"
 require "./grip/parsers/*"

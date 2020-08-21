@@ -7,6 +7,9 @@ authors:
 dependencies:
   radix:
     github: luislavena/radix
+  
+  exception_page:
+    github: crystal-loot/exception_page
 
   jwt:
     github: crystal-community/jwt
