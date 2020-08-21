@@ -8,6 +8,14 @@ Spec.before_each do
   config.env = "development"
 end
 
+class ForbiddenController < Grip::Controllers::Exception
+  def call(context)
+    context.response.headers.merge!({"Content-Type" => "text/html"})
+    context.response.print("403 error")
+    context
+  end
+end
+
 class ExampleController < Grip::Controllers::Http
   def get(context)
     context
