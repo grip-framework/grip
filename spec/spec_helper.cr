@@ -8,9 +8,6 @@ Spec.before_each do
   config.env = "development"
 end
 
-class ContextController < Grip::Controllers::Http
-end
-
 class ExampleController < Grip::Controllers::Http
   def get(context)
     context

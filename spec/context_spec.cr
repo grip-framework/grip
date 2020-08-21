@@ -3,7 +3,7 @@ require "./spec_helper"
 describe "Context" do
   context "headers" do
     it "sets content type" do
-      Grip::Routers::Http::INSTANCE.add_route "GET", "/content_type", ContextController.new, nil, ->(context : HTTP::Server::Context) do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/content_type", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
         context.response.headers.merge!({"Content-Type" => "application/json"})
         context
       end 
@@ -14,7 +14,7 @@ describe "Context" do
     end
 
     it "parses headers" do
-      Grip::Routers::Http::INSTANCE.add_route "GET", "/headers", ContextController.new, nil, ->(context : HTTP::Server::Context) do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/headers", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
         name = context.request.headers["name"]
         context.response.print("Hello #{name}")
         context
@@ -28,7 +28,7 @@ describe "Context" do
     end
 
     it "sets response headers" do
-      Grip::Routers::Http::INSTANCE.add_route "GET", "/response_headers", ContextController.new, nil, ->(context : HTTP::Server::Context) do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/response_headers", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
         context.response.headers.add "Accept-Language", "ge"
         context
       end 
