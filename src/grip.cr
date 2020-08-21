@@ -14,6 +14,7 @@ require "crypto/subtle"
   require "openssl/sha1"
 {% end %}
 
+require "./grip/exceptions/base"
 require "./grip/exceptions/*"
 require "./grip/parsers/*"
 require "./grip/dsl/*"

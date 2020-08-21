@@ -7,28 +7,28 @@ module Grip
 
       def call(context : HTTP::Server::Context)
         call_next(context)
-      rescue ex : Grip::Exceptions::BadRequest
-        call_exception_with_status_code(context, ex, 400)
-      rescue ex : Grip::Exceptions::Unauthorized
-        call_exception_with_status_code(context, ex, 401)
-      rescue ex : Grip::Exceptions::Forbidden
-        call_exception_with_status_code(context, ex, 403)
-      rescue ex : Grip::Exceptions::NotFound
-        call_exception_with_status_code(context, ex, 404)
-      rescue ex : Grip::Exceptions::MethodNotAllowed
-        call_exception_with_status_code(context, ex, 405)
-      rescue ex : Grip::Exceptions::InternalServerError
-        call_exception_with_status_code(context, ex, 500)
-      rescue ex : ::Exception
-        STDOUT.print("\n#{ex.inspect_with_backtrace}\n")
-        STDOUT.flush
+      rescue ex
+        case ex
+        when Grip::Exceptions::Base
+          call_exception_with_status_code(context, ex, ex.status_code)
+        when ::Exception
+          STDOUT.print("\n#{ex.inspect_with_backtrace}\n")
+          STDOUT.flush
 
-        return call_exception_with_status_code(context, ex, context.response.status_code) if Grip.config.error_handlers.has_key?(context.response.status_code)
+          return call_exception_with_status_code(context, ex, context.response.status_code) if Grip.config.error_handlers.has_key?(context.response.status_code)
 
-        context.response.status_code = 500
-        context.response.print("<pre>#{ex.inspect_with_backtrace}\n</pre>") if Grip.config.env == "development"
+          context.response.status_code = 500
 
-        context
+          context.response.print(
+            "
+            <code>
+              #{ex.inspect_with_backtrace}
+            </code>
+            "
+          ) if Grip.config.env == "development"
+
+          context
+        end
       end
 
       private def call_exception_with_status_code(context : HTTP::Server::Context, exception : ::Exception, status_code : Int32)
