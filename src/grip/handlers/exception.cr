@@ -19,8 +19,12 @@ module Grip
           context.response.status_code = 500
 
           context.response.print(
-            Grip::ExceptionPage.for_runtime_exception(context, ex).to_s
+            Grip::DevelopmentExceptionPage.for_runtime_exception(context, ex).to_s
           ) if Grip.config.env == "development"
+
+          context.response.print(
+            "500 Internal Server Error"
+          ) if Grip.config.env == "production"
 
           context
         end

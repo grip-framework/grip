@@ -15,7 +15,7 @@ require "exception_page"
   require "openssl/sha1"
 {% end %}
 
-require "./grip/exception_page"
+require "./grip/development_exception_page"
 require "./grip/exceptions/base"
 require "./grip/exceptions/*"
 require "./grip/parsers/*"

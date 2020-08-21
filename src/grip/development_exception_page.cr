@@ -1,5 +1,5 @@
 module Grip
-  class ExceptionPage < ExceptionPage
+  class DevelopmentExceptionPage < ExceptionPage
     def styles : Styles
       ExceptionPage::Styles.new(
         accent: "purple",
