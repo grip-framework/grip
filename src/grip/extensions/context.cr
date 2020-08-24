@@ -45,5 +45,97 @@ class HTTP::Server
     def ws_route_found?
       ws_route_lookup.found?
     end
+
+    def delete_req_header(key)
+      @request.headers[key].delete
+    end
+
+    def delete_resp_header(key)
+      @response.headers[key].delete
+    end
+
+    def get_req_header(key)
+      @request.headers[key]
+    end
+
+    def get_resp_header(key)
+      @response.headers[key]
+    end
+
+    def halt
+      @response.close
+      self
+    end
+
+    def merge_resp_headers(headers)
+      @response.headers.merge!(headers)
+      self
+    end
+
+    def put_req_header(key, value)
+      @request.headers[key] = value
+      self
+    end
+
+    def put_resp_header(key, value)
+      @response.headers[key] = value
+      self
+    end
+
+    def put_status(status_code = HTTP::Status::OK)
+      @response.status_code = status_code.to_i
+      self
+    end
+
+    def send_resp(content, status_code = HTTP::Status::OK)
+      @response.status_code = status_code.to_i
+      @response.print(content)
+    end
+
+    def json(content)
+      @response.headers.merge!({"Content-Type" => "application/json"})
+      @response.print(content.to_json)
+    end
+
+    def html(content)
+      @response.headers.merge!({"Content-Type" => "text/html"})
+      @response.print(content)
+    end
+
+    def text(content)
+      @response.headers.merge!({"Content-Type" => "text/plain"})
+      @response.print(content)
+    end
+
+    # `Grip::DSL::Methods#json?` returns the parsed JSON content from an endpoint.
+    def fetch_json_params
+      params.json
+    end
+
+    # `Grip::DSL::Methods#query?` returns the parsed `GET` query parameters from an endpoint.
+    def fetch_query_params
+      params.query
+    end
+
+    # `Grip::DSL::Methods#body?` returns the parsed URL encoded parameters from an endpoint.
+    def fetch_body_params
+      params.body
+    end
+
+    # `Grip::DSL::Methods#file?` returns the parsed multipart data from an endpoint.
+    def fetch_file_params
+      params.file
+    end
+
+    # `Grip::DSL::Methods#url?` returns the parsed URL data from an endpoint.
+    def fetch_path_params      
+      if params.url.size != 0
+        params.url
+      elsif ws_route_lookup.params.size != 0
+        ws_route_lookup.params
+      else
+        params.url || ws_route_lookup.params
+      end
+    end
   end
 end
