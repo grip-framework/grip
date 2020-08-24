@@ -3,7 +3,9 @@ module Grip
     abstract class Base < Exception
       getter status : HTTP::Status?
 
-      abstract def status_code : Int32
+      def status_code : Int32
+        @status.not_nil!.value
+      end
     end
   end
 end

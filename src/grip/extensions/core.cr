@@ -16,5 +16,4 @@ end
 
 class HTTP::Server::Response
   include Grip::Extensions::HTTPServerResponse
-
 end
