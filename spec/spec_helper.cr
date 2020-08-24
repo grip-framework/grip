@@ -48,7 +48,9 @@ end
 
 class UrlParametersController < Grip::Controllers::WebSocket
   def on_open(context, socket)
-    url?(context)["id"]
+    context
+      .fetch_path_params
+      .["id"]
   end
 end
 

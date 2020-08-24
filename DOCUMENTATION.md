@@ -42,23 +42,24 @@ class Index < Grip::Controllers::Http
   # `context` contains the `request` and the `response` of an HTTP connection,
   # the `json` function expands to:
   #
-  #   def json(context, content, status_code = HTTP::Status::OK)
-  #     context.response.status_code = status_code.to_i 
+  #   def json(context, content)
   #     context.response.headers.merge!({"Content-Type" => "application/json"})
   #     content.to_json
   #   end
   #
   # and it is a "helper" function which helps you by avoiding so much boilerplate.
+  # 
+  # the default response code is 200 OK.
   #
     
   def get(context)
-    # HTTP::Status is an enum which has all of the response codes alternatively you can use an integer.
-    json!(
-      context,
-      {
-        "id": "#{UUID.random}"
-      }
-    )
+    context
+      .put_status(404)
+      .json(
+        {
+          "id": "#{UUID.random}"
+        }
+      )
   end
 end
 
@@ -158,31 +159,23 @@ You can handle HTTP methods via pre-defining a set of available modifiers and th
 ```ruby
 class Index < Grip::Controllers::Http
   def get(context)
-    text!(
-      context,
-      "Hello, GET!"
-    )
+    context
+      .text("Hello, GET!")
   end
 
   def post(context)
-    text!(
-      context,
-      "Hello, POST!"
-    )
+    context
+      .text("Hello, POST!")
   end
 
   def put(context)
-    text!
-      context,
-      "Hello, PUT!"
-    )
+    context
+      .text("Hello, PUT!")
   end
 
   def delete(context)
-    text!(
-      context,
-      "Hello, DELETE!"
-    )
+    context
+      .text("Hello, DELETE!")
   end
 end
 ```
@@ -198,10 +191,8 @@ The current filter supports all of the verbs which are RESTful, for example defi
 ```ruby
 class ExampleFilterController < Grip::Controllers::Filter
   def call(context)
-    json!(
-      context,
-      "Hello, World!"
-    )
+    context
+      .json("Hello, World!")
   end
 end
 
@@ -217,10 +208,8 @@ You can even use the pipeline in before the filter is executed:
 ```ruby
 class ExampleFilterController < Grip::Controllers::Filter
   def call(context)
-    json!(
-      context,
-      "Hello, World!"
-    )
+    context
+      .json("Hello, World!")
   end
 end
 
@@ -283,12 +272,12 @@ end
 
 class Index < Grip::Controllers::Http
   def get(context)
-    json!(
-      context,
-      {
-        "message" => "Hello, world!"
-      }
-    )
+    context
+      .json(
+        {
+          "message" => "Hello, world!"
+        }
+      )
   end
 end
 
@@ -313,24 +302,31 @@ The response codes are borrowed from HTTP::Status enum which contains all of the
 
 ```ruby
 # Enum based status code
-json!(
-  context,
-  "Wonderful JSON content.",
-  HTTP::Status::OK
-)
+context
+  .put_status(HTTP::Status::NOT_FOUND)
+  .json({"id" => 1})
 
 # Integer based status code
-html!(
-  context,
-  "Wonderful JSON content.",
-  200
-)
+context
+  .put_status(200)
+  .html(
+    <<-HTML
+      <html>
+        <head>
+          <title>
+            Grip framework rocks!
+          </title>
+        </head>
+        <body>
+          <p>Hello, World!</p>
+        </body>
+      </html>
+    HTML
+  )
 
 # Default is 200 OK
-text!(
-  context,
-  "Wonderful JSON content."
-)
+context
+  .text("Hello, World!")
 ```
 
 ## Custom Errors
@@ -343,24 +339,24 @@ class NotFoundController < Grip::Controllers::Exception
   # we still inherit from the Base class which forces us
   # to define the default `call` function.
   def call(context)
-    json!(
-      context,
-      {
-        "errors" => [context.exception.not_nil!.to_s]
-      }
-    )
+    context
+      .json(
+        {
+          "errors" => [context.exception.not_nil!.to_s]
+        }
+      )
   end
 end
 
 class ForbiddenController < Grip::Controllers::Exception
   def call(context)
-    json!(
-      context,
-      {
-        "error" => ["You lack privileges to access the current resource!"]
-      },
-      403
-    )
+    context
+      .put_status(403) # Raised error automatically carries over the status code of the exception.
+      .json(
+        {
+          "error" => ["You lack privileges to access the current resource!"]
+        }
+      )
   end
 end
 
@@ -386,23 +382,31 @@ Grip allows you to use variables in your route path as placeholders for passing 
 ```ruby
 class Users < Grip::Controllers::Http
   def get(context)
-    params = url?(context)
-    json!(
-      context,
-      {
-        "id": params["id"]
-      }
-    )
+    id =
+      context
+        .fetch_path_params
+        .["id"]
+
+    context
+      .json(
+        {
+          "id": id,
+        }
+      )
   end
 
   def post(context)
-    params = url?(context)
-    json!(
-      context,
-      {
-        "id": params["id"]
-      }
-    )
+    id =
+      context
+        .fetch_path_params
+        .["id"]
+
+    context
+      .json(
+        {
+          "id": id,
+        }
+      )
   end
 end
 
@@ -423,19 +427,27 @@ To access query parameters, you use `query`.
 ```ruby
 class Resize < Grip::Controllers::Http
   def get(context)
-    params = query?(context)
-    width = params["width"]
-    height = params["height"]
+    params =
+      context
+        .fetch_query_params
 
-    json!(
-      context,
-      {
-        "imageResolution": {
-          "width": width,
-          "height": height
+    width = 
+      params
+        .["width"]
+
+    height = 
+      params
+        .["height"]
+
+    context
+      .json(
+        {
+          "imageResolution": {
+            "width":  width,
+            "height": height,
+          },
         }
-      }
-    )
+      )
   end
 end
 
@@ -456,19 +468,27 @@ You can easily access JSON payload from the parameters, or through the standard 
 ```ruby
 class SignIn < Grip::Controllers::Http
   def create(context)
-    params = json?(context)
-    username = params["username"]
-    password = params["password"]
+    params = 
+      context
+        .fetch_json_params
+    
+    username = 
+      params
+        .["username"]
 
-    json!(
-      context,
-      {
-        "authorizationInformation": {
-          "username": username,
-          "password": password
+    password = 
+      params
+        .["password"]
+
+    context
+      .json(
+        {
+          "authorizationInformation": {
+            "username": username,
+            "password": password
+          }
         }
-      }
-    )
+      )
   end
 end
 
@@ -488,14 +508,17 @@ You can easily access mutlipart parameters.
 
 ```ruby
 class Images < Grip::Controllers::Http
-  params = file?(context)
+  example_file = 
+    context
+      .fetch_file_params
+      .["exampleFile"]
 
-  pp params["exampleFile"].tempfile.gets_to_end
+  pp example_file.tempfile.gets_to_end
 
-  json!(
-    context,
-    {} of String => String
-  )
+  context
+    .json(
+      {} of String => String
+    )
 end
 
 class App < Grip::Application
@@ -515,14 +538,16 @@ You can easily access body parameters.
 ```ruby
 class Blocks < Grip::Controllers::Http
   def post(context)
-    params = body?(context)
+    params = 
+      context
+      .fetch_body_params
 
     pp params
 
-    json!(
-      context,
-      {} of String => String
-    )
+    context
+      .json(
+        {} of String => String
+      )
   end
 end
 
@@ -583,41 +608,12 @@ app = App.new
 app.run
 ```
 
-Accessing headers of the initial HTTP request can be done via a `headers` method:
+Dynamic URL parameters can be accessed via a `fetch_path_params` method:
 
 ```ruby
 class Echo < Grip::Controllers::WebSocket
   def on_message(context, socket, message)
-    puts headers(context) # This gets the http headers
-
-    if message == "close"
-      close(socket, "Received a 'close' message, closing the connection!")
-    end
-
-    socket.send message
-  end
-
-  def on_close(context, socket, code, message)
-    puts code, message
-  end
-end
-
-class App < Grip::Application
-  def initialize
-    ws "/", Echo
-  end
-end
-
-app = App.new
-app.run
-```
-
-Dynamic URL parameters can be accessed via a `url` method:
-
-```ruby
-class Echo < Grip::Controllers::WebSocket
-  def on_message(context, socket, message)
-    puts url(context) # This gets the hash instance of the route url specified variables
+    puts context.fetch_path_params
 
     if message == "close"
       close(socket, "Received a 'close' message, closing the connection!")
@@ -687,12 +683,12 @@ If you want to use the decoded payload from the Jwt pipeline just access the `co
 ```ruby
 class Index < Grip::Controllers::Http
   def get(context)
-    json!(
-      context,
-      {
-        "decoded" => context.assigns.jwt,
-      }
-    )
+    context
+      .json(
+        {
+          "decoded" => context.assigns.jwt,
+        }
+      )
   end
 end
 ```
@@ -748,10 +744,8 @@ require "grip"
 
 class Index < Grip::Controllers::Http
   def get(context)
-    text!(
-      context,
-      "Hello, World!"
-    )
+    context
+      .text("Hello, World!")
   end
 end
 

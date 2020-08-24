@@ -18,12 +18,10 @@ require "grip"
 
 class Index < Grip::Controllers::Http
   def get(context)
-    json!(
-      context,
-      {
-        "id" => 1,
-      }
-    )
+    context
+      .put_status(200) # Assign the status code to 200 OK.
+      .json({"id" => 1}) # Respond with JSON content.
+      .halt # Close the connection.
   end
 end
 
