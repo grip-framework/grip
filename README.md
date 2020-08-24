@@ -34,12 +34,13 @@ class Index < Grip::Controllers::Http
   end
   
   def index(context)
-    json!(
-      context,
-      {
-        "id" => 1,
-      }
-    )
+    id =
+      context
+        .fetch_path_params
+        .["id"]
+    
+    context
+      .json({"id" => id})
   end
 end
 
@@ -51,7 +52,7 @@ class Application < Grip::Application
     ]
     
     get "/", Index, via: :api
-    get "/index", Index, via: :api, override: :index
+    get "/:id", Index, via: :api, override: :index
   end
 end
 
