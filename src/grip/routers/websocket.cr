@@ -15,12 +15,7 @@ module Grip
       def call(context : HTTP::Server::Context)
         return call_next(context) unless context.ws_route_found? && websocket_upgrade_request?(context)
 
-        if context.websocket.via
-          Grip::Handlers::Pipeline::INSTANCE.pipeline[context.websocket.via].each do |pipe|
-            pipe.call(context)
-          end
-        end
-
+        context.websocket.match_via_keyword(context, context.websocket.via)
         context.websocket.handler.call(context)
       end
 

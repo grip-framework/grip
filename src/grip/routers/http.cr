@@ -16,11 +16,7 @@ module Grip
         raise Grip::Exceptions::NotFound.new(context) unless context.route_found?
         return if context.response.closed?
 
-        if context.route.via
-          Grip::Handlers::Pipeline::INSTANCE.pipeline[context.route.via].each do |pipe|
-            pipe.call(context)
-          end
-        end
+        context.route.match_via_keyword(context, context.route.via)
 
         if context.route.override
           context.route.override.not_nil!.call(context)
