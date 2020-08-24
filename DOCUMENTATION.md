@@ -140,7 +140,18 @@ pipeline :web, [
   Grip::Pipes::Log.new
 ]
 
+pipeline :api, [
+  Grip::Pipes::PoweredByHeader.new
+]
+
 get "/", Index, via: :web
+
+# Routes `GET` requests to the appropriate modifier but before that happens it routes the request through pipelines,
+# which contain several pre-defined middleware native to Grip or handwritten by the user which modifies the request
+# and passes it on to the next pipe until it reaches the desired endpoint.
+#
+# The request first is piped through `:web` and then `:api` respectively to their position in the array.
+get "/", Index, via: [:web, :api]
 ```
 
 #### Override
