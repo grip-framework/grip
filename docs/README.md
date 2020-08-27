@@ -1,5 +1,6 @@
 # Table of Contents
 
+0. [Top-level classes](#top-level-classes-)
 1. [Controllers](#controllers-)
 2. [DSL](#dsl-)
 3. [Exceptions](#exceptions-)
@@ -9,18 +10,26 @@
 7. [Pipes](#pipes-)
 8. [Routers](#routers-)
 9. [Support](#support-)
+10. [Cookbook](#cookbook-)
+
+## Top-level classes [▲](#table-of-contents)
+
+- [Appliaction](https://github.com/grip-framework/grip/blob/master/docs/application.md)
+- [CLI](https://github.com/grip-framework/grip/blob/master/docs/cli.md)
+- [Config](https://github.com/grip-framework/grip/blob/master/docs/config.md)
+- [SSL](https://github.com/grip-framework/grip/blob/master/docs/ssl.md)
 
 ## Controllers [▲](#table-of-contents)
 
-- [Base](https://github.com/grip-framework/grip/blob/master/docs/controllers/base.md) - A class which creates a base structure for the base controller.
-- [Exception](https://github.com/grip-framework/grip/blob/master/docs/controllers/exception.md)  - A class which creates a base structure for the exception controller.
-- [Filter](https://github.com/grip-framework/grip/blob/master/docs/controllers/filter.md) - A class which creates a base structure for the filter controller.
-- [Http](https://github.com/grip-framework/grip/blob/master/docs/controllers/http.md) - A class which creates a base structure for the http controller.
-- [WebSocket](https://github.com/grip-framework/grip/blob/master/docs/controllers/websocket.md) - A class which creates a base structure for the websocket controller.
+- [Base](https://github.com/grip-framework/grip/blob/master/docs/controllers/base.md)
+- [Exception](https://github.com/grip-framework/grip/blob/master/docs/controllers/exception.md)
+- [Filter](https://github.com/grip-framework/grip/blob/master/docs/controllers/filter.md)
+- [Http](https://github.com/grip-framework/grip/blob/master/docs/controllers/http.md)
+- [WebSocket](https://github.com/grip-framework/grip/blob/master/docs/controllers/websocket.md)
 
 ## DSL [▲](#table-of-contents)
 
-- [Macros](https://github.com/grip-framework/grip/blob/master/docs/dsl/macros.md) - A module which defines the DSL for route, filter and error handler registration.
+- [Macros](https://github.com/grip-framework/grip/blob/master/docs/dsl/macros.md)
 
 ## Exceptions [▲](#table-of-contents)
 
@@ -70,3 +79,6 @@
 
 - [LocaleFormat](https://github.com/grip-framework/grip/blob/master/docs/support/locale_format.md)
 - [MimeTypes](https://github.com/grip-framework/grip/blob/master/docs/support/mime_types.md)
+
+## Cookbook [▲](#table-of-contents)
+- [Reuse port](https://github.com/grip-framework/grip/blob/master/docs/cookbook/reuse_port_recipe.md)
