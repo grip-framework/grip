@@ -1,7 +1,7 @@
 module Grip
   module Exceptions
     class NotFound < Base
-      def initialize(context : HTTP::Server::Context)
+      def initialize
         @status = HTTP::Status::NOT_FOUND
         super "The endpoint you have requested was not found on the server."
       end

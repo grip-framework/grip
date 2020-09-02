@@ -1,7 +1,7 @@
 module Grip
   module Exceptions
     class Forbidden < Base
-      def initialize(context : HTTP::Server::Context)
+      def initialize
         @status = HTTP::Status::FORBIDDEN
         super "You lack the privilege to access this endpoint."
       end

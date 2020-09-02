@@ -1,7 +1,7 @@
 module Grip
   module Exceptions
     class Unauthorized < Base
-      def initialize(context : HTTP::Server::Context)
+      def initialize
         @status = HTTP::Status::UNAUTHORIZED
         super "You are not authorized to access this endpoint."
       end

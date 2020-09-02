@@ -81,4 +81,7 @@
 - [MimeTypes](https://github.com/grip-framework/grip/blob/master/docs/support/mime_types.md)
 
 ## Cookbook [▲](#table-of-contents)
+
+- [Hello, World!](https://github.com/grip-framework/grip/blob/master/docs/cookbook/hello_world.md)
+- [File upload](https://github.com/grip-framework/grip/blob/master/docs/cookbook/file_upload.md)
 - [Reuse port](https://github.com/grip-framework/grip/blob/master/docs/cookbook/reuse_port_recipe.md)
