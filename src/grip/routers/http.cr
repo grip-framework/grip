@@ -13,7 +13,7 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
-        raise Grip::Exceptions::NotFound.new(context) unless context.route_found?
+        raise Grip::Exceptions::NotFound.new unless context.route_found?
         return if context.response.closed?
 
         context.route.match_via_keyword(context, context.route.via)
