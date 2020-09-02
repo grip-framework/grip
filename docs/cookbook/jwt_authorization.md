@@ -5,15 +5,13 @@ Make sure you have set the `JWT_SECRET` env key.
 ```ruby
 require "grip"
 
-class Context
-  struct Assigns
-    property ip : String?
-    property basic : String?
-    property jwt : JSON::Any?
+struct Grip::Extensions::HTTPServerContext::Assigns
+  property ip : String?
+  property basic : String?
+  property jwt : JSON::Any?
 
-    # We extend the Assigns struct with this.
-    property current_user : String?
-  end
+  # We extend the Assigns struct with this.
+  property current_user : String?
 end
 
 class UserController < Grip::Controllers::Http
