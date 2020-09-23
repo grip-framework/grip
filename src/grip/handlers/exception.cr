@@ -11,9 +11,9 @@ module Grip
         context.response.status_code = 404 if !context.response.status_code.in?([400, 401, 403, 404, 405, 500])
 
         if ex.is_a?(Grip::Exceptions::Base)
-          return call_exception_with_status_code(context, ex, ex.status_code) if Grip.config.error_handlers.has_key?(ex.status_code)
+          return call_exception_with_status_code(context, ex, ex.status_code)
         else
-          return call_exception_with_status_code(context, ex, context.response.status_code) if Grip.config.error_handlers.has_key?(context.response.status_code)
+          return call_exception_with_status_code(context, ex, context.response.status_code)
         end
       end
 
