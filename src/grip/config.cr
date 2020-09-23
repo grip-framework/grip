@@ -18,12 +18,13 @@ module Grip
       @ssl : OpenSSL::SSL::Context::Server?
     {% end %}
 
-    property host_binding, ssl, port, env, running
+    property host_binding, ssl, port, env, running, logging
     property always_rescue, server : HTTP::Server?, extra_options
 
     def initialize
       @host_binding = "0.0.0.0"
       @port = 5000
+      @logging = true
       @env = ENV["APP_ENV"]? || "development"
       @error_handler = nil
       @always_rescue = true
@@ -102,6 +103,7 @@ module Grip
     # Sets up the configuration file.
     def setup
       unless @default_handlers_setup && @router_included
+        setup_log_handler
         setup_error_handler
         setup_custom_handlers
         setup_filter_handlers
@@ -110,6 +112,13 @@ module Grip
         @router_included = true
         HANDLERS.insert(HANDLERS.size, Grip::Routers::WebSocket::INSTANCE)
         HANDLERS.insert(HANDLERS.size, Grip::Routers::Http::INSTANCE)
+      end
+    end
+
+    private def setup_log_handler
+      if @logging
+        HANDLERS.insert(@handler_position, Grip::Handlers::Log.new)
+        @handler_position += 1
       end
     end
 
