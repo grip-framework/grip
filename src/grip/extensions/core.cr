@@ -11,9 +11,9 @@ abstract struct Number
 end
 
 class HTTP::Server::Context
-  include Grip::Extensions::HTTPServerContext
+  include Grip::Extensions::Context
 end
 
 class HTTP::Server::Response
-  include Grip::Extensions::HTTPServerResponse
+  include Grip::Extensions::Response
 end

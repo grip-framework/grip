@@ -1,6 +1,6 @@
 module Grip
   module Extensions
-    module HTTPServerResponse
+    module Response
       class Output
         def close
           # ameba:disable Style/NegatedConditionsInUnless

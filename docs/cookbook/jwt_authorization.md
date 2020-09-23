@@ -5,7 +5,7 @@ Make sure you have set the `JWT_SECRET` env key.
 ```ruby
 require "grip"
 
-struct Grip::Extensions::HTTPServerContext::Assigns
+struct Grip::Extensions::Context::Assigns
   property ip : String?
   property basic : String?
   property jwt : JSON::Any?
@@ -21,7 +21,7 @@ class UserController < Grip::Controllers::Http
         .fetch_json_params
         .["username"]
         .to_s
-      
+
     password =
       context
         .fetch_json_params
@@ -67,7 +67,6 @@ end
 class Application < Grip::Application
   def initialize
     pipeline :web, [
-      Grip::Pipes::Log.new,
       Grip::Pipes::PoweredByHeader.new
     ]
 

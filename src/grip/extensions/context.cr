@@ -1,6 +1,6 @@
 module Grip
   module Extensions
-    module HTTPServerContext
+    module Context
       # `Assigns` structure contains all of the `Pipe` middleware assignables
       # which are used for context forwarding and information storage.
       struct Assigns
