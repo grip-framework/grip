@@ -47,8 +47,7 @@ end
 class Application < Grip::Application
   def initialize
     pipeline :api, [
-        Grip::Pipes::Log.new,
-        Grip::Pipes::PoweredByHeader.new,
+        Grip::Pipes::PoweredByHeader.new
     ]
     
     get "/", Index, via: :api
@@ -80,8 +79,8 @@ See our [contribution guidelines](https://github.com/grip-framework/grip/blob/ma
 
 ## Contributors
 - [Giorgi Kavrelishvili](https://github.com/grkek) - creator and maintainer.
-- [nilsding](https://github.com/nilsding)
-- [Whaxion](https://github.com/Whaxion)
+- [nilsding](https://github.com/nilsding) - contributor
+- [Whaxion](https://github.com/Whaxion) - contributor
 
 ## Thanks
 - [Kemal](https://github.com/kemalcr/kemal) - Underlying routing, parameter parsing and filtering mechanisms.
