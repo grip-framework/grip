@@ -1,6 +1,6 @@
 module Grip
   module Support
-    module MimeTypes
+    module Mime
       DEFAULT_MIME_TYPE      = "application/octet-stream"
       ZIP_FILE_EXTENSIONS    = %w(.htm .html .txt .css .js .svg .json .xml .otf .ttf .woff .woff2)
       ACCEPT_SEPARATOR_REGEX = /,|,\s/
@@ -619,10 +619,10 @@ module Grip
       # Returns the Mime Type for a given format or file extname.
       #
       # ```
-      # Amber::Support::Mime.mime_type("json")                  # => "application/json"
-      # Amber::Support::Mime.mime_type(".jpg")                  # => "image/jpeg"
-      # Amber::Support::Mime.mime_type("unknown")               # => "application/octet-stream"
-      # Amber::Support::Mime.mime_type("unknown", "text/plain") # => "text/plain"
+      # Grip::Support::Mime.mime_type("json")                  # => "application/json"
+      # Grip::Support::Mime.mime_type(".jpg")                  # => "image/jpeg"
+      # Grip::Support::Mime.mime_type("unknown")               # => "application/octet-stream"
+      # Grip::Support::Mime.mime_type("unknown", "text/plain") # => "text/plain"
       # ```
       def self.mime_type(format : String, fallback = DEFAULT_MIME_TYPE)
         format = format[1..-1] if format.starts_with?('.')
