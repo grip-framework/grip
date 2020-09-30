@@ -50,8 +50,12 @@ class Application < Grip::Application
         Grip::Pipes::PoweredByHeader.new
     ]
     
+    pipeline :web, [
+        Grip::Pipes::SecureHeaders.new
+    ]
+    
     get "/", Index, via: :api
-    get "/:id", Index, via: :api, override: :index
+    get "/:id", Index, via: [:web, :api], override: :index
   end
 end
 
