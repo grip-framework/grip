@@ -24,19 +24,19 @@ module Grip
               if username = authorize?(value)
                 context.assigns.basic = username
               else
-                raise Grip::Exceptions::Unauthorized.new(context)
+                raise Grip::Exceptions::Unauthorized.new
               end
             else
               context.response.headers["WWW-Authenticate"] = HEADER_LOGIN_REQUIRED
-              raise Grip::Exceptions::Unauthorized.new(context)
+              raise Grip::Exceptions::Unauthorized.new
             end
           else
             context.response.headers["WWW-Authenticate"] = HEADER_LOGIN_REQUIRED
-            raise Grip::Exceptions::Unauthorized.new(context)
+            raise Grip::Exceptions::Unauthorized.new
           end
         else
           context.response.headers["WWW-Authenticate"] = HEADER_LOGIN_REQUIRED
-          raise Grip::Exceptions::Unauthorized.new(context)
+          raise Grip::Exceptions::Unauthorized.new
         end
       end
 

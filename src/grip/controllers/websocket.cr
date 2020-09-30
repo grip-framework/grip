@@ -170,7 +170,7 @@ module Grip
             io.close
           end
         else
-          raise Grip::Exceptions::BadRequest.new(context)
+          raise Grip::Exceptions::BadRequest.new
         end
       end
 

@@ -16,7 +16,6 @@ module Grip
   # ```
   class Application
     include Grip::DSL::Macros
-    include Grip::DSL::Methods
 
     # Overloads the `run` function with the default startup logging.
     def run(port : Int32?, args = ARGV)

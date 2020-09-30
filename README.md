@@ -27,33 +27,31 @@ require "grip"
 
 class Index < Grip::Controllers::Http
   def get(context)
-    json!(
-      context,
-      {
-        "id" => 1,
-      }
-    )
+    context
+      .put_status(200) # Assign the status code to 200 OK.
+      .json({"id" => 1}) # Respond with JSON content.
+      .halt # Close the connection.
   end
   
   def index(context)
-    json!(
-      context,
-      {
-        "id" => 1,
-      }
-    )
+    id =
+      context
+        .fetch_path_params
+        .["id"]
+    
+    context
+      .json({"id" => id})
   end
 end
 
 class Application < Grip::Application
   def initialize
     pipeline :api, [
-        Grip::Pipes::Log.new,
-        Grip::Pipes::PoweredByHeader.new,
+        Grip::Pipes::PoweredByHeader.new
     ]
     
     get "/", Index, via: :api
-    get "/index", Index, via: :api, override: :index
+    get "/:id", Index, via: :api, override: :index
   end
 end
 
@@ -81,8 +79,8 @@ See our [contribution guidelines](https://github.com/grip-framework/grip/blob/ma
 
 ## Contributors
 - [Giorgi Kavrelishvili](https://github.com/grkek) - creator and maintainer.
-- [nilsding](https://github.com/nilsding)
-- [Whaxion](https://github.com/Whaxion)
+- [nilsding](https://github.com/nilsding) - contributor
+- [Whaxion](https://github.com/Whaxion) - contributor
 
 ## Thanks
 - [Kemal](https://github.com/kemalcr/kemal) - Underlying routing, parameter parsing and filtering mechanisms.

@@ -1,7 +1,7 @@
 module Grip
   module Exceptions
     class BadRequest < Base
-      def initialize(context : HTTP::Server::Context)
+      def initialize
         @status = HTTP::Status::BAD_REQUEST
         super "Please provide a proper request to the endpoint."
       end

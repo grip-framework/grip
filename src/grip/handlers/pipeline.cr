@@ -1,5 +1,6 @@
 module Grip
   module Handlers
+    # :nodoc:
     class Pipeline
       INSTANCE = new
       property pipeline : Hash(Symbol, Array(Grip::Pipes::Base))

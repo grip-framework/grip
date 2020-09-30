@@ -1,7 +1,7 @@
 module Grip
   module Exceptions
     class InternalServerError < Base
-      def initialize(context : HTTP::Server::Context)
+      def initialize
         @status = HTTP::Status::INTERNAL_SERVER_ERROR
         super "Please try again later or contact the server administration team."
       end

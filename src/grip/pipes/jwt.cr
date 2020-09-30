@@ -37,16 +37,16 @@ module Grip
                 payload, _ = JWT.decode(value[BEARER.size + 1..], @secret_key, @algorithm, **@claims)
                 context.assigns.jwt = payload
               rescue exception
-                raise Grip::Exceptions::Unauthorized.new(context)
+                raise Grip::Exceptions::Unauthorized.new
               end
             else
-              raise Grip::Exceptions::Unauthorized.new(context)
+              raise Grip::Exceptions::Unauthorized.new
             end
           else
-            raise Grip::Exceptions::Unauthorized.new(context)
+            raise Grip::Exceptions::Unauthorized.new
           end
         else
-          raise Grip::Exceptions::Unauthorized.new(context)
+          raise Grip::Exceptions::Unauthorized.new
         end
       end
     end

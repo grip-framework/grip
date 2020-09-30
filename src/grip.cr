@@ -16,6 +16,7 @@ require "exception_page"
 {% end %}
 
 require "./grip/development_exception_page"
+require "./grip/support/*"
 require "./grip/exceptions/base"
 require "./grip/exceptions/*"
 require "./grip/parsers/*"
