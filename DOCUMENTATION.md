@@ -42,12 +42,14 @@ class Index < Grip::Controllers::Http
   # `context` contains the `request` and the `response` of an HTTP connection,
   # the `json` function expands to:
   #
-  #   def json(context, content)
-  #     context.response.headers.merge!({"Content-Type" => "application/json"})
+  #   def json(content)
+  #     self.response.headers.merge!({"Content-Type" => "application/json"})
   #     content.to_json
   #   end
   #
-  # and it is a "helper" function which helps you by avoiding so much boilerplate.
+  # self being the context of the HTTP server.
+  #
+  # It is a "helper" function which helps you by avoiding so much boilerplate.
   # 
   # the default response code is 200 OK.
   #
@@ -580,7 +582,7 @@ You can easily change the properties of a response, dig in the [Crystal Document
 
 # Helper Functions
 
-Helper functions are defined in: [DSL/Methods](https://github.com/grip-framework/grip/blob/master/src/grip/dsl/methods.cr), [Extensions/Context](https://github.com/grip-framework/grip/blob/master/src/grip/extensions/context.cr). Taking a quick look will help you understand more of the innerworkings of the Grip framework.
+Helper functions are defined in [Extensions/Context](https://github.com/grip-framework/grip/blob/master/src/grip/extensions/context.cr). Taking a quick look will help you understand more of the innerworkings of the Grip framework.
 
 # WebSockets
 
