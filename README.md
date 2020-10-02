@@ -1,4 +1,6 @@
-[![Grip](https://github.com/grip-framework/medias/blob/master/gripen.svg)](https://github.com/grip-framework/grip)
+<p align="center" width="100%">
+    <img src="https://github.com/grip-framework/medias/blob/master/gripen.svg" >
+</p>
 
 # Grip
 Grip is a microframework for building RESTful web applications. It is designed to be modular and easy to use, with the ability to scale up to the limits of the Crystal programming language. It offers extensibility and it has integrated middleware called "pipes" which alter the parts of the request/response context and pass it on to the actual endpoint. It has a router which somewhat resembles that of [Phoenix framework](https://github.com/phoenixframework/phoenix)'s router and most of all it is fast, peaking at [1,663,946](https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=json&l=zdk8an-1r) requests/second for plain text response.
