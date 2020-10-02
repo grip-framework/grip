@@ -55,11 +55,13 @@ module Grip
       # Deletes request header.
       def delete_req_header(key)
         @request.headers[key].delete
+        self
       end
 
       # Deletes response header.
       def delete_resp_header(key)
         @response.headers[key].delete
+        self
       end
 
       # Gets request header.
@@ -75,7 +77,6 @@ module Grip
       # Halts the execution of the endpoint
       def halt
         @response.close
-        self
       end
 
       # Merges the response headers with another hashmap
@@ -103,8 +104,7 @@ module Grip
       end
 
       # Sends a response with a status code of OK.
-      def send_resp(content, status_code = HTTP::Status::OK)
-        @response.status_code = status_code.to_i
+      def send_resp(content)
         @response.print(content)
         self
       end
