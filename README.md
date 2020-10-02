@@ -76,7 +76,8 @@ shards install
 ```
 
 ## API Reference
-A temporary API reference can be found [here](https://github.com/grip-framework/grip/blob/master/DOCUMENTATION.md), while this document is somewhat complete it is still missing some of the information that could be provided. That is why we are working on creating the wiki page for this repository which will depict the entire framework and deliver the information in great detail.
+
+Documentation can be found on the [official website of the Grip framework](https://grip-framework.github.io/docs/).
 
 ## Contribute
 See our [contribution guidelines](https://github.com/grip-framework/grip/blob/master/CONTRIBUTING.md) and read the [code of conduct](https://github.com/grip-framework/grip/blob/master/CODE_OF_CONDUCT.md).
