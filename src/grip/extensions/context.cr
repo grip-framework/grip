@@ -54,13 +54,13 @@ module Grip
 
       # Deletes request header.
       def delete_req_header(key)
-        @request.headers[key].delete
+        @request.headers.delete(key)
         self
       end
 
       # Deletes response header.
       def delete_resp_header(key)
-        @response.headers[key].delete
+        @response.headers.delete(key)
         self
       end
 
