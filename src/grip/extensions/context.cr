@@ -77,6 +77,7 @@ module Grip
       # Halts the execution of the endpoint
       def halt
         @response.close
+        self
       end
 
       # Merges the response headers with another hashmap
