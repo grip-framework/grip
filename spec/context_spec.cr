@@ -38,4 +38,92 @@ describe "Context" do
       client_response.headers["Accept-Language"].should eq "ge"
     end
   end
+
+  context "methods" do
+    it "has binary() method with octet-stream" do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+        context.binary(10).halt()
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request)
+      client_response.body.should eq "10"
+      ("octet-stream".in? client_response.headers["Content-Type"]).should be_true
+    end
+
+    it "encodes text in utf-8" do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+        context.text("👋🏼 grip").halt()
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request)
+      client_response.body.should eq "👋🏼 grip"
+      ("UTF-8".in? client_response.headers["Content-Type"]).should be_true
+    end
+
+    it "encodes json in utf-8" do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+        context.json({:message => "👋🏼 grip"}).halt()
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request)
+      client_response.body.should eq "{\"message\":\"👋🏼 grip\"}"
+      ("UTF-8".in? client_response.headers["Content-Type"]).should be_true
+    end
+
+    it "encodes html in utf-8" do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+        context.html("👋🏼 grip").halt()
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request)
+      client_response.body.should eq "👋🏼 grip"
+      ("UTF-8".in? client_response.headers["Content-Type"]).should be_true
+    end
+  end
+
+  context "methods" do
+    it "allows overriding text() content type" do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+        context.text("👋🏼 grip", "text/html").halt()
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request)
+      ("UTF-8".in? client_response.headers["Content-Type"]).should be_false
+    end
+
+    it "allows overriding json() content type" do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+        context.json({:message => "👋🏼 grip"}, "application/json").halt()
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request)
+      ("UTF-8".in? client_response.headers["Content-Type"]).should be_false
+    end
+
+    it "allows overriding html() content type" do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+        context.html("👋🏼 grip", "text/html").halt()
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request)
+      ("UTF-8".in? client_response.headers["Content-Type"]).should be_false
+    end
+
+    it "allows overriding binary() content type" do
+      Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+        context.binary(10, "multipart/encrypted").halt()
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request)
+      client_response.headers["Content-Type"].should eq "multipart/encrypted"
+    end
+  end
 end
