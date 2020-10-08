@@ -8,6 +8,9 @@ Grip is a microframework for building RESTful web applications. It is designed t
 ## Motivation
 The existance of this project is due to the fact that Kemal lacks one crucial part of every successful framework, a structure. An example for the absence of structure can be found [here](https://github.com/iv-org/invidious/blob/master/src/invidious.cr).
 
+## Community
+[![Gitter](https://badges.gitter.im/grip-framework/grip.svg)](https://gitter.im/grip-framework/grip?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 ## Build status
 [![Build Status](https://travis-ci.org/grip-framework/grip.svg?branch=master)](https://travis-ci.org/grip-framework/grip)
 [![Build Status](https://action-badges.now.sh/grip-framework/grip)](https://github.com/grip-framework/grip/actions)
