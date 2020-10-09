@@ -91,6 +91,7 @@ See our [contribution guidelines](https://github.com/grip-framework/grip/blob/ma
 - [Giorgi Kavrelishvili](https://github.com/grkek) - creator and maintainer.
 - [nilsding](https://github.com/nilsding) - contributor
 - [Whaxion](https://github.com/Whaxion) - contributor
+- [Vincent Agnano](https://github.com/vinyll) - contributor
 
 ## Thanks
 - [Kemal](https://github.com/kemalcr/kemal) - Underlying routing, parameter parsing and filtering mechanisms.
