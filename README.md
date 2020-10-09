@@ -44,8 +44,9 @@ class Index < Grip::Controllers::Http
         .fetch_path_params
         .["id"]
     
+    # An optional secondary argument gives a custom `Content-Type` header to the response.
     context
-      .json({"id" => id})
+      .json({"id" => id}, "application/json; charset=us-ascii")
   end
 end
 
