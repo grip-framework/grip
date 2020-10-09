@@ -111,28 +111,29 @@ module Grip
       end
 
       # Sends a response with the content formated as json.
-      def json(content)
-        @response.headers.merge!({"Content-Type" => "application/json"})
+      def json(content, content_type = "application/json; charset=UTF-8")
+        @response.headers.merge!({"Content-Type" => content_type})
         @response.print(content.to_json)
         self
       end
 
       # Sends a response with the content formated as html.
-      def html(content)
-        @response.headers.merge!({"Content-Type" => "text/html"})
+      def html(content, content_type = "text/html; charset=UTF-8")
+        @response.headers.merge!({"Content-Type" => content_type})
         @response.print(content)
         self
       end
 
       # Sends a response with the content formated as text.
-      def text(content)
-        @response.headers.merge!({"Content-Type" => "text/plain"})
+      def text(content, content_type = "text/plain; charset=UTF-8")
+        @response.headers.merge!({"Content-Type" => content_type})
         @response.print(content)
         self
       end
 
       # Sends a response with no formating.
-      def binary(content)
+      def binary(content, content_type = "application/octet-stream")
+        @response.headers.merge!({"Content-Type" => content_type})
         @response.print(content)
         self
       end
