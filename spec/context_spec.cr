@@ -42,7 +42,7 @@ describe "Context" do
   context "methods" do
     it "has binary() method with octet-stream" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-        context.binary(10).halt()
+        context.binary(10).halt
       end
 
       request = HTTP::Request.new("GET", "/")
@@ -53,7 +53,7 @@ describe "Context" do
 
     it "encodes text in utf-8" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-        context.text("👋🏼 grip").halt()
+        context.text("👋🏼 grip").halt
       end
 
       request = HTTP::Request.new("GET", "/")
@@ -64,7 +64,7 @@ describe "Context" do
 
     it "encodes json in utf-8" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-        context.json({:message => "👋🏼 grip"}).halt()
+        context.json({:message => "👋🏼 grip"}).halt
       end
 
       request = HTTP::Request.new("GET", "/")
@@ -75,7 +75,7 @@ describe "Context" do
 
     it "encodes html in utf-8" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-        context.html("👋🏼 grip").halt()
+        context.html("👋🏼 grip").halt
       end
 
       request = HTTP::Request.new("GET", "/")
@@ -88,7 +88,7 @@ describe "Context" do
   context "methods" do
     it "allows overriding text() content type" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-        context.text("👋🏼 grip", "text/html").halt()
+        context.text("👋🏼 grip", "text/html").halt
       end
 
       request = HTTP::Request.new("GET", "/")
@@ -98,7 +98,7 @@ describe "Context" do
 
     it "allows overriding json() content type" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-        context.json({:message => "👋🏼 grip"}, "application/json").halt()
+        context.json({:message => "👋🏼 grip"}, "application/json").halt
       end
 
       request = HTTP::Request.new("GET", "/")
@@ -108,7 +108,7 @@ describe "Context" do
 
     it "allows overriding html() content type" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-        context.html("👋🏼 grip", "text/html").halt()
+        context.html("👋🏼 grip", "text/html").halt
       end
 
       request = HTTP::Request.new("GET", "/")
@@ -118,7 +118,7 @@ describe "Context" do
 
     it "allows overriding binary() content type" do
       Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-        context.binary(10, "multipart/encrypted").halt()
+        context.binary(10, "multipart/encrypted").halt
       end
 
       request = HTTP::Request.new("GET", "/")

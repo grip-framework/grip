@@ -1,5 +1,5 @@
 name: grip
-version: 1.1.0
+version: 1.1.1
 
 authors:
   - Grip and its Contributors <https://github.com/grip-framework/>
@@ -7,7 +7,7 @@ authors:
 dependencies:
   radix:
     github: luislavena/radix
-  
+
   exception_page:
     github: crystal-loot/exception_page
 
