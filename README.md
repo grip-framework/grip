@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img src="https://github.com/grip-framework/medias/blob/master/framework.svg" height="250" width="250" href="https://github.com/grip-framework/grip">
+    <img src="https://github.com/grip-framework/medias/blob/master/framework.svg" href="https://github.com/grip-framework/grip">
 </p>
 
 <p align="center">
