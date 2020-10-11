@@ -1,19 +1,34 @@
 <p align="center" width="100%">
-    <img src="https://github.com/grip-framework/medias/blob/master/gripen.svg" >
+    <img src="https://github.com/grip-framework/medias/blob/master/gripen.svg" href="https://github.com/grip-framework/grip">
 </p>
 
+<p align="center">
+    The microframework for writing <ins>powerful web applications</ins>.  
+</p>
+
+<p align="center">
+  <a href="https://travis-ci.org/grip-framework/grip"><img alt="Travis Status" src="https://img.shields.io/travis/grip-framework/grip?label=travis&style=flat-square"></a>
+  <a href="https://circleci.com/gh/babel/babel"><img alt="CircleCI Status" src="https://img.shields.io/github/workflow/status/grip-framework/grip/Crystal%20CI?label=actions&style=flat-square"></a>
+</p>
+
+<p align="center">
+    <a href="https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=plaintext&l=zdk8an-1r"><img alt="TechEmpower Benchmark" src="https://img.shields.io/badge/benchmark-1%2C663%2C946-brightgreen?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/grip-framework/docs/actions"><img alt="Docs CI Status" src="https://img.shields.io/github/workflow/status/grip-framework/docs/ci?label=docs&style=flat-square"></a>    
+</p>
+
+<p align="center">
+    <a href="https://gitter.im/grip-framework/grip?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge"><img alt="Chat on Gitter" src="https://img.shields.io/gitter/room/grip-framework/grip?style=flat-square"></a>
+</p>
+
+
 # Grip
-Grip is a microframework for building RESTful web applications. It is designed to be modular and easy to use, with the ability to scale up to the limits of the Crystal programming language. It offers extensibility and it has integrated middleware called "pipes" which alter the parts of the request/response context and pass it on to the actual endpoint. It has a router which somewhat resembles that of [Phoenix framework](https://github.com/phoenixframework/phoenix)'s router and most of all it is fast, peaking at [1,663,946](https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=json&l=zdk8an-1r) requests/second for plain text response.
+Grip is a microframework for building RESTful web applications. It is designed to be modular and easy to use, with the ability to scale up to the limits of the Crystal programming language. It offers extensibility and it has integrated middleware called "pipes" which alter the parts of the request/response context and pass it on to the actual endpoint. It has a router which somewhat resembles that of [Phoenix framework](https://github.com/phoenixframework/phoenix)'s router and most of all it is fast.
 
 ## Motivation
 The existance of this project is due to the fact that Kemal lacks one crucial part of every successful framework, a structure. An example for the absence of structure can be found [here](https://github.com/iv-org/invidious/blob/master/src/invidious.cr).
-
-## Community
-[![Gitter](https://badges.gitter.im/grip-framework/grip.svg)](https://gitter.im/grip-framework/grip?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-
-## Build status
-[![Build Status](https://travis-ci.org/grip-framework/grip.svg?branch=master)](https://travis-ci.org/grip-framework/grip)
-[![Build Status](https://action-badges.now.sh/grip-framework/grip)](https://github.com/grip-framework/grip/actions)
 
 ## Features
 - HTTP 1.1 support.
