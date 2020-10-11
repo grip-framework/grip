@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img src="https://github.com/grip-framework/medias/blob/master/gripen.svg" href="https://github.com/grip-framework/grip">
+    <img src="https://github.com/grip-framework/medias/blob/master/framework.png" href="https://github.com/grip-framework/grip">
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/grip-framework/docs/actions"><img alt="Docs CI Status" src="https://img.shields.io/github/workflow/status/grip-framework/docs/ci?label=docs&style=flat-square"></a>    
+  <a href="https://grip-framework.github.io/docs/"><img alt="Docs CI Status" src="https://img.shields.io/github/workflow/status/grip-framework/docs/ci?label=docs&style=flat-square"></a>    
 </p>
 
 <p align="center">
