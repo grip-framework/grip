@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://travis-ci.org/grip-framework/grip"><img alt="Travis Status" src="https://img.shields.io/travis/grip-framework/grip?label=travis&style=flat-square"></a>
-  <a href="https://circleci.com/gh/babel/babel"><img alt="CircleCI Status" src="https://img.shields.io/github/workflow/status/grip-framework/grip/Crystal%20CI?label=actions&style=flat-square"></a>
+  <a href="https://github.com/grip-framework/grip/actions"><img alt="Actions Status" src="https://img.shields.io/github/workflow/status/grip-framework/grip/Crystal%20CI?label=actions&style=flat-square"></a>
 </p>
 
 <p align="center">
