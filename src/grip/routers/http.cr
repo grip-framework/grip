@@ -12,7 +12,7 @@ module Grip
         @cached_routes = Hash(String, Radix::Result(Route)).new
       end
 
-      def call(context : HTTP::Server::Context) : HTTP::Server::Context
+      def call(context : HTTP::Server::Context)
         route = lookup_route(
           context.request.method.as(String),
           context.request.path
