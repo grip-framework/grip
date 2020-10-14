@@ -140,7 +140,7 @@ module Grip
       ENV["CERTIFICATE"]? || ""
     end
 
-    {% if flag?(:without_openssl) %}
+    {% unless flag?(:with_openssl) %}
       def ssl : Bool
         false
       end
