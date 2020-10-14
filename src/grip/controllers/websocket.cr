@@ -140,7 +140,7 @@ module Grip
         end
       end
 
-      def call(context)
+      def call(context : HTTP::Server::Context) : HTTP::Server::Context
         if websocket_upgrade_request? context.request
           response = context.response
 
@@ -148,14 +148,14 @@ module Grip
           unless version == HTTP::WebSocket::Protocol::VERSION
             response.status = :upgrade_required
             response.headers["Sec-WebSocket-Version"] = HTTP::WebSocket::Protocol::VERSION
-            return
+            return context
           end
 
           key = context.request.headers["Sec-WebSocket-Key"]?
 
           unless key
             response.respond_with_status(:bad_request)
-            return
+            return context
           end
 
           accept_code = HTTP::WebSocket::Protocol.key_challenge(key)
@@ -170,8 +170,10 @@ module Grip
             io.close
           end
         else
-          raise Grip::Exceptions::BadRequest.new
+          raise Exceptions::BadRequest.new
         end
+
+        context
       end
 
       private def websocket_upgrade_request?(request)

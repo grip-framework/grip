@@ -4,9 +4,9 @@ module Grip
   #
   # ```
   # class Application < Grip::Application
-  #   def initialize
+  #   def routes
   #     pipeline :api, [
-  #       Grip::Pipes::PoweredByHeader.new,
+  #       Pipes::PoweredByHeader.new,
   #     ]
   #   end
   # end
@@ -14,82 +14,145 @@ module Grip
   # app = Application.new
   # app.run
   # ```
-  class Application
-    include Grip::DSL::Macros
+  abstract class Application
+    include Grip::Dsl::Macros
 
-    # Overloads the `run` function with the default startup logging.
-    def run(port : Int32?, args = ARGV)
-      run(port, args) { }
+    abstract def routes
+
+    protected property http : Grip::Routers::Http
+    protected property websocket : Grip::Routers::WebSocket
+    protected property log : Grip::Handlers::Log
+    protected property exception : Grip::Handlers::Exception
+    protected property pipe_line : Grip::Handlers::Pipeline
+    protected property filter_handler : Grip::Handlers::Filter
+
+    protected property router : Array(HTTP::Handler)
+
+    def initialize
+      @http = http_handler
+      @websocket = websocket_handler
+      @log = log_handler
+      @exception = exception_handler
+      @pipe_line = pipeline_handler
+      @filter_handler = filter_handler(http)
+
+      @router = router
+      routes()
     end
 
-    # Overloads the `run` without the port.
-    def run(args = ARGV)
-      run(nil, args: args)
+    def http_handler : Grip::Routers::Http
+      Grip::Routers::Http.new
     end
 
-    # Overloads the `run` to allow execution with a block.
-    def run(args = ARGV, &block)
-      run(nil, args: args, &block)
+    def filter_handler(http : Grip::Routers::Http) : Grip::Handlers::Filter
+      Grip::Handlers::Filter.new(http)
     end
 
-    # Runs a `Grip` application,
-    # if *port* is not given to the configuration the `Grip::Config#port` function will be used.
-    def run(port : Int32? = nil, args = ARGV, &block)
-      Grip::CLI.new args
+    def exception_handler : Grip::Handlers::Exception
+      Grip::Handlers::Exception.new
+    end
 
-      config = Grip.config
-      config.setup
-      config.port = port if port
+    def pipeline_handler : Grip::Handlers::Pipeline
+      Grip::Handlers::Pipeline.new
+    end
 
-      if config.env != "test"
-        setup_trap_signal
+    def websocket_handler : Grip::Routers::WebSocket
+      Grip::Routers::WebSocket.new
+    end
+
+    def log_handler : Grip::Handlers::Log
+      Grip::Handlers::Log.new
+    end
+
+    def host : String
+      "0.0.0.0"
+    end
+
+    def port : Int32
+      5000
+    end
+
+    def reuse_port : Bool
+      false
+    end
+
+    def router : Array(HTTP::Handler)
+      [
+        @log,
+        @exception,
+        @filter_handler,
+        @websocket,
+        @http,
+      ] of HTTP::Handler
+    end
+
+    def server : HTTP::Server
+      HTTP::Server.new(@router)
+    end
+
+    def key_file : String
+      ENV["KEY"]? || ""
+    end
+
+    def cert_file : String
+      ENV["CERTIFICATE"]? || ""
+    end
+
+    {% if flag?(:without_openssl) %}
+      def ssl : Bool
+        false
       end
+    {% else %}
+      def ssl : OpenSSL::SSL::Context::Server
+        context =
+          Grip::Ssl
+            .new
+            .context
 
-      server = config.server ||= HTTP::Server.new(config.handlers)
+        context
+          .private_key = key_file
 
-      config.running = true
+        context
+          .certificate_chain = cert_file
 
-      yield config
+        context
+      end
+    {% end %}
 
-      return unless config.running
+    private def schema : String
+      ssl ? "https" : "http"
+    end
+
+    def run
+      {% if !flag?(:test) %}
+        setup_trap_signal()
+      {% end %}
+
+      server = self.server
 
       unless server.each_address { |_| break true }
         {% if flag?(:without_openssl) %}
-          server.bind_tcp(config.host_binding, config.port)
+          server.bind_tcp(host, port, reuse_port)
         {% else %}
-          if ssl = config.ssl
-            server.bind_tls(config.host_binding, config.port, ssl)
+          if ssl
+            server.bind_tls(host, port, ssl, reuse_port)
           else
-            server.bind_tcp(config.host_binding, config.port)
+            server.bind_tcp(host, port, reuse_port)
           end
         {% end %}
       end
 
-      display_startup_message(config, server)
+      {% if flag?(:verbose) && !flag?(:test) %}
+        puts "Listening at #{schema}://#{host}:#{port}..."
+      {% end %}
 
-      server.listen unless config.env == "test"
-    end
-
-    # Displays a startup message to the terminal.
-    def display_startup_message(config, server)
-      addresses = server.addresses.map { |address| "#{config.scheme}://#{address}" }.join ", "
-      puts "[#{Grip.config.env}] Grip is listening at #{addresses}"
-    end
-
-    # Terminates the running `Grip` application.
-    def stop
-      raise "Grip is already stopped." if !Grip.config.running
-      if server = Grip.config.server
-        server.close unless server.closed?
-        Grip.config.running = false
-      else
-        raise "Grip.config.server is not set. Please use Grip.run to set the server."
-      end
+      {% if !flag?(:test) %}
+        server.listen
+      {% end %}
     end
 
     private def setup_trap_signal
       Signal::INT.trap do
-        self.stop
         exit
       end
     end

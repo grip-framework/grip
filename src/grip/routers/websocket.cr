@@ -3,7 +3,6 @@ module Grip
     class WebSocket
       include HTTP::Handler
 
-      INSTANCE            = new
       CACHED_ROUTES_LIMIT = 1024
       property routes, cached_routes
 
@@ -13,10 +12,13 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
-        return call_next(context) unless context.ws_route_found? && websocket_upgrade_request?(context)
+        route = lookup_ws_route(context.request.path)
+        return call_next(context) unless route.found? && websocket_upgrade_request?(context)
 
-        context.websocket.match_via_keyword(context, context.websocket.via)
-        context.websocket.handler.call(context)
+        context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
+        payload = route.payload
+        payload.match_via_keyword(context, payload.via)
+        payload.handler.call(context)
       end
 
       def lookup_ws_route(path : String)
@@ -36,7 +38,7 @@ module Grip
         route
       end
 
-      def add_route(path : String, handler : Grip::Controllers::WebSocket, via : Symbol? | Array(Symbol)?, _override)
+      def add_route(path : String, handler : Grip::Controllers::WebSocket, via : Array(Pipes::Base)?, _override)
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
       end
 

@@ -2,8 +2,8 @@ require "./spec_helper"
 
 describe "Grip::Routers::WebSocket" do
   it "doesn't match on wrong route" do
-    handler = Grip::Routers::WebSocket::INSTANCE
-    handler.next = Grip::Routers::Http::INSTANCE
+    handler = Grip::Routers::WebSocket.new
+    handler.next = Grip::Routers::Http.new
     headers = HTTP::Headers{
       "Upgrade"           => "websocket",
       "Connection"        => "Upgrade",
@@ -14,13 +14,13 @@ describe "Grip::Routers::WebSocket" do
     response = HTTP::Server::Response.new(io)
     context = HTTP::Server::Context.new(request, response)
 
-    expect_raises(Grip::Exceptions::NotFound) do
+    expect_raises(Exceptions::NotFound) do
       handler.call context
     end
   end
 
   it "matches on given route" do
-    handler = Grip::Routers::WebSocket::INSTANCE
+    handler = Grip::Routers::WebSocket.new
     handler.add_route "/", MatchController.new, nil, nil
     handler.add_route "/no_match", NoMatchController.new, nil, nil
     headers = HTTP::Headers{
@@ -36,7 +36,7 @@ describe "Grip::Routers::WebSocket" do
   end
 
   it "fetches named url parameters" do
-    handler = Grip::Routers::WebSocket::INSTANCE
+    handler = Grip::Routers::WebSocket.new
     handler.add_route "/:id", UrlParametersController.new, nil, nil
     headers = HTTP::Headers{
       "Upgrade"               => "websocket",
@@ -50,12 +50,13 @@ describe "Grip::Routers::WebSocket" do
   end
 
   it "matches correct verb" do
-    handler = Grip::Routers::WebSocket::INSTANCE
-    handler.next = Grip::Routers::Http::INSTANCE
+    grip = Grip::Routers::Http.new
+    handler = Grip::Routers::WebSocket.new
+    handler.next = grip
 
     handler.add_route "/", BlankController.new, nil, nil
 
-    Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+    grip.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
       context.response.print("get")
       context
     end

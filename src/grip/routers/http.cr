@@ -3,9 +3,9 @@ module Grip
     class Http
       include HTTP::Handler
 
-      INSTANCE            = new
       CACHED_ROUTES_LIMIT = 1024
-      property routes, cached_routes
+      property routes : Radix::Tree(Route)
+      property cached_routes : Hash(String, Radix::Result(Route))
 
       def initialize
         @routes = Radix::Tree(Route).new
@@ -13,25 +13,33 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
-        raise Grip::Exceptions::NotFound.new unless context.route_found?
+        route = lookup_route(
+          context.request.method.as(String),
+          context.request.path
+        )
+
+        raise Exceptions::NotFound.new unless route.found?
         return if context.response.closed?
 
-        context.route.match_via_keyword(context, context.route.via)
+        context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
 
-        if context.route.override
-          context.route.override.not_nil!.call(context)
+        payload = route.payload
+        payload.match_via_keyword(context, payload.via)
+
+        if payload.override
+          payload.override.not_nil!.call(context)
         else
-          context.route.handler.call(context)
+          payload.handler.call(context)
         end
 
-        if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(context.response.status_code)
-          raise ::Exception.new("Routing layer has failed to process the request.")
-        end
+        # if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(context.response.status_code)
+        #   raise ::Exception.new("Routing layer has failed to process the request.")
+        # end
 
         context
       end
 
-      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
+      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
         add_to_radix_tree(method, path, Route.new(method, path, handler, via, override))
       end
 

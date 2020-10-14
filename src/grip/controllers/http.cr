@@ -1,42 +1,42 @@
 module Grip
   module Controllers
     class Http < Base
-      def get(context : HTTP::Server::Context)
-        context.response.status_code = 405
+      def get(context : HTTP::Server::Context) : HTTP::Server::Context
         context
+          .halt
       end
 
-      def post(context : HTTP::Server::Context)
-        context.response.status_code = 405
+      def post(context : HTTP::Server::Context) : HTTP::Server::Context
         context
+          .halt
       end
 
-      def put(context : HTTP::Server::Context)
-        context.response.status_code = 405
+      def put(context : HTTP::Server::Context) : HTTP::Server::Context
         context
+          .halt
       end
 
-      def patch(context : HTTP::Server::Context)
-        context.response.status_code = 405
+      def patch(context : HTTP::Server::Context) : HTTP::Server::Context
         context
+          .halt
       end
 
-      def delete(context : HTTP::Server::Context)
-        context.response.status_code = 405
+      def delete(context : HTTP::Server::Context) : HTTP::Server::Context
         context
+          .halt
       end
 
-      def options(context : HTTP::Server::Context)
-        context.response.status_code = 405
+      def options(context : HTTP::Server::Context) : HTTP::Server::Context
         context
+          .halt
       end
 
-      def head(context : HTTP::Server::Context)
-        context.response.status_code = 405
+      def head(context : HTTP::Server::Context) : HTTP::Server::Context
         context
+          .halt
       end
 
-      def call(context : HTTP::Server::Context)
+      def call(context : HTTP::Server::Context) : HTTP::Server::Context
         case context.request.method
         when "GET"
           get(context)
@@ -53,7 +53,7 @@ module Grip
         when "HEAD"
           head(context)
         else
-          call_next(context)
+          raise Exceptions::MethodNotAllowed.new
         end
       end
     end

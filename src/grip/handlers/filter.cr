@@ -3,20 +3,18 @@ module Grip
     # :nodoc:
     class Filter
       include HTTP::Handler
-      INSTANCE = new
 
       # This middleware is lazily instantiated and added to the handlers as soon as a call to `after_X` or `before_X` is made.
-      def initialize
+      def initialize(@http : Grip::Routers::Http)
         @tree = Radix::Tree(Array(FilterBlock)).new
-        Grip.config.add_filter_handler(self)
       end
 
       # The call order of the filters is `before_all -> before_x -> X -> after_x -> after_all`.
       def call(context : HTTP::Server::Context)
-        return call_next(context) unless context.route_found?
+        return call_next(context) unless @http.lookup_route(context.request.method.as(String), context.request.path).found?
         call_block_for_path_type("ALL", context.request.path, :before, context)
         call_block_for_path_type(context.request.method, context.request.path, :before, context)
-        if Grip.config.error_handlers.has_key?(context.response.status_code)
+        if context.response.status_code.in?([400, 401, 403, 404, 405, 500])
           raise ::Exception.new("Filtering layer has failed to process the request.")
         end
         call_next(context)
@@ -28,7 +26,7 @@ module Grip
       # :nodoc: This shouldn't be called directly, it's not private because
       # I need to call it for testing purpose since I can't call the macros in the spec.
       # It adds the block for the corresponding verb/path/type combination to the tree.
-      def _add_route_filter(verb : String, path, type, resource : Grip::Controllers::Filter, via : Symbol?)
+      def _add_route_filter(verb : String, path, type, resource : Grip::Controllers::Filter, via : Array(Pipes::Base)?)
         lookup = lookup_filters_for_path_type(verb, path, type)
         if lookup.found? && lookup.payload.is_a?(Array(FilterBlock))
           lookup.payload << FilterBlock.new(resource, via)
@@ -40,14 +38,14 @@ module Grip
       # This can be called directly but it's simpler to just use the macros,
       # it will check if another filter is not already defined for this
       # verb/path/type and proceed to call `add_route_filter`
-      def before(verb : String, path : String, resource : Grip::Controllers::Filter, via : Symbol?)
+      def before(verb : String, path : String, resource : Grip::Controllers::Filter, via : Array(Pipes::Base)?)
         _add_route_filter verb, path, :before, resource, via
       end
 
       # This can be called directly but it's simpler to just use the macros,
       # it will check if another filter is not already defined for this
       # verb/path/type and proceed to call `add_route_filter`
-      def after(verb : String, path : String, resource : Grip::Controllers::Filter, via : Symbol?)
+      def after(verb : String, path : String, resource : Grip::Controllers::Filter, via : Array(Pipes::Base)?)
         _add_route_filter verb, path, :after, resource, via
       end
 
@@ -78,13 +76,13 @@ module Grip
       # :nodoc:
       class FilterBlock
         property resource : Grip::Controllers::Filter
-        property via : Symbol?
+        property via : Array(Pipes::Base)?
 
-        def initialize(@resource : Grip::Controllers::Filter, @via : Symbol?); end
+        def initialize(@resource : Grip::Controllers::Filter, @via : Array(Pipes::Base)?); end
 
         def call(context : HTTP::Server::Context)
           if @via
-            Grip::Handlers::Pipeline::INSTANCE.pipeline[@via].each do |pipe|
+            @via.not_nil!.each do |pipe|
               pipe.call(context)
             end
           end

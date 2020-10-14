@@ -6,7 +6,7 @@ describe "Grip::Handlers::Exception" do
     io = IO::Memory.new
     response = HTTP::Server::Response.new(io)
     context = HTTP::Server::Context.new(request, response)
-    Grip::Handlers::Exception::INSTANCE.call(context)
+    Grip::Handlers::Exception.new.call(context)
     response.close
     io.rewind
     response = HTTP::Client::Response.from_io(io, decompress: false)
@@ -14,10 +14,12 @@ describe "Grip::Handlers::Exception" do
   end
 
   it "renders custom error" do
-    Grip.config.add_error_handler(403, ForbiddenController.new)
+    error_handler = Grip::Handlers::Exception.new
+    error_handler.handlers[403] = ForbiddenController.new
+    http_handler = Grip::Routers::Http.new
 
-    Grip::Routers::Http::INSTANCE.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
-      context.response.status_code = 403
+    http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      raise Exceptions::Forbidden.new
       context
     end
 
@@ -25,13 +27,13 @@ describe "Grip::Handlers::Exception" do
     io = IO::Memory.new
     response = HTTP::Server::Response.new(io)
     context = HTTP::Server::Context.new(request, response)
-    Grip::Handlers::Exception::INSTANCE.next = Grip::Routers::Http::INSTANCE
-    Grip::Handlers::Exception::INSTANCE.call(context)
+    error_handler.next = http_handler
+    error_handler.call(context)
     response.close
     io.rewind
     response = HTTP::Client::Response.from_io(io, decompress: false)
     response.status_code.should eq 403
-    response.headers["Content-Type"].should eq "text/html"
-    response.body.should eq "403 error"
+    response.headers["Content-Type"].should eq "text/html; charset=UTF-8"
+    response.body.should eq "403 Error"
   end
 end

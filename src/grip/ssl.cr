@@ -1,5 +1,5 @@
 module Grip
-  class SSL
+  class Ssl
     getter context
 
     def initialize
