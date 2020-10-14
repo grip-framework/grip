@@ -12,14 +12,14 @@ module Grip
         @cached_routes = Hash(String, Radix::Result(Route)).new
       end
 
-      def call(context : HTTP::Server::Context)
+      def call(context : HTTP::Server::Context) : HTTP::Server::Context
         route = lookup_route(
           context.request.method.as(String),
           context.request.path
         )
 
         raise Exceptions::NotFound.new unless route.found?
-        return if context.response.closed?
+        return context if context.response.closed?
 
         context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
 
@@ -32,9 +32,9 @@ module Grip
           payload.handler.call(context)
         end
 
-        # if !Grip.config.error_handlers.empty? && Grip.config.error_handlers.has_key?(context.response.status_code)
-        #   raise ::Exception.new("Routing layer has failed to process the request.")
-        # end
+        if context.response.status_code.in?([400, 401, 403, 404, 405, 500])
+          raise Exception.new("Routing layer has failed to process the request.")
+        end
 
         context
       end

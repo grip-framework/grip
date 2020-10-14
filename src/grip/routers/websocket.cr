@@ -11,9 +11,9 @@ module Grip
         @cached_routes = Hash(String, Radix::Result(Route)).new
       end
 
-      def call(context : HTTP::Server::Context)
+      def call(context : HTTP::Server::Context) : HTTP::Server::Context
         route = lookup_ws_route(context.request.path)
-        return call_next(context) unless route.found? && websocket_upgrade_request?(context)
+        return call_next(context).as(HTTP::Server::Context) unless route.found? && websocket_upgrade_request?(context)
 
         context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
         payload = route.payload
