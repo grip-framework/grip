@@ -32,7 +32,7 @@ module Grip
       def get(valves : Array(Symbol))
         if CACHED_PIPES[valves]?
           {% if flag?(:verbose) %}
-            puts "#{Time.utc} [info] requested pipes from a pipeline, valve: #{valve}"
+            puts "#{Time.utc} [info] requested pipes from a pipeline, valve: #{valves}"
           {% end %}
           return CACHED_PIPES[valves]
         end
@@ -47,7 +47,7 @@ module Grip
 
         CACHED_PIPES[valves] = pipes
         {% if flag?(:verbose) %}
-          puts "#{Time.utc} [info] requested pipes from a pipeline, valve: #{valve}"
+          puts "#{Time.utc} [info] requested pipes from a pipeline, valve: #{valves}"
         {% end %}
         pipes
       end
