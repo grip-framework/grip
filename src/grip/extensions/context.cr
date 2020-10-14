@@ -1,6 +1,13 @@
 module Grip
   module Extensions
     module Context
+      struct Assigns
+        property ip : String?
+        property basic : String?
+        property jwt : JSON::Any?
+      end
+
+      property assings : Assigns?
       property exception : Exception?
       property parameters : Grip::Parsers::ParameterBox?
 
