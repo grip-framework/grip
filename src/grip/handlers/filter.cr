@@ -14,9 +14,6 @@ module Grip
         return call_next(context) unless @http.lookup_route(context.request.method.as(String), context.request.path).found?
         call_block_for_path_type("ALL", context.request.path, :before, context)
         call_block_for_path_type(context.request.method, context.request.path, :before, context)
-        if context.response.status_code.in?([400, 401, 403, 404, 405, 500])
-          raise ::Exception.new("Filtering layer has failed to process the request.")
-        end
         call_next(context)
         call_block_for_path_type(context.request.method, context.request.path, :after, context)
         call_block_for_path_type("ALL", context.request.path, :after, context)
