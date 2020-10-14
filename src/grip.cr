@@ -31,7 +31,7 @@ module Grip; end
 class SocketController < Grip::Controllers::WebSocket
   def on_open(context, socket)
     puts context
-    puts Socket
+    puts socket
   end
 end
 
