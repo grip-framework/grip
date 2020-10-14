@@ -14,7 +14,7 @@ module Grip
         @handlers = handlers
       end
 
-      def call(context : HTTP::Server::Context) : HTTP::Server::Context
+      def call(context : HTTP::Server::Context)
         call_next(context).as(HTTP::Server::Context)
       rescue ex
         context.response.status_code = 500 if !context.response.status_code.in?([400, 401, 403, 404, 405, 500])
