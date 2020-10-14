@@ -10,10 +10,10 @@ require "exceptions"
 require "pipes"
 require "exception_page"
 
-{% if flag?(:without_openssl) %}
-  require "digest/sha1"
-{% else %}
+{% if flag?(:with_openssl) %}
   require "openssl/sha1"
+{% else %}
+  require "digest/sha1"
 {% end %}
 
 require "./grip/minuscule/*"
@@ -27,3 +27,19 @@ require "./grip/routers/*"
 require "./grip/*"
 
 module Grip; end
+
+class SocketController < Grip::Controllers::WebSocket
+  def on_open(context, socket)
+    puts context
+    puts Socket
+  end
+end
+
+class Application < Grip::Application
+  def routes
+    ws "/", SocketController
+  end
+end
+
+app = Application.new
+app.run

@@ -11,6 +11,10 @@ module Grip
       end
 
       def add_pipe(valve : Symbol, pipe : Pipes::Base)
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] added a pipe to a pipeline, valve: #{valve}, pipe: #{pipe}."
+        {% end %}
+
         if @pipeline.has_key?(valve)
           @pipeline[valve].push(pipe)
         else
@@ -19,11 +23,19 @@ module Grip
       end
 
       def get(valve : Symbol)
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] requested pipes from a pipeline, valve: #{valve}"
+        {% end %}
         @pipeline[valve]
       end
 
       def get(valves : Array(Symbol))
-        return CACHED_PIPES[valves] if CACHED_PIPES[valves]?
+        if CACHED_PIPES[valves]?
+          {% if flag?(:verbose) %}
+            puts "#{Time.utc} [info] requested pipes from a pipeline, valve: #{valve}"
+          {% end %}
+          return CACHED_PIPES[valves]
+        end
 
         pipes = [] of Pipes::Base
 
@@ -34,6 +46,9 @@ module Grip
         end
 
         CACHED_PIPES[valves] = pipes
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] requested pipes from a pipeline, valve: #{valve}"
+        {% end %}
         pipes
       end
 

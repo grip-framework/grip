@@ -49,6 +49,14 @@ module Grip
         end
       end
 
+      macro ws(route, resource, **kwargs)
+        {% if kwargs[:via] %}
+          @websocket.add_route({{ route }}, {{ resource }}.new, @pipe_line.get({{kwargs[:via]}}), nil)
+        {% else %}
+          @websocket.add_route({{ route }}, {{ resource }}.new, nil, nil)
+        {% end %}
+      end
+
       macro error(error_code, resource)
         @exception.handlers[{{error_code}}] = {{resource}}.new
       end

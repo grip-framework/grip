@@ -41,26 +41,44 @@ module Grip
     end
 
     def http_handler : Grip::Routers::Http
+      {% if flag?(:verbose) %}
+        puts "#{Time.utc} [info] creating an HTTP handler."
+      {% end %}
       Grip::Routers::Http.new
     end
 
     def filter_handler(http : Grip::Routers::Http) : Grip::Handlers::Filter
+      {% if flag?(:verbose) %}
+        puts "#{Time.utc} [info] creating a filter handler."
+      {% end %}
       Grip::Handlers::Filter.new(http)
     end
 
     def exception_handler : Grip::Handlers::Exception
+      {% if flag?(:verbose) %}
+        puts "#{Time.utc} [info] creating an exception handler."
+      {% end %}
       Grip::Handlers::Exception.new
     end
 
     def pipeline_handler : Grip::Handlers::Pipeline
+      {% if flag?(:verbose) %}
+        puts "#{Time.utc} [info] creating a pipeline storage."
+      {% end %}
       Grip::Handlers::Pipeline.new
     end
 
     def websocket_handler : Grip::Routers::WebSocket
+      {% if flag?(:verbose) %}
+        puts "#{Time.utc} [info] creating a websocket handler."
+      {% end %}
       Grip::Routers::WebSocket.new
     end
 
     def log_handler : Grip::Handlers::Log
+      {% if flag?(:verbose) %}
+        puts "#{Time.utc} [info] creating a log handler."
+      {% end %}
       Grip::Handlers::Log.new
     end
 
@@ -77,13 +95,37 @@ module Grip
     end
 
     def router : Array(HTTP::Handler)
-      [
-        @log,
-        @exception,
-        @filter_handler,
-        @websocket,
-        @http,
-      ] of HTTP::Handler
+      {% if flag?(:verbose) %}
+        puts "#{Time.utc} [info] building an array out of `HTTP::Handler` components."
+      {% end %}
+
+      {% if flag?(:minimal) %}
+        [
+          @exception,
+          @http,
+        ] of HTTP::Handler
+      {% elsif flag?(:minimal_with_logs) %}
+        [
+          @log,
+          @exception,
+          @http,
+        ] of HTTP::Handler
+      {% elsif flag?(:logs) %}
+        [
+          @log,
+          @exception,
+          @filter_handler,
+          @websocket,
+          @http,
+        ] of HTTP::Handler
+      {% else %}
+        [
+          @exception,
+          @filter_handler,
+          @websocket,
+          @http,
+        ] of HTTP::Handler
+      {% end %}
     end
 
     def server : HTTP::Server
@@ -131,19 +173,19 @@ module Grip
       server = self.server
 
       unless server.each_address { |_| break true }
-        {% if flag?(:without_openssl) %}
-          server.bind_tcp(host, port, reuse_port)
-        {% else %}
+        {% if flag?(:with_openssl) %}
           if ssl
             server.bind_tls(host, port, ssl, reuse_port)
           else
             server.bind_tcp(host, port, reuse_port)
           end
+        {% else %}
+          server.bind_tcp(host, port, reuse_port)
         {% end %}
       end
 
       {% if flag?(:verbose) && !flag?(:test) %}
-        puts "Listening at #{schema}://#{host}:#{port}..."
+        puts "#{Time.utc} [info] listening at #{schema}://#{host}:#{port}."
       {% end %}
 
       {% if !flag?(:test) %}

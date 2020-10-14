@@ -78,6 +78,10 @@ module Grip
         def initialize(@resource : Grip::Controllers::Filter, @via : Array(Pipes::Base)?); end
 
         def call(context : HTTP::Server::Context)
+          {% if flag?(:verbose) %}
+            puts "#{Time.utc} [info] filtering a request, path: #{context.request.path}, method: #{context.request.method}."
+          {% end %}
+
           if @via
             @via.not_nil!.each do |pipe|
               pipe.call(context)

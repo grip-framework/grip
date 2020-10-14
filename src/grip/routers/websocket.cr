@@ -12,8 +12,19 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] received a request, path: #{context.request.path}, method: #{context.request.method}."
+        {% end %}
+
         route = lookup_ws_route(context.request.path)
-        return call_next(context) unless route.found? && websocket_upgrade_request?(context)
+
+        unless route.found? && websocket_upgrade_request?(context)
+          {% if flag?(:verbose) %}
+            puts "#{Time.utc} [info] calling the next handler, didn't match a thing in websockets, path: #{context.request.path}, method: #{context.request.method}."
+          {% end %}
+
+          return call_next(context)
+        end
 
         context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
         payload = route.payload
@@ -40,6 +51,9 @@ module Grip
 
       def add_route(path : String, handler : Grip::Controllers::WebSocket, via : Array(Pipes::Base)?, _override)
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] added a ws route, path: #{path}, handler: #{handler}, via: #{via}."
+        {% end %}
       end
 
       private def add_to_radix_tree(path, websocket)

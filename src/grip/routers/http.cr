@@ -13,12 +13,23 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] received a request, path: #{context.request.path}, method: #{context.request.method}."
+        {% end %}
+
         route = lookup_route(
           context.request.method.as(String),
           context.request.path
         )
 
-        raise Exceptions::NotFound.new unless route.found?
+        unless route.found?
+          {% if flag?(:verbose) %}
+            puts "#{Time.utc} [info] raising a not-found error, not found a thing in http, path: #{context.request.path}, method: #{context.request.method}."
+          {% end %}
+
+          raise Exceptions::NotFound.new
+        end
+
         return context if context.response.closed?
 
         context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
@@ -40,6 +51,9 @@ module Grip
       end
 
       def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] added an http route, path: #{path}, method: #{method}, handler: #{handler}, via: #{via}, override: #{override}."
+        {% end %}
         add_to_radix_tree(method, path, Route.new(method, path, handler, via, override))
       end
 
