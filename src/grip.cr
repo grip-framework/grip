@@ -27,19 +27,3 @@ require "./grip/routers/*"
 require "./grip/*"
 
 module Grip; end
-
-class SocketController < Grip::Controllers::WebSocket
-  def on_open(context, socket)
-    puts context
-    puts socket
-  end
-end
-
-class Application < Grip::Application
-  def routes
-    ws "/", SocketController
-  end
-end
-
-app = Application.new
-app.run

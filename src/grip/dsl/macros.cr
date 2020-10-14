@@ -105,11 +105,10 @@ module Grip
             @websocket.add_route(\{{ route }}, \{{ resource }}.new, nil, nil)
           \{% end %}
         end
-  
         macro error(error_code, resource)
           @exception.handlers[\{{error_code}}] = \{{resource}}.new
         end
-  
+
         macro filter(type, method, path, resource, **kwargs)
           \{% if kwargs[:via] %}
             @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, \{{path}}, \{{resource}}.new, @pipe_line.get(\{{kwargs[:via]}}))
@@ -169,7 +168,7 @@ module Grip
             @websocket.add_route(\{{ route }}, \{{ resource }}.new, nil, nil)
           \{% end %}
         end
-  
+
         macro filter(type, method, path, resource, **kwargs)
           \{% if kwargs[:via] %}
             @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, \{{path}}, \{{resource}}.new, @pipe_line.get(\{{kwargs[:via]}}))
