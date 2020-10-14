@@ -16,7 +16,7 @@ module Grip
 
         if !route.found? && !websocket_upgrade_request?(context)
           if result = call_next(context)
-            return result.as(HTTP::Server::Contextc)
+            return result.as(HTTP::Server::Context)
           else
             return context
           end
