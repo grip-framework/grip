@@ -7,7 +7,7 @@ module Grip
         property jwt : JSON::Any?
       end
 
-      property assings : Assigns?
+      property assigns : Assigns?
       property exception : Exception?
       property parameters : Grip::Parsers::ParameterBox?
 
