@@ -34,23 +34,21 @@ module Grip
       private def call_exception_with_status_code(context : HTTP::Server::Context, exception : ::Exception, status_code : Int32)
         return context if context.response.closed?
         if !@handlers.empty? && @handlers.has_key?(status_code)
-          context.response.status_code = status_code
-          context.exception = exception
+          context
+            .put_status(status_code)
+            .exception = exception
 
           @handlers[status_code].call(context)
         else
           {% if flag?(:development) %}
-            context.response.print(
-              Grip::Minuscule::ExceptionPage.for_runtime_exception(context, exception).to_s
-            )
+            context
+              .html(Grip::Minuscule::ExceptionPage.for_runtime_exception(context, exception).to_s)
           {% elsif flag?(:production) %}
-            context.response.print(
-              "An error has occured with the current endpoint, please try again later."
-            )
+            context
+              .text("An error has occured with the current endpoint, please try again later.")
           {% else %}
-            context.response.print(
-              "500 Internal Server Error"
-            )
+            context
+              .text("An error has occured within the current endpoint, run the application with a compile time flag `-Ddevelopment` to view the in-depth error message call stack.")
           {% end %}
           context
         end
