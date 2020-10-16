@@ -41,44 +41,26 @@ module Grip
     end
 
     def http_handler : Grip::Routers::Http
-      {% if flag?(:verbose) %}
-        puts "#{Time.utc} [info] creating an HTTP handler."
-      {% end %}
       Grip::Routers::Http.new
     end
 
     def filter_handler(http : Grip::Routers::Http) : Grip::Handlers::Filter
-      {% if flag?(:verbose) %}
-        puts "#{Time.utc} [info] creating a filter handler."
-      {% end %}
       Grip::Handlers::Filter.new(http)
     end
 
     def exception_handler : Grip::Handlers::Exception
-      {% if flag?(:verbose) %}
-        puts "#{Time.utc} [info] creating an exception handler."
-      {% end %}
       Grip::Handlers::Exception.new
     end
 
     def pipeline_handler : Grip::Handlers::Pipeline
-      {% if flag?(:verbose) %}
-        puts "#{Time.utc} [info] creating a pipeline storage."
-      {% end %}
       Grip::Handlers::Pipeline.new
     end
 
     def websocket_handler : Grip::Routers::WebSocket
-      {% if flag?(:verbose) %}
-        puts "#{Time.utc} [info] creating a websocket handler."
-      {% end %}
       Grip::Routers::WebSocket.new
     end
 
     def log_handler : Grip::Handlers::Log
-      {% if flag?(:verbose) %}
-        puts "#{Time.utc} [info] creating a log handler."
-      {% end %}
       Grip::Handlers::Log.new
     end
 
@@ -166,10 +148,6 @@ module Grip
     end
 
     def run
-      {% if !flag?(:test) %}
-        setup_trap_signal()
-      {% end %}
-
       server = self.server
 
       unless server.each_address { |_| break true }
@@ -189,6 +167,7 @@ module Grip
       {% end %}
 
       {% if !flag?(:test) %}
+        setup_trap_signal()
         server.listen
       {% end %}
     end
