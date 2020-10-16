@@ -13,11 +13,9 @@ dependencies:
 
   exceptions:
     github: grip-framework/exceptions
-    branch: master
 
   pipes:
     github: grip-framework/pipes
-    branch: master
 
 development_dependencies:
   ameba:
