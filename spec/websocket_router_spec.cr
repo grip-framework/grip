@@ -21,8 +21,8 @@ describe "Grip::Routers::WebSocket" do
 
   it "matches on given route" do
     handler = Grip::Routers::WebSocket.new
-    handler.add_route "/", MatchController.new, nil, nil
-    handler.add_route "/no_match", NoMatchController.new, nil, nil
+    handler.add_route "", "/", MatchController.new, nil, nil
+    handler.add_route "", "/no_match", NoMatchController.new, nil, nil
     headers = HTTP::Headers{
       "Upgrade"               => "websocket",
       "Connection"            => "Upgrade",
@@ -37,7 +37,7 @@ describe "Grip::Routers::WebSocket" do
 
   it "fetches named url parameters" do
     handler = Grip::Routers::WebSocket.new
-    handler.add_route "/:id", UrlParametersController.new, nil, nil
+    handler.add_route "", "/:id", UrlParametersController.new, nil, nil
     headers = HTTP::Headers{
       "Upgrade"               => "websocket",
       "Connection"            => "Upgrade",
@@ -54,7 +54,7 @@ describe "Grip::Routers::WebSocket" do
     handler = Grip::Routers::WebSocket.new
     handler.next = grip
 
-    handler.add_route "/", BlankController.new, nil, nil
+    handler.add_route "", "/", BlankController.new, nil, nil
 
     grip.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
       context.response.print("get")
