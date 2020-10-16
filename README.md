@@ -3,7 +3,8 @@
 </p>
 
 <p align="center">
-    The microframework for writing <ins>powerful web applications</ins>.  
+    The microframework for writing <ins>powerful web applications</ins>.<br><br>
+    <b>Notice:</br>Versions bellow 2.0.0 are not maintained anymore.
 </p>
 
 <p align="center">
