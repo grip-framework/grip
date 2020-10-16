@@ -1,8 +1,6 @@
 module Grip
   module Routers
-    class Http
-      include HTTP::Handler
-
+    class Http < Base
       CACHED_ROUTES_LIMIT = 1024
       property routes : Radix::Tree(Route)
       property cached_routes : Hash(String, Radix::Result(Route))

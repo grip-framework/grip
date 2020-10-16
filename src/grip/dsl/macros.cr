@@ -5,7 +5,7 @@ module Grip
 
       macro pipeline(name, pipes)
         {{pipes}}.each do |pipe|
-          @pipe_line.add_pipe({{name}}, pipe)
+          @pipeline_handler.add_pipe({{name}}, pipe)
         end
       end
 
@@ -13,16 +13,16 @@ module Grip
         {% for http_method in HTTP_METHODS %}
           macro {{http_method.id}}(route, resource, **kwargs)
             \{% if kwargs[:override] && kwargs[:via] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
-                @pipe_line.get(\{{kwargs[:via]}}),
+                @pipeline_handler.get(\{{kwargs[:via]}}),
                 -> (context : HTTP::Server::Context) {
                   \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
               )
             \{% elsif kwargs[:override] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -31,15 +31,15 @@ module Grip
                   \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
               )
             \{% elsif kwargs[:via] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
-                @pipe_line.get(\{{kwargs[:via]}}),
+                @pipeline_handler.get(\{{kwargs[:via]}}),
                 nil
               )
             \{% else %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -51,22 +51,22 @@ module Grip
         {% end %}
 
         macro error(error_code, resource)
-          @exception.handlers[\{{error_code}}] = \{{resource}}.new
+          @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
         end
       {% elsif flag?(:logs) %}
         {% for http_method in HTTP_METHODS %}
           macro {{http_method.id}}(route, resource, **kwargs)
             \{% if kwargs[:override] && kwargs[:via] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
-                @pipe_line.get(\{{kwargs[:via]}}),
+                @pipeline_handler.get(\{{kwargs[:via]}}),
                 -> (context : HTTP::Server::Context) {
                   \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
               )
             \{% elsif kwargs[:override] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -75,15 +75,15 @@ module Grip
                   \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
               )
             \{% elsif kwargs[:via] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
-                @pipe_line.get(\{{kwargs[:via]}}),
+                @pipeline_handler.get(\{{kwargs[:via]}}),
                 nil
               )
             \{% else %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -95,23 +95,23 @@ module Grip
         {% end %}
 
         macro error(error_code, resource)
-          @exception.handlers[\{{error_code}}] = \{{resource}}.new
+          @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
         end
 
         macro ws(route, resource, **kwargs)
           \{% if kwargs[:via] %}
-            @websocket.add_route(\{{ route }}, \{{ resource }}.new, @pipe_line.get(\{{kwargs[:via]}}), nil)
+            @websocket_handler.add_route("", \{{ route }}, \{{ resource }}.new, @pipeline_handler.get(\{{kwargs[:via]}}), nil)
           \{% else %}
-            @websocket.add_route(\{{ route }}, \{{ resource }}.new, nil, nil)
+            @websocket_handler.add_route("", \{{ route }}, \{{ resource }}.new, nil, nil)
           \{% end %}
         end
         macro error(error_code, resource)
-          @exception.handlers[\{{error_code}}] = \{{resource}}.new
+          @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
         end
 
         macro filter(type, method, path, resource, **kwargs)
           \{% if kwargs[:via] %}
-            @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, \{{path}}, \{{resource}}.new, @pipe_line.get(\{{kwargs[:via]}}))
+            @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, \{{path}}, \{{resource}}.new, @pipeline_handler.get(\{{kwargs[:via]}}))
           \{% else %}
             @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, \{{path}}, \{{resource}}.new, nil)
           \{% end %}
@@ -120,16 +120,16 @@ module Grip
         {% for http_method in HTTP_METHODS %}
           macro {{http_method.id}}(route, resource, **kwargs)
             \{% if kwargs[:override] && kwargs[:via] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
-                @pipe_line.get(\{{kwargs[:via]}}),
+                @pipeline_handler.get(\{{kwargs[:via]}}),
                 -> (context : HTTP::Server::Context) {
                   \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
               )
             \{% elsif kwargs[:override] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -138,15 +138,15 @@ module Grip
                   \{{ resource }}.new.as(\{{ resource }}).\{{kwargs[:override].id}}(context)}
               )
             \{% elsif kwargs[:via] %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
-                @pipe_line.get(\{{kwargs[:via]}}),
+                @pipeline_handler.get(\{{kwargs[:via]}}),
                 nil
               )
             \{% else %}
-              @http.add_route(
+              @http_handler.add_route(
                 {{ http_method }}.to_s.upcase,
                 \{{ route }},
                 \{{ resource }}.new.as(Grip::Controllers::Base),
@@ -158,20 +158,20 @@ module Grip
         {% end %}
 
         macro error(error_code, resource)
-          @exception.handlers[\{{error_code}}] = \{{resource}}.new
+          @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
         end
 
         macro ws(route, resource, **kwargs)
           \{% if kwargs[:via] %}
-            @websocket.add_route(\{{ route }}, \{{ resource }}.new, @pipe_line.get(\{{kwargs[:via]}}), nil)
+            @websocket_handler.add_route("", \{{ route }}, \{{ resource }}.new, @pipeline_handler.get(\{{kwargs[:via]}}), nil)
           \{% else %}
-            @websocket.add_route(\{{ route }}, \{{ resource }}.new, nil, nil)
+            @websocket_handler.add_route("", \{{ route }}, \{{ resource }}.new, nil, nil)
           \{% end %}
         end
 
         macro filter(type, method, path, resource, **kwargs)
           \{% if kwargs[:via] %}
-            @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, \{{path}}, \{{resource}}.new, @pipe_line.get(\{{kwargs[:via]}}))
+            @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, \{{path}}, \{{resource}}.new, @pipeline_handler.get(\{{kwargs[:via]}}))
           \{% else %}
             @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, \{{path}}, \{{resource}}.new, nil)
           \{% end %}

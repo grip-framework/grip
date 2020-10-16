@@ -19,49 +19,25 @@ module Grip
 
     abstract def routes
 
-    protected property http : Grip::Routers::Http
-    protected property websocket : Grip::Routers::WebSocket
-    protected property log : Grip::Handlers::Log
-    protected property exception : Grip::Handlers::Exception
-    protected property pipe_line : Grip::Handlers::Pipeline
-    protected property filter_handler : Grip::Handlers::Filter
+    private property http_handler : Grip::Routers::Base
+    private property websocket_handler : Grip::Routers::Base
+    private property log_handler : HTTP::Handler
+    private property exception_handler : Grip::Handlers::Exception
+    private property pipeline_handler : Grip::Handlers::Pipeline
+    private property filter_handler : Grip::Handlers::Filter
 
-    protected property router : Array(HTTP::Handler)
+    private property router : Array(HTTP::Handler)
 
     def initialize
-      @http = http_handler
-      @websocket = websocket_handler
-      @log = log_handler
-      @exception = exception_handler
-      @pipe_line = pipeline_handler
-      @filter_handler = filter_handler(http)
-
+      @http_handler = Grip::Routers::Http.new
+      @websocket_handler = Grip::Routers::WebSocket.new
+      @log_handler = Grip::Handlers::Log.new
+      @exception_handler = Grip::Handlers::Exception.new
+      @pipeline_handler = Grip::Handlers::Pipeline.new
+      @filter_handler = Grip::Handlers::Filter.new(@http_handler)
       @router = router
+
       routes()
-    end
-
-    def http_handler : Grip::Routers::Http
-      Grip::Routers::Http.new
-    end
-
-    def filter_handler(http : Grip::Routers::Http) : Grip::Handlers::Filter
-      Grip::Handlers::Filter.new(http)
-    end
-
-    def exception_handler : Grip::Handlers::Exception
-      Grip::Handlers::Exception.new
-    end
-
-    def pipeline_handler : Grip::Handlers::Pipeline
-      Grip::Handlers::Pipeline.new
-    end
-
-    def websocket_handler : Grip::Routers::WebSocket
-      Grip::Routers::WebSocket.new
-    end
-
-    def log_handler : Grip::Handlers::Log
-      Grip::Handlers::Log.new
     end
 
     def host : String
@@ -83,29 +59,29 @@ module Grip
 
       {% if flag?(:minimal) %}
         [
-          @exception,
-          @http,
+          @exception_handler,
+          @http_handler,
         ] of HTTP::Handler
       {% elsif flag?(:minimal_with_logs) %}
         [
-          @log,
-          @exception,
-          @http,
+          @log_handler,
+          @exception_handler,
+          @http_handler,
         ] of HTTP::Handler
       {% elsif flag?(:logs) %}
         [
-          @log,
-          @exception,
+          @log_handler,
+          @exception_handler,
           @filter_handler,
-          @websocket,
-          @http,
+          @websocket_handler,
+          @http_handler,
         ] of HTTP::Handler
       {% else %}
         [
-          @exception,
+          @exception_handler,
           @filter_handler,
-          @websocket,
-          @http,
+          @websocket_handler,
+          @http_handler,
         ] of HTTP::Handler
       {% end %}
     end

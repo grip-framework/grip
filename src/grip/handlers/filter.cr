@@ -5,13 +5,13 @@ module Grip
       include HTTP::Handler
 
       # This middleware is lazily instantiated and added to the handlers as soon as a call to `after_X` or `before_X` is made.
-      def initialize(@http : Grip::Routers::Http)
+      def initialize(@filterable : Grip::Routers::Base)
         @tree = Radix::Tree(Array(FilterBlock)).new
       end
 
       # The call order of the filters is `before_all -> before_x -> X -> after_x -> after_all`.
       def call(context : HTTP::Server::Context)
-        return call_next(context) unless @http.lookup_route(context.request.method.as(String), context.request.path).found?
+        return call_next(context) unless @filterable.lookup_route(context.request.method.as(String), context.request.path).found?
         call_block_for_path_type("ALL", context.request.path, :before, context)
         call_block_for_path_type(context.request.method, context.request.path, :before, context)
         call_next(context)
