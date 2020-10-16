@@ -87,6 +87,9 @@ module Grip
 
           case info.opcode
           when .ping?
+            {% if flag?(:verbose) %}
+              puts "#{Time.utc} [info] received websocket ping, ws: #{@ws}"
+            {% end %}
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
@@ -95,6 +98,9 @@ module Grip
               @current_message.clear
             end
           when .pong?
+            {% if flag?(:verbose) %}
+              puts "#{Time.utc} [info] received websocket pong, ws: #{@ws}"
+            {% end %}
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
@@ -105,6 +111,9 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
+              {% if flag?(:verbose) %}
+                puts "#{Time.utc} [info] received websocket message, ws: #{@ws}, message: #{message}"
+              {% end %}
               on_message(context, @ws.not_nil!, message)
               @current_message.clear
             end
@@ -112,6 +121,9 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_slice
+              {% if flag?(:verbose) %}
+                puts "#{Time.utc} [info] received websocket binary, ws: #{@ws}, binary: #{message}"
+              {% end %}
               on_binary(context, @ws.not_nil!, message)
               @current_message.clear
             end
@@ -119,7 +131,6 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               @current_message.rewind
-
               if @current_message.size >= 2
                 code = @current_message.read_bytes(UInt16, IO::ByteFormat::NetworkEndian).to_i
                 code = HTTP::WebSocket::CloseCode.new(code)
@@ -127,6 +138,10 @@ module Grip
                 code = HTTP::WebSocket::CloseCode::NoStatusReceived
               end
               message = @current_message.gets_to_end
+
+              {% if flag?(:verbose) %}
+                puts "#{Time.utc} [info] received websocket close, ws: #{@ws}, message: #{message}, code: #{code}"
+              {% end %}
 
               on_close(context, @ws.not_nil!, code, message)
               close(code)
@@ -140,7 +155,7 @@ module Grip
         end
       end
 
-      def call(context)
+      def call(context : HTTP::Server::Context) : HTTP::Server::Context
         if websocket_upgrade_request? context.request
           response = context.response
 
@@ -148,14 +163,14 @@ module Grip
           unless version == HTTP::WebSocket::Protocol::VERSION
             response.status = :upgrade_required
             response.headers["Sec-WebSocket-Version"] = HTTP::WebSocket::Protocol::VERSION
-            return
+            return context
           end
 
           key = context.request.headers["Sec-WebSocket-Key"]?
 
           unless key
             response.respond_with_status(:bad_request)
-            return
+            return context
           end
 
           accept_code = HTTP::WebSocket::Protocol.key_challenge(key)
@@ -170,8 +185,10 @@ module Grip
             io.close
           end
         else
-          raise Grip::Exceptions::BadRequest.new
+          raise Exceptions::BadRequest.new
         end
+
+        context
       end
 
       private def websocket_upgrade_request?(request)

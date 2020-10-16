@@ -3,7 +3,7 @@ module Grip
     abstract class Base
       include HTTP::Handler
 
-      abstract def call(context : HTTP::Server::Context)
+      abstract def call(context : HTTP::Server::Context) : HTTP::Server::Context
     end
   end
 end

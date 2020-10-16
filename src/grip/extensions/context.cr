@@ -1,8 +1,6 @@
 module Grip
   module Extensions
     module Context
-      # `Assigns` structure contains all of the `Pipe` middleware assignables
-      # which are used for context forwarding and information storage.
       struct Assigns
         property ip : String?
         property basic : String?
@@ -10,47 +8,8 @@ module Grip
       end
 
       property assigns = Assigns.new
-
-      # `exception` property is assigned when an endpoint raises an exception while
-      # handling the clients request.
       property exception : Exception?
-
-      def initialize(@request : Request, @response : Response); end
-
-      # Creates a getter for the parsed parameters, if not found then parses them.
-      def params
-        @params ||= Grip::Parsers::ParameterBox.new(@request, route_lookup.params)
-      end
-
-      # Gets the payload of the registered route by looking up the radix tree.
-      def route
-        route_lookup.payload
-      end
-
-      # Gets the payload of the registered route by looking up the radix tree.
-      def websocket
-        ws_route_lookup.payload
-      end
-
-      # Looks up the radix tree for the request method and path.
-      def route_lookup
-        Grip::Routers::Http::INSTANCE.lookup_route(@request.method.as(String), @request.path)
-      end
-
-      # Checks if the requested route was found in the radix tree.
-      def route_found?
-        route_lookup.found?
-      end
-
-      # Looks up the radix tree for the request path.
-      def ws_route_lookup
-        Grip::Routers::WebSocket::INSTANCE.lookup_ws_route(@request.path)
-      end
-
-      # Checks if the requested route was found in the radix tree.
-      def ws_route_found?
-        ws_route_lookup.found?
-      end
+      property parameters : Grip::Parsers::ParameterBox?
 
       # Deletes request header.
       def delete_req_header(key)
@@ -140,32 +99,30 @@ module Grip
 
       # Fetches the parsed JSON content from an endpoint.
       def fetch_json_params
-        params.json
+        @parameters.not_nil!.json
       end
 
       # Fetches the parsed `GET` query parameters from an endpoint.
       def fetch_query_params
-        params.query
+        @parameters.not_nil!.query
       end
 
       # Fetches the parsed URL encoded parameters from an endpoint.
       def fetch_body_params
-        params.body
+        @parameters.not_nil!.body
       end
 
       # Fetches the parsed multipart data from an endpoint.
       def fetch_file_params
-        params.file
+        @parameters.not_nil!.file
       end
 
       # Fetches the parsed URL data from an endpoint.
       def fetch_path_params
-        if params.url.size != 0
-          params.url
-        elsif ws_route_lookup.params.size != 0
-          ws_route_lookup.params
+        if @parameters.not_nil!.url.size != 0
+          @parameters.not_nil!.url
         else
-          params.url || ws_route_lookup.params
+          @parameters.not_nil!.url
         end
       end
     end

@@ -1,5 +1,6 @@
 module Grip
   module Handlers
+    # :nodoc:
     class Log
       include HTTP::Handler
 

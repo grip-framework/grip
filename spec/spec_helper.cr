@@ -3,33 +3,27 @@ require "../src/*"
 
 include Grip
 
-Spec.before_each do
-  config = Grip.config
-  config.env = "development"
-end
-
 class ForbiddenController < Grip::Controllers::Exception
-  def call(context)
-    context.response.headers.merge!({"Content-Type" => "text/html"})
-    context.response.print("403 error")
+  def call(context : HTTP::Server::Context) : HTTP::Server::Context
     context
+      .html("403 Error")
   end
 end
 
 class ExampleController < Grip::Controllers::Http
-  def get(context)
+  def get(context : HTTP::Server::Context) : HTTP::Server::Context
     context
   end
 
-  def post(context)
+  def post(context : HTTP::Server::Context) : HTTP::Server::Context
     context
   end
 
-  def put(context)
+  def put(context : HTTP::Server::Context) : HTTP::Server::Context
     context
   end
 
-  def delete(context)
+  def delete(context : HTTP::Server::Context) : HTTP::Server::Context
     context
   end
 end
@@ -73,6 +67,16 @@ def create_ws_request_and_return_io_and_context(handler, request)
   {io, context}
 end
 
+def call_request_on_app(request, handler)
+  io = IO::Memory.new
+  response = HTTP::Server::Response.new(io)
+  context = HTTP::Server::Context.new(request, response)
+  handler.call(context)
+  response.close
+  io.rewind
+  HTTP::Client::Response.from_io(io, decompress: false)
+end
+
 def call_request_on_app(request)
   io = IO::Memory.new
   response = HTTP::Server::Response.new(io)
@@ -84,11 +88,17 @@ def call_request_on_app(request)
   HTTP::Client::Response.from_io(io, decompress: false)
 end
 
+def router
+  [
+    Grip::Handlers::Log.new,
+    Grip::Handlers::Exception.new,
+  ] of HTTP::Handler
+end
+
 def build_main_handler
-  Grip.config.setup
-  main_handler = Grip.config.handlers.first
+  main_handler = router[0]
   current_handler = main_handler
-  Grip.config.handlers.each do |handler|
+  router.each do |handler|
     current_handler.next = handler
     current_handler = handler
   end
@@ -103,11 +113,4 @@ def create_request_and_return_io_and_context(handler, request)
   response.close
   io.rewind
   {io, context}
-end
-
-Spec.after_each do
-  Grip.config.clear
-  Grip::Routers::Http::INSTANCE.routes = Radix::Tree(Grip::Routers::Route).new
-  Grip::Routers::Http::INSTANCE.cached_routes = Hash(String, Radix::Result(Grip::Routers::Route)).new
-  Grip::Routers::WebSocket::INSTANCE.routes = Radix::Tree(Grip::Routers::Route).new
 end

@@ -14,20 +14,20 @@ describe "ParameterBox" do
   end
 
   it "parses url params" do
-    grip = Grip::Routers::Http::INSTANCE
+    grip = Grip::Routers::Http.new
     grip.add_route "POST", "/hello/:name", ExampleController.new, nil, nil
     request = HTTP::Request.new("POST", "/hello/crystal")
-    context = create_request_and_return_io_and_context(grip, request)[1]
-    url_params = Grip::Parsers::ParameterBox.new(request, context.route_lookup.params).url
+    _context = create_request_and_return_io_and_context(grip, request)[1]
+    url_params = Grip::Parsers::ParameterBox.new(request, grip.lookup_route(request.method, request.path).params).url
     url_params["name"].should eq "crystal"
   end
 
   it "decodes url params" do
-    grip = Grip::Routers::Http::INSTANCE
+    grip = Grip::Routers::Http.new
     grip.add_route "POST", "/hello/:email/:money/:spanish", ExampleController.new, nil, nil
     request = HTTP::Request.new("POST", "/hello/sam%2Bspec%40gmail.com/%2419.99/a%C3%B1o")
-    context = create_request_and_return_io_and_context(grip, request)[1]
-    url_params = Grip::Parsers::ParameterBox.new(request, context.route_lookup.params).url
+    _context = create_request_and_return_io_and_context(grip, request)[1]
+    url_params = Grip::Parsers::ParameterBox.new(request, grip.lookup_route(request.method, request.path).params).url
     url_params["email"].should eq "sam+spec@gmail.com"
     url_params["money"].should eq "$19.99"
     url_params["spanish"].should eq "año"

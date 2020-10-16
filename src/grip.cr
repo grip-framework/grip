@@ -2,30 +2,27 @@ require "http"
 require "http/web_socket"
 require "json"
 require "uri"
-require "base64"
 require "radix"
+require "base64"
 require "uuid"
-require "jwt"
 require "crypto/subtle"
+require "exceptions"
+require "pipes"
 require "exception_page"
 
-{% if flag?(:without_openssl) %}
-  require "digest/sha1"
-{% else %}
+{% if flag?(:with_openssl) %}
   require "openssl/sha1"
+{% else %}
+  require "digest/sha1"
 {% end %}
 
-require "./grip/development_exception_page"
-require "./grip/support/*"
-require "./grip/exceptions/base"
-require "./grip/exceptions/*"
+require "./grip/minuscule/*"
 require "./grip/parsers/*"
 require "./grip/dsl/*"
 require "./grip/extensions/*"
 require "./grip/handlers/*"
-require "./grip/pipes/*"
-require "./grip/pipes/basic/*"
 require "./grip/controllers/*"
+require "./grip/routers/route"
 require "./grip/routers/*"
 require "./grip/*"
 

@@ -1,5 +1,5 @@
 name: grip
-version: 1.1.1
+version: 1.1.2
 
 authors:
   - Grip and its Contributors <https://github.com/grip-framework/>
@@ -11,8 +11,13 @@ dependencies:
   exception_page:
     github: crystal-loot/exception_page
 
-  jwt:
-    github: crystal-community/jwt
+  exceptions:
+    github: grip-framework/exceptions
+    branch: master
+
+  pipes:
+    github: grip-framework/pipes
+    branch: master
 
 development_dependencies:
   ameba:

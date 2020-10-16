@@ -1,9 +1,6 @@
 module Grip
   module Routers
-    class WebSocket
-      include HTTP::Handler
-
-      INSTANCE            = new
+    class WebSocket < Base
       CACHED_ROUTES_LIMIT = 1024
       property routes, cached_routes
 
@@ -13,13 +10,27 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
-        return call_next(context) unless context.ws_route_found? && websocket_upgrade_request?(context)
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] received a request, path: #{context.request.path}, method: #{context.request.method}."
+        {% end %}
 
-        context.websocket.match_via_keyword(context, context.websocket.via)
-        context.websocket.handler.call(context)
+        route = lookup_route("", context.request.path)
+
+        unless route.found? && websocket_upgrade_request?(context)
+          {% if flag?(:verbose) %}
+            puts "#{Time.utc} [info] calling the next handler, didn't match a thing in websockets, path: #{context.request.path}, method: #{context.request.method}."
+          {% end %}
+
+          return call_next(context)
+        end
+
+        context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
+        payload = route.payload
+        payload.match_via_keyword(context, payload.via)
+        payload.handler.call(context)
       end
 
-      def lookup_ws_route(path : String)
+      def lookup_route(_verb : String, path : String)
         lookup_path = "/ws" + path
 
         if cached_route = @cached_routes[lookup_path]?
@@ -36,8 +47,11 @@ module Grip
         route
       end
 
-      def add_route(path : String, handler : Grip::Controllers::WebSocket, via : Symbol? | Array(Symbol)?, _override)
+      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
+        {% if flag?(:verbose) %}
+          puts "#{Time.utc} [info] added a ws route, path: #{path}, handler: #{handler}, via: #{via}."
+        {% end %}
       end
 
       private def add_to_radix_tree(path, websocket)
