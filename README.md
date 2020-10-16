@@ -94,7 +94,6 @@ Add this to your application's `shard.yml`:
 dependencies:
   grip:
     github: grip-framework/grip
-    branch: develop
 ```
 
 And run this command in your terminal:
