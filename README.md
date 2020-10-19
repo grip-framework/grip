@@ -64,7 +64,7 @@ class IndexController < Grip::Controllers::Http
 
     # An optional secondary argument gives a custom `Content-Type` header to the response.
     context
-      .json({"id" => id}, "application/json; charset=us-ascii")
+      .json(content: {"id" => id}, content_type: "application/json; charset=us-ascii")
   end
 end
 
@@ -78,7 +78,10 @@ class Application < Grip::Application
         Pipes::SecureHeaders.new
     ]
 
-    get "/", IndexController, via: :api
+    scope "/api/v1" do
+      get "/", IndexController, via: :api
+    end
+
     get "/:id", IndexController, via: [:web, :api], override: :index
   end
 end
