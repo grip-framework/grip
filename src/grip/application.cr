@@ -26,6 +26,7 @@ module Grip
     private property pipeline_handler : Grip::Handlers::Pipeline
     private property filter_handler : Grip::Handlers::Filter
 
+    private property scope_path : String = ""
     private property router : Array(HTTP::Handler)
 
     def initialize
