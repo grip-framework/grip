@@ -49,14 +49,14 @@ Add this to your application's `application.cr`:
 require "grip"
 
 class IndexController < Grip::Controllers::Http
-  def get(context)
+  def get(context : Context) : Context
     context
       .put_status(200) # Assign the status code to 200 OK.
       .json({"id" => 1}) # Respond with JSON content.
       .halt # Close the connection.
   end
 
-  def index(context)
+  def index(context : Context) : Context
     id =
       context
         .fetch_path_params
@@ -79,10 +79,12 @@ class Application < Grip::Application
     ]
 
     scope "/api/v1" do
-      get "/", IndexController, via: :api
+      pipe_through [:web, :api]
+
+      get "/", IndexController
     end
 
-    get "/:id", IndexController, via: [:web, :api], override: :index
+    get "/:id", IndexController, as: :index
   end
 end
 
