@@ -27,6 +27,7 @@ module Grip
     private property filter_handler : Grip::Handlers::Filter
 
     private property scope_path : String = ""
+    private property pipethrough_valve : Array(Symbol)? | Symbol? = nil
     private property router : Array(HTTP::Handler)
 
     def initialize

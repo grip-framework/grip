@@ -155,7 +155,7 @@ module Grip
         end
       end
 
-      def call(context : HTTP::Server::Context) : HTTP::Server::Context
+      def call(context : Context) : Context
         if websocket_upgrade_request? context.request
           response = context.response
 

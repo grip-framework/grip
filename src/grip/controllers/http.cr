@@ -1,42 +1,42 @@
 module Grip
   module Controllers
     class Http < Base
-      def get(context : HTTP::Server::Context) : HTTP::Server::Context
+      def get(context : Context) : Context
         context
           .halt
       end
 
-      def post(context : HTTP::Server::Context) : HTTP::Server::Context
+      def post(context : Context) : Context
         context
           .halt
       end
 
-      def put(context : HTTP::Server::Context) : HTTP::Server::Context
+      def put(context : Context) : Context
         context
           .halt
       end
 
-      def patch(context : HTTP::Server::Context) : HTTP::Server::Context
+      def patch(context : Context) : Context
         context
           .halt
       end
 
-      def delete(context : HTTP::Server::Context) : HTTP::Server::Context
+      def delete(context : Context) : Context
         context
           .halt
       end
 
-      def options(context : HTTP::Server::Context) : HTTP::Server::Context
+      def options(context : Context) : Context
         context
           .halt
       end
 
-      def head(context : HTTP::Server::Context) : HTTP::Server::Context
+      def head(context : Context) : Context
         context
           .halt
       end
 
-      def call(context : HTTP::Server::Context) : HTTP::Server::Context
+      def call(context : Context) : Context
         case context.request.method
         when "GET"
           get(context)
