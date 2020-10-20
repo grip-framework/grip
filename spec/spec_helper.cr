@@ -72,26 +72,88 @@ class ExampleController < Grip::Controllers::Http
 end
 
 class MatchController < Grip::Controllers::WebSocket
-  def on_open(context, socket)
-    socket.send("Match")
+  def on_open(context) : Void
+    send("Match")
+  end
+
+  def on_ping(context : Context, message : String) : Void
+  end
+
+  def on_pong(context : Context, message : String) : Void
+  end
+
+  def on_message(context : Context, message : String) : Void
+  end
+
+  def on_binary(context : Context, binary : Bytes) : Void
+  end
+
+  def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
   end
 end
 
 class NoMatchController < Grip::Controllers::WebSocket
-  def on_open(context, socket)
-    socket.send("No Match")
+  def on_open(context) : Void
+    send("No Match")
+  end
+
+  def on_ping(context : Context, message : String) : Void
+  end
+
+  def on_pong(context : Context, message : String) : Void
+  end
+
+  def on_message(context : Context, message : String) : Void
+  end
+
+  def on_binary(context : Context, binary : Bytes) : Void
+  end
+
+  def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
   end
 end
 
 class UrlParametersController < Grip::Controllers::WebSocket
-  def on_open(context, socket)
+  def on_open(context) : Void
     context
       .fetch_path_params
       .["id"]
   end
+
+  def on_ping(context : Context, message : String) : Void
+  end
+
+  def on_pong(context : Context, message : String) : Void
+  end
+
+  def on_message(context : Context, message : String) : Void
+  end
+
+  def on_binary(context : Context, binary : Bytes) : Void
+  end
+
+  def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+  end
 end
 
 class BlankController < Grip::Controllers::WebSocket
+  def on_open(context : Context) : Void
+  end
+
+  def on_ping(context : Context, message : String) : Void
+  end
+
+  def on_pong(context : Context, message : String) : Void
+  end
+
+  def on_message(context : Context, message : String) : Void
+  end
+
+  def on_binary(context : Context, binary : Bytes) : Void
+  end
+
+  def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+  end
 end
 
 def create_ws_request_and_return_io_and_context(handler, request)

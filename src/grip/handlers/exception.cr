@@ -34,9 +34,8 @@ module Grip
       private def call_exception_with_status_code(context : HTTP::Server::Context, exception : ::Exception, status_code : Int32)
         return context if context.response.closed?
         if !@handlers.empty? && @handlers.has_key?(status_code)
-          context
-            .put_status(status_code)
-            .exception = exception
+          context.response.status_code = status_code
+          context.exception = exception
 
           @handlers[status_code].call(context)
         else

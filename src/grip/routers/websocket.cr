@@ -5,14 +5,12 @@ module Grip
       property routes : Radix::Tree(Route)
       property cache : Hash(String, Radix::Result(Route))
 
-      alias Context = HTTP::Server::Context
-
       def initialize
         @routes = Radix::Tree(Route).new
         @cache = Hash(String, Radix::Result(Route)).new
       end
 
-      def call(context : Context)
+      def call(context : HTTP::Server::Context)
         {% if flag?(:verbose) %}
           puts "#{Time.utc} [info] received a request, path: #{context.request.path}, method: #{context.request.method}."
         {% end %}
@@ -52,7 +50,7 @@ module Grip
         route
       end
 
-      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(Context, Context)?) : Void
+      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
         {% if flag?(:verbose) %}
           puts "#{Time.utc} [info] added a ws route, path: #{path}, handler: #{handler}, via: #{via}."

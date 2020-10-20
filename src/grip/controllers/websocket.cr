@@ -1,6 +1,6 @@
 module Grip
   module Controllers
-    class WebSocket < Grip::Controllers::Base
+    abstract class WebSocket < Grip::Controllers::Base
       getter? closed = false
       property ws : HTTP::WebSocket::Protocol?
 
@@ -10,23 +10,12 @@ module Grip
         @current_message = IO::Memory.new
       end
 
-      def on_open(context, socket)
-      end
-
-      def on_ping(context, socket, ping)
-      end
-
-      def on_pong(context, socket, pong)
-      end
-
-      def on_message(context, socket, message)
-      end
-
-      def on_binary(context, socket, binary)
-      end
-
-      def on_close(context, socket, close_code, message)
-      end
+      abstract def on_open(context : Context) : Void
+      abstract def on_ping(context : Context, message : String) : Void
+      abstract def on_pong(context : Context, message : String) : Void
+      abstract def on_message(context : Context, message : String) : Void
+      abstract def on_binary(context : Context, binary : Bytes) : Void
+      abstract def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
 
       protected def check_open
         raise IO::Error.new "Closed socket" if closed?
@@ -37,19 +26,11 @@ module Grip
         @ws.not_nil!.send(message)
       end
 
-      # It's possible to send a PING frame, which the client must respond to
-      # with a PONG, or the server can send an unsolicited PONG frame
-      # which the client should not respond to.
-      #
-      # See `#pong`.
       def ping(message = nil)
         check_open
         @ws.not_nil!.ping(message)
       end
 
-      # Server can send an unsolicited PONG frame which the client should not respond to.
-      #
-      # See `#ping`.
       def pong(message = nil)
         check_open
         @ws.not_nil!.pong(message)
@@ -74,13 +55,13 @@ module Grip
       end
 
       def run(context)
-        on_open(context, @ws.not_nil!)
+        on_open(context)
 
         loop do
           begin
             info = @ws.not_nil!.receive(@buffer)
           rescue
-            on_close(context, @ws.not_nil!, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
+            on_close(context, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
             @closed = true
             break
           end
@@ -93,7 +74,7 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
-              on_pong(context, @ws.not_nil!, message)
+              on_pong(context, message)
               pong(message) unless closed?
               @current_message.clear
             end
@@ -104,7 +85,7 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
-              on_pong(context, @ws.not_nil!, message)
+              on_pong(context, message)
               @current_message.clear
             end
           when .text?
@@ -114,7 +95,7 @@ module Grip
               {% if flag?(:verbose) %}
                 puts "#{Time.utc} [info] received websocket message, ws: #{@ws}, message: #{message}"
               {% end %}
-              on_message(context, @ws.not_nil!, message)
+              on_message(context, message)
               @current_message.clear
             end
           when .binary?
@@ -124,7 +105,7 @@ module Grip
               {% if flag?(:verbose) %}
                 puts "#{Time.utc} [info] received websocket binary, ws: #{@ws}, binary: #{message}"
               {% end %}
-              on_binary(context, @ws.not_nil!, message)
+              on_binary(context, message)
               @current_message.clear
             end
           when .close?
@@ -143,7 +124,7 @@ module Grip
                 puts "#{Time.utc} [info] received websocket close, ws: #{@ws}, message: #{message}, code: #{code}"
               {% end %}
 
-              on_close(context, @ws.not_nil!, code, message)
+              on_close(context, code, message)
               close(code)
 
               @current_message.clear

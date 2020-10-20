@@ -17,7 +17,7 @@ module Grip
         if {{path}} != "/"
           @scope_path = {{path}}
         end
-        
+
         {{yield}}
         @pipethrough_valve = nil
         @scope_path = ""
