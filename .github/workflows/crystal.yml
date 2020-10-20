@@ -2,21 +2,20 @@ name: Crystal CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     container:
       image: crystallang/crystal
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: shards install
-    - name: Run tests
-      run: crystal spec -D test -D verbose
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: shards install
+      - name: Run tests
+        run: crystal spec -D test -D verbose -D swagger

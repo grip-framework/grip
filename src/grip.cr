@@ -9,6 +9,7 @@ require "crypto/subtle"
 require "exceptions"
 require "pipes"
 require "exception_page"
+require "swagger"
 
 {% if flag?(:with_openssl) %}
   require "openssl/sha1"
@@ -16,6 +17,7 @@ require "exception_page"
   require "digest/sha1"
 {% end %}
 
+require "./grip/annotations/*"
 require "./grip/minuscule/*"
 require "./grip/parsers/*"
 require "./grip/dsl/*"

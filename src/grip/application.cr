@@ -25,6 +25,7 @@ module Grip
     private property exception_handler : Grip::Handlers::Exception
     private property pipeline_handler : Grip::Handlers::Pipeline
     private property filter_handler : Grip::Handlers::Filter
+    private property swagger_handler : Grip::Handlers::Swagger?
 
     private property scope_path : String = ""
     private property pipethrough_valve : Array(Symbol)? | Symbol? = nil
@@ -36,6 +37,9 @@ module Grip
       @log_handler = Grip::Handlers::Log.new
       @exception_handler = Grip::Handlers::Exception.new
       @pipeline_handler = Grip::Handlers::Pipeline.new
+      {% if flag?(:swagger) %}
+        @swagger_handler = Grip::Handlers::Swagger.new(path, title, version, description, authorizations)
+      {% end %}
       @filter_handler = Grip::Handlers::Filter.new(@http_handler)
       @router = router
 
@@ -53,6 +57,30 @@ module Grip
     def reuse_port : Bool
       false
     end
+
+    {% if flag?(:swagger) %}
+      def path : String
+        "/docs"
+      end
+
+      def title : String
+        "API Documentation"
+      end
+
+      def version : String
+        {{ `shards version`.chomp.stringify }}
+      end
+
+      def description : String
+        "A documentation medium for the API"
+      end
+
+      def authorizations : Array(Swagger::Authorization)
+        [
+          Swagger::Authorization.jwt(description: "Use JWT Auth")
+        ] of Swagger::Authorization
+      end
+    {% end %}
 
     def router : Array(HTTP::Handler)
       {% if flag?(:verbose) %}
@@ -89,6 +117,10 @@ module Grip
     end
 
     def server : HTTP::Server
+      {% if flag?(:swagger) %}
+        @router.insert(@router.size - 1, @swagger_handler.not_nil!)
+      {% end %}
+
       HTTP::Server.new(@router)
     end
 
