@@ -18,4 +18,4 @@ jobs:
       - name: Install dependencies
         run: shards install
       - name: Run tests
-        run: crystal spec -D test -D verbose -D swagger
+        run: crystal spec -Dtest -Dswagger -DserveStatic
