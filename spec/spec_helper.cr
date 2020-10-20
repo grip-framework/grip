@@ -3,27 +3,70 @@ require "../src/*"
 
 include Grip
 
+class HttpApplication < Grip::Application
+  def port
+    0
+  end
+
+  def routes
+    get "/", ExampleController
+    get "/:id", ExampleController, as: :index
+  end
+end
+
+class WebSocketApplication < Grip::Application
+  def port
+    0
+  end
+
+  def routes
+    ws "/", MatchController
+  end
+end
+
+class PipelineApplication < Grip::Application
+  def port
+    0
+  end
+
+  def routes
+    pipeline :api, [
+      Pipes::PoweredByHeader.new,
+    ]
+
+    scope "/" do
+      pipe_through :api
+
+      get "/", ExampleController
+    end
+  end
+end
+
 class ForbiddenController < Grip::Controllers::Exception
-  def call(context : HTTP::Server::Context) : HTTP::Server::Context
+  def call(context : Context) : Context
     context
       .html("403 Error")
   end
 end
 
 class ExampleController < Grip::Controllers::Http
-  def get(context : HTTP::Server::Context) : HTTP::Server::Context
+  def index(context : Context) : Context
     context
   end
 
-  def post(context : HTTP::Server::Context) : HTTP::Server::Context
+  def get(context : Context) : Context
     context
   end
 
-  def put(context : HTTP::Server::Context) : HTTP::Server::Context
+  def post(context : Context) : Context
     context
   end
 
-  def delete(context : HTTP::Server::Context) : HTTP::Server::Context
+  def put(context : Context) : Context
+    context
+  end
+
+  def delete(context : Context) : Context
     context
   end
 end

@@ -52,6 +52,10 @@ module Grip
         pipes
       end
 
+      def get(valve : Nil) : Nil
+        nil
+      end
+
       def call(context : HTTP::Server::Context) : HTTP::Server::Context
       end
     end

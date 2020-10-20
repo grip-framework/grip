@@ -18,7 +18,7 @@ describe "ParameterBox" do
     grip.add_route "POST", "/hello/:name", ExampleController.new, nil, nil
     request = HTTP::Request.new("POST", "/hello/crystal")
     _context = create_request_and_return_io_and_context(grip, request)[1]
-    url_params = Grip::Parsers::ParameterBox.new(request, grip.lookup_route(request.method, request.path).params).url
+    url_params = Grip::Parsers::ParameterBox.new(request, grip.find_route(request.method, request.path).params).url
     url_params["name"].should eq "crystal"
   end
 
@@ -27,7 +27,7 @@ describe "ParameterBox" do
     grip.add_route "POST", "/hello/:email/:money/:spanish", ExampleController.new, nil, nil
     request = HTTP::Request.new("POST", "/hello/sam%2Bspec%40gmail.com/%2419.99/a%C3%B1o")
     _context = create_request_and_return_io_and_context(grip, request)[1]
-    url_params = Grip::Parsers::ParameterBox.new(request, grip.lookup_route(request.method, request.path).params).url
+    url_params = Grip::Parsers::ParameterBox.new(request, grip.find_route(request.method, request.path).params).url
     url_params["email"].should eq "sam+spec@gmail.com"
     url_params["money"].should eq "$19.99"
     url_params["spanish"].should eq "año"

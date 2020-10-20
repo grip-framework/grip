@@ -1,53 +1,58 @@
 module Grip
   module Routers
     class WebSocket < Base
-      CACHED_ROUTES_LIMIT = 1024
-      property routes, cached_routes
+      CACHE_LIMIT = 1024
+      property routes : Radix::Tree(Route)
+      property cache : Hash(String, Radix::Result(Route))
+
+      alias Context = HTTP::Server::Context
 
       def initialize
         @routes = Radix::Tree(Route).new
-        @cached_routes = Hash(String, Radix::Result(Route)).new
+        @cache = Hash(String, Radix::Result(Route)).new
       end
 
-      def call(context : HTTP::Server::Context)
+      def call(context : Context)
         {% if flag?(:verbose) %}
           puts "#{Time.utc} [info] received a request, path: #{context.request.path}, method: #{context.request.method}."
         {% end %}
 
-        route = lookup_route("", context.request.path)
+        route = find_route("", context.request.path)
 
         unless route.found? && websocket_upgrade_request?(context)
-          {% if flag?(:verbose) %}
-            puts "#{Time.utc} [info] calling the next handler, didn't match a thing in websockets, path: #{context.request.path}, method: #{context.request.method}."
-          {% end %}
-
           return call_next(context)
         end
 
         context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
         payload = route.payload
-        payload.match_via_keyword(context, payload.via)
+        payload.match_via_keyword(context)
         payload.handler.call(context)
+
+        if context.response.status_code.in?([400, 401, 403, 404, 405, 500])
+          raise Exception.new("Routing layer has failed to process the request.")
+        end
+
+        context
       end
 
-      def lookup_route(_verb : String, path : String)
+      def find_route(_verb : String, path : String) : Radix::Result(Route)
         lookup_path = "/ws" + path
 
-        if cached_route = @cached_routes[lookup_path]?
+        if cached_route = @cache[lookup_path]?
           return cached_route
         end
 
         route = @routes.find(lookup_path)
 
         if route.found?
-          @cached_routes.clear if @cached_routes.size == CACHED_ROUTES_LIMIT
-          @cached_routes[lookup_path] = route
+          @cache.clear if @cache.size == CACHE_LIMIT
+          @cache[lookup_path] = route
         end
 
         route
       end
 
-      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
+      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(Context, Context)?) : Void
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
         {% if flag?(:verbose) %}
           puts "#{Time.utc} [info] added a ws route, path: #{path}, handler: #{handler}, via: #{via}."
