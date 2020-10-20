@@ -18,6 +18,7 @@ require "swagger"
 {% end %}
 
 require "./grip/annotations/*"
+require "./grip/support/*"
 require "./grip/minuscule/*"
 require "./grip/parsers/*"
 require "./grip/dsl/*"
