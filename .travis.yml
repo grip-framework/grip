@@ -4,8 +4,8 @@ crystal:
   - nightly
 
 script:
-  - crystal spec
-  - crystal spec --release --no-debug
+  - crystal spec -Dtest -Dverbose
+  - crystal spec -Dtest -Dverbose --release --no-debug
   - crystal tool format --check
   - bin/ameba
 
