@@ -4,7 +4,7 @@
 
 <p align="center">
     The microframework for writing <ins>powerful web applications</ins>.<br><br>
-    <b>Notice:</b>Versions bellow 2.0.0 are not maintained anymore.
+    <b>Notice:</b>Versions bellow 3.0.0 are not maintained anymore.
 </p>
 
 <p align="center">

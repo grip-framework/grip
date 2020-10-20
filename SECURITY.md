@@ -6,7 +6,7 @@ Currently supported versions of the Grip framework are:
 
 | Version  | Supported          |
 | -------- | ------------------ |
-| ~> 2.0.0 | :white_check_mark: |
+| ~> 3.0.0 | :white_check_mark: |
 
 Versions mentioned above will receive security patches if anything is discovered by
 either the core team or the open-source contributors of the Grip framework.
