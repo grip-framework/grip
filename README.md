@@ -126,5 +126,6 @@ See our [contribution guidelines](https://github.com/grip-framework/grip/blob/ma
 ## Thanks
 
 - [Kemal](https://github.com/kemalcr/kemal) - Underlying routing, parameter parsing and filtering mechanisms.
+- [Amber](https://github.com/amberframework/amber) - Static file handler, ideas and inspiration.
 - [Gitter](https://gitter.im/crystal-lang/crystal) - Technical help, feedback and framework design tips.
 - [Crystal](https://crystal-lang.org/api/0.35.1/) - Detailed documentation, examples.

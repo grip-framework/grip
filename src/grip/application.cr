@@ -26,6 +26,7 @@ module Grip
     private property pipeline_handler : Grip::Handlers::Pipeline
     private property filter_handler : Grip::Handlers::Filter
     private property swagger_handler : Grip::Handlers::Swagger?
+    private property static_handler : Grip::Handlers::Static?
 
     private property scope_path : String = ""
     private property pipethrough_valve : Array(Symbol)? | Symbol? = nil
@@ -39,6 +40,10 @@ module Grip
       @pipeline_handler = Grip::Handlers::Pipeline.new
       {% if flag?(:swagger) %}
         @swagger_handler = Grip::Handlers::Swagger.new(path, title, version, description, authorizations)
+      {% end %}
+
+      {% if flag?(:serveStatic) %}
+        @static_handler = Grip::Handlers::Static.new(pubilc_dir, fallthrough, directory_listing)
       {% end %}
       @filter_handler = Grip::Handlers::Filter.new(@http_handler)
       @router = router
@@ -82,6 +87,20 @@ module Grip
       end
     {% end %}
 
+    {% if flag?(:serveStatic) %}
+      def pubilc_dir : String
+        "./public"
+      end
+
+      def fallthrough : Bool
+        false
+      end
+
+      def directory_listing : Bool
+        false
+      end
+    {% end %}
+
     def router : Array(HTTP::Handler)
       {% if flag?(:verbose) %}
         puts "#{Time.utc} [info] building an array out of `HTTP::Handler` components."
@@ -119,6 +138,10 @@ module Grip
     def server : HTTP::Server
       {% if flag?(:swagger) %}
         @router.insert(@router.size - 1, @swagger_handler.not_nil!)
+      {% end %}
+
+      {% if flag?(:serveStatic) %}
+        @router.insert(1, @static_handler.not_nil!)
       {% end %}
 
       HTTP::Server.new(@router)
