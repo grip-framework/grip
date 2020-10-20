@@ -1,3 +1,5 @@
+require "./spec_helper"
+
 describe "Grip::Dsl::Macros" do
   it "Tests the HTTP verb macro" do
     app = HttpApplication.new

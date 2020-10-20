@@ -3,6 +3,31 @@ require "../src/*"
 
 include Grip
 
+@[Annotations::Controller(description: "An example description")]
+class SwaggerController < Grip::Controllers::Http
+  @[Annotations::Route(
+    method: "GET",
+    route: "/",
+    summary: "This route returns a response."
+  )]
+  def get(context : Context) : Context
+    context
+      .halt
+  end
+end
+
+class SwaggerApplication < Grip::Application
+  def port
+    0
+  end
+
+  def routes
+    swagger [
+      SwaggerController,
+    ]
+  end
+end
+
 class HttpApplication < Grip::Application
   def port
     0

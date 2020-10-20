@@ -1,5 +1,5 @@
 name: grip
-version: 3.0.0
+version: 3.0.1
 
 authors:
   - Grip and its Contributors <https://github.com/grip-framework/>
@@ -16,6 +16,9 @@ dependencies:
 
   pipes:
     github: grip-framework/pipes
+
+  swagger:
+    github: icyleaf/swagger
 
 development_dependencies:
   ameba:
