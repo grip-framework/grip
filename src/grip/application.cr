@@ -43,7 +43,7 @@ module Grip
       {% end %}
 
       {% if flag?(:serveStatic) %}
-        @static_handler = Grip::Handlers::Static.new(pubilc_dir, fallthrough, directory_listing)
+        @static_handler = Grip::Handlers::Static.new(public_dir, fallthrough, directory_listing)
       {% end %}
       @filter_handler = Grip::Handlers::Filter.new(@http_handler)
       @router = router
@@ -88,7 +88,7 @@ module Grip
     {% end %}
 
     {% if flag?(:serveStatic) %}
-      def pubilc_dir : String
+      def public_dir : String
         "./public"
       end
 
