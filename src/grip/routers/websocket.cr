@@ -11,10 +11,6 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
-        {% if flag?(:verbose) %}
-          puts "#{Time.utc} [info] received a request, path: #{context.request.path}, method: #{context.request.method}."
-        {% end %}
-
         route = find_route("", context.request.path)
 
         unless route.found? && websocket_upgrade_request?(context)
