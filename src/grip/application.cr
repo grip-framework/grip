@@ -19,14 +19,14 @@ module Grip
 
     abstract def routes
 
-    private property http_handler : Grip::Routers::Base
-    private property websocket_handler : Grip::Routers::Base
-    private property log_handler : HTTP::Handler
+    private property http_handler : Grip::Routers::Http
     private property exception_handler : Grip::Handlers::Exception
-    private property pipeline_handler : Grip::Handlers::Pipeline
-    private property filter_handler : Grip::Handlers::Filter
+    private property pipeline_handler : Grip::Handlers::Pipeline?
+
+    private property log_handler : HTTP::Handler?
     private property swagger_handler : Grip::Handlers::Swagger?
     private property static_handler : Grip::Handlers::Static?
+    private property websocket_handler : Grip::Routers::WebSocket?
 
     private property scope_path : String = ""
     private property pipethrough_valve : Array(Symbol)? | Symbol? = nil
@@ -34,10 +34,16 @@ module Grip
 
     def initialize
       @http_handler = Grip::Routers::Http.new
-      @websocket_handler = Grip::Routers::WebSocket.new
-      @log_handler = Grip::Handlers::Log.new
       @exception_handler = Grip::Handlers::Exception.new
-      @pipeline_handler = Grip::Handlers::Pipeline.new
+
+      {% if flag?(:websocket) %}
+        @websocket_handler = Grip::Routers::WebSocket.new
+
+        @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler.not_nil!)
+      {% else %}
+        @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler)
+      {% end %}
+
       {% if flag?(:swagger) %}
         @swagger_handler = Grip::Handlers::Swagger.new(path, title, version, description, authorizations)
       {% end %}
@@ -45,7 +51,11 @@ module Grip
       {% if flag?(:serveStatic) %}
         @static_handler = Grip::Handlers::Static.new(public_dir, fallthrough, directory_listing)
       {% end %}
-      @filter_handler = Grip::Handlers::Filter.new(@http_handler)
+
+      {% if flag?(:logs) %}
+        @log_handler = Grip::Handlers::Log.new
+      {% end %}
+
       @router = router
 
       routes()
@@ -106,33 +116,11 @@ module Grip
         puts "#{Time.utc} [info] building an array out of `HTTP::Handler` components."
       {% end %}
 
-      {% if flag?(:minimal) %}
-        [
-          @exception_handler,
-          @http_handler,
-        ] of HTTP::Handler
-      {% elsif flag?(:minimal_with_logs) %}
-        [
-          @log_handler,
-          @exception_handler,
-          @http_handler,
-        ] of HTTP::Handler
-      {% elsif flag?(:logs) %}
-        [
-          @log_handler,
-          @exception_handler,
-          @filter_handler,
-          @websocket_handler,
-          @http_handler,
-        ] of HTTP::Handler
-      {% else %}
-        [
-          @exception_handler,
-          @filter_handler,
-          @websocket_handler,
-          @http_handler,
-        ] of HTTP::Handler
-      {% end %}
+      [
+        @exception_handler,
+        @pipeline_handler.not_nil!,
+        @http_handler,
+      ] of HTTP::Handler
     end
 
     def server : HTTP::Server
@@ -141,7 +129,15 @@ module Grip
       {% end %}
 
       {% if flag?(:serveStatic) %}
-        @router.insert(1, @static_handler.not_nil!)
+        @router.insert(2, @static_handler.not_nil!)
+      {% end %}
+
+      {% if flag?(:logs) %}
+        @router.insert(0, @log_handler.not_nil!)
+      {% end %}
+
+      {% if flag?(:websocket) %}
+        @router.insert(@router.size - 1, @websocket_handler.not_nil!)
       {% end %}
 
       HTTP::Server.new(@router)
@@ -195,9 +191,7 @@ module Grip
         {% end %}
       end
 
-      {% if flag?(:verbose) && !flag?(:test) %}
-        puts "#{Time.utc} [info] listening at #{schema}://#{host}:#{port}."
-      {% end %}
+      puts "#{Time.utc} [info] listening at #{schema}://#{host}:#{port}."
 
       {% if !flag?(:test) %}
         setup_trap_signal()

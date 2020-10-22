@@ -21,22 +21,21 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
-        if context.request.path == @path
+        case context.request.path
+        when @path
           # ameba:disable Lint/UselessAssign
           title = "API Documentation"
 
           # ameba:disable Lint/UselessAssign
           openapi_url = "/swagger.json"
 
+          context.response.headers.merge!({"Content-Type" => "text/html; charset=UTF-8"})
+          context.response.print(ECR.render("./lib/swagger/src/swagger/http/views/swagger.ecr"))
           context
-            .html(
-              ECR.render("./lib/swagger/src/swagger/http/views/swagger.ecr")
-            )
-        elsif context.request.path == "/swagger.json"
+        when "/swagger.json"
+          context.response.headers.merge!({"Content-Type" => "application/json; charset=UTF-8"})
+          context.response.print(@builder.built.to_json)
           context
-            .json(
-              @builder.built
-            )
         else
           call_next(context)
         end

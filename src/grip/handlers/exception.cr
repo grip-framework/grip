@@ -39,16 +39,13 @@ module Grip
 
           @handlers[status_code].call(context)
         else
-          {% if flag?(:development) %}
-            context
-              .html(Grip::Minuscule::ExceptionPage.for_runtime_exception(context, exception).to_s)
-          {% elsif flag?(:production) %}
-            context
-              .text("An error has occured with the current endpoint, please try again later.")
+          {% if flag?(:hideAllExceptions) %}
+            context.response.print("500 Internal Server Error")
           {% else %}
-            context
-              .text("An error has occured within the current endpoint, run the application with a compile time flag `-Ddevelopment` to view the in-depth error message call stack.")
+            context.response.headers.merge!({"Content-Type" => "text/html; charset=UTF-8"})
+            context.response.print(Grip::Minuscule::ExceptionPage.for_runtime_exception(context, exception).to_s)
           {% end %}
+
           context
         end
       end

@@ -3,15 +3,22 @@ module Grip
     struct Route
       getter method, path, handler, override, via
 
-      def initialize(@method : String, @path : String, @handler : Grip::Controllers::Base, @via : Array(Pipes::Base)?, @override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
+      def initialize(@method : String, @path : String, @handler : Grip::Controllers::Base, @via : Symbol? | Array(Symbol)?, @override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
       end
 
-      def match_via_keyword(context : HTTP::Server::Context) : HTTP::Server::Context
+      def match_via_keyword(context : HTTP::Server::Context, pipeline_handler : Grip::Handlers::Pipeline) : HTTP::Server::Context
         case @via
-        when Array(Pipes::Base)
+        when Symbol
           call_through_pipeline(
             context,
-            via.not_nil!
+            via.not_nil!,
+            pipeline_handler
+          )
+        when Array(Symbol)
+          call_through_pipeline(
+            context,
+            via.not_nil!,
+            pipeline_handler
           )
         when Nil
         end
@@ -29,7 +36,9 @@ module Grip
         context
       end
 
-      private def call_through_pipeline(context : HTTP::Server::Context, pipes) : HTTP::Server::Context
+      private def call_through_pipeline(context : HTTP::Server::Context, via : Symbol | Array(Symbol), pipeline_handler : Grip::Handlers::Pipeline) : HTTP::Server::Context
+        pipes = pipeline_handler.get(via)
+
         pipes.each do |pipe|
           pipe.call(context)
         end

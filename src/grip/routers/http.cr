@@ -26,7 +26,6 @@ module Grip
         context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
 
         payload = route.payload
-        payload.match_via_keyword(context)
 
         if payload.override
           payload.call_into_override(context)
@@ -34,14 +33,10 @@ module Grip
           payload.handler.call(context)
         end
 
-        if context.response.status_code.in?([400, 401, 403, 404, 405, 500])
-          raise Exception.new("Routing layer has failed to process the request.")
-        end
-
         context
       end
 
-      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
+      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
         {% if flag?(:verbose) %}
           puts "#{Time.utc} [info] added an http route, path: #{path}, method: #{method}, handler: #{handler}, via: #{via}, override: #{override}."
         {% end %}

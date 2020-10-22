@@ -5,7 +5,7 @@ module Grip
 
       macro pipeline(name, pipes)
         {{pipes}}.each do |pipe|
-          @pipeline_handler.add_pipe({{name}}, pipe)
+          @pipeline_handler.not_nil!.add_pipe({{name}}, pipe)
         end
       end
 
@@ -55,123 +55,40 @@ module Grip
         end
       {% end %}
 
-      {% if flag?(:minimal) || flag?(:minimal_with_logs) %}
-        {% for http_method in HTTP_METHODS %}
-          macro {{http_method.id}}(route, resource, **kwargs)
-            \{% if kwargs[:as] %}
-              @http_handler.add_route(
-                {{http_method}}.to_s.upcase,
-                "#{@scope_path}#{\{{route}}}",
-                \{{resource}}.new.as(Grip::Controllers::Base),
-                @pipeline_handler.get(@pipethrough_valve),
-                -> (context : HTTP::Server::Context) {
-                  \{{ resource }}.new.as(\{{resource}}).\{{kwargs[:as].id}}(context)
-                }
-              )
-            \{% else %}
-              @http_handler.add_route(
-                {{http_method}}.to_s.upcase,
-                "#{@scope_path}#{\{{route}}}",
-                \{{resource}}.new.as(Grip::Controllers::Base),
-                @pipeline_handler.get(@pipethrough_valve),
-                nil
-              )
-            \{% end %}
-          end
-        {% end %}
-
-        macro error(error_code, resource)
-          @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
+      {% for http_method in HTTP_METHODS %}
+        macro {{http_method.id}}(route, resource, **kwargs)
+          \{% if kwargs[:as] %}
+            @http_handler.add_route(
+              {{http_method}}.to_s.upcase,
+              "#{@scope_path}#{\{{route}}}",
+              \{{resource}}.new.as(Grip::Controllers::Base),
+              @pipethrough_valve,
+              -> (context : HTTP::Server::Context) {
+                \{{ resource }}.new.as(\{{resource}}).\{{kwargs[:as].id}}(context)
+              }
+            )
+          \{% else %}
+            @http_handler.add_route(
+              {{http_method}}.to_s.upcase,
+              "#{@scope_path}#{\{{route}}}",
+              \{{resource}}.new.as(Grip::Controllers::Base),
+              @pipethrough_valve,
+              nil
+            )
+          \{% end %}
         end
-      {% elsif flag?(:logs) %}
-        {% for http_method in HTTP_METHODS %}
-          macro {{http_method.id}}(route, resource, **kwargs)
-              \{% if kwargs[:as] %}
-                @http_handler.add_route(
-                  {{http_method}}.to_s.upcase,
-                  "#{@scope_path}#{\{{route}}}",
-                  \{{resource}}.new.as(Grip::Controllers::Base),
-                  @pipeline_handler.get(@pipethrough_valve),
-                  -> (context : HTTP::Server::Context) {
-                    \{{ resource }}.new.as(\{{resource}}).\{{kwargs[:as].id}}(context)
-                  }
-                )
-              \{% else %}
-                @http_handler.add_route(
-                  {{http_method}}.to_s.upcase,
-                  "#{@scope_path}#{\{{route}}}",
-                  \{{resource}}.new.as(Grip::Controllers::Base),
-                  @pipeline_handler.get(@pipethrough_valve),
-                  nil
-                )
-              \{% end %}
-            end
-        {% end %}
+      {% end %}
 
-        macro error(error_code, resource)
-          @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
-        end
+      macro error(error_code, resource)
+        @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
+      end
 
+      {% if flag?(:websocket) %}
         macro ws(route, resource, **kwargs)
           \{% if kwargs[:via] %}
-            @websocket_handler.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, @pipeline_handler.get(@pipethrough_valve), nil)
+            @websocket_handler.not_nil!.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, @pipethrough_valve, nil)
           \{% else %}
-            @websocket_handler.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, nil, nil)
-          \{% end %}
-        end
-        macro error(error_code, resource)
-          @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
-        end
-
-        macro filter(type, method, path, resource, **kwargs)
-          \{% if kwargs[:via] %}
-            @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, "#{@scope_path}#{\{{path}}}", \{{resource}}.new, @pipeline_handler.get(@pipethrough_valve))
-          \{% else %}
-            @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, "#{@scope_path}#{\{{path}}}", \{{resource}}.new, nil)
-          \{% end %}
-        end
-      {% else %}
-        {% for http_method in HTTP_METHODS %}
-          macro {{http_method.id}}(route, resource, **kwargs)
-              \{% if kwargs[:as] %}
-                @http_handler.add_route(
-                  {{http_method}}.to_s.upcase,
-                  "#{@scope_path}#{\{{route}}}",
-                  \{{resource}}.new.as(Grip::Controllers::Base),
-                  @pipeline_handler.get(@pipethrough_valve),
-                  -> (context : HTTP::Server::Context) {
-                    \{{ resource }}.new.as(\{{resource}}).\{{kwargs[:as].id}}(context)
-                  }
-                )
-              \{% else %}
-                @http_handler.add_route(
-                  {{http_method}}.to_s.upcase,
-                  "#{@scope_path}#{\{{route}}}",
-                  \{{resource}}.new.as(Grip::Controllers::Base),
-                  @pipeline_handler.get(@pipethrough_valve),
-                  nil
-                )
-              \{% end %}
-            end
-        {% end %}
-
-        macro error(error_code, resource)
-          @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
-        end
-
-        macro ws(route, resource, **kwargs)
-          \{% if kwargs[:via] %}
-            @websocket_handler.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, @pipeline_handler.get(@pipethrough_valve), nil)
-          \{% else %}
-            @websocket_handler.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, nil, nil)
-          \{% end %}
-        end
-
-        macro filter(type, method, path, resource, **kwargs)
-          \{% if kwargs[:via] %}
-            @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, "#{@scope_path}#{\{{path}}}", \{{resource}}.new, @pipeline_handler.get(@pipethrough_valve))
-          \{% else %}
-            @filter_handler.\{{type.id}}(\{{method}}.to_s.upcase, "#{@scope_path}#{\{{path}}}", \{{resource}}.new, nil)
+            @websocket_handler.not_nil!.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, nil, nil)
           \{% end %}
         end
       {% end %}

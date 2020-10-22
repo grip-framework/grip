@@ -23,12 +23,8 @@ module Grip
 
         context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
         payload = route.payload
-        payload.match_via_keyword(context)
-        payload.handler.call(context)
 
-        if context.response.status_code.in?([400, 401, 403, 404, 405, 500])
-          raise Exception.new("Routing layer has failed to process the request.")
-        end
+        payload.handler.call(context)
 
         context
       end
@@ -50,7 +46,7 @@ module Grip
         route
       end
 
-      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Array(Pipes::Base)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
+      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
         {% if flag?(:verbose) %}
           puts "#{Time.utc} [info] added a ws route, path: #{path}, handler: #{handler}, via: #{via}."
@@ -66,7 +62,7 @@ module Grip
         '/' + method.downcase + path
       end
 
-      private def websocket_upgrade_request?(context)
+      def websocket_upgrade_request?(context)
         return unless upgrade = context.request.headers["Upgrade"]?
         return unless upgrade.compare("websocket", case_insensitive: true) == 0
 
