@@ -97,87 +97,87 @@ class ExampleController < Grip::Controllers::Http
 end
 
 class MatchController < Grip::Controllers::WebSocket
-  def on_open(context) : Void
+  def on_open(context, socket) : Void
     send("Match")
   end
 
-  def on_ping(context : Context, message : String) : Void
+  def on_ping(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_pong(context : Context, message : String) : Void
+  def on_pong(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_message(context : Context, message : String) : Void
+  def on_message(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_binary(context : Context, binary : Bytes) : Void
+  def on_binary(context : Context, socket : Socket, binary : Bytes) : Void
   end
 
-  def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+  def on_close(context : Context, socket : Socket, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
   end
 end
 
 class NoMatchController < Grip::Controllers::WebSocket
-  def on_open(context) : Void
+  def on_open(context, socket) : Void
     send("No Match")
   end
 
-  def on_ping(context : Context, message : String) : Void
+  def on_ping(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_pong(context : Context, message : String) : Void
+  def on_pong(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_message(context : Context, message : String) : Void
+  def on_message(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_binary(context : Context, binary : Bytes) : Void
+  def on_binary(context : Context, socket : Socket, binary : Bytes) : Void
   end
 
-  def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+  def on_close(context : Context, socket : Socket, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
   end
 end
 
 class UrlParametersController < Grip::Controllers::WebSocket
-  def on_open(context) : Void
+  def on_open(context, socket) : Void
     context
       .fetch_path_params
       .["id"]
   end
 
-  def on_ping(context : Context, message : String) : Void
+  def on_ping(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_pong(context : Context, message : String) : Void
+  def on_pong(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_message(context : Context, message : String) : Void
+  def on_message(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_binary(context : Context, binary : Bytes) : Void
+  def on_binary(context : Context, socket : Socket, binary : Bytes) : Void
   end
 
-  def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+  def on_close(context : Context, socket : Socket, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
   end
 end
 
 class BlankController < Grip::Controllers::WebSocket
-  def on_open(context : Context) : Void
+  def on_open(context : Context, socket : Socket) : Void
   end
 
-  def on_ping(context : Context, message : String) : Void
+  def on_ping(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_pong(context : Context, message : String) : Void
+  def on_pong(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_message(context : Context, message : String) : Void
+  def on_message(context : Context, socket : Socket, message : String) : Void
   end
 
-  def on_binary(context : Context, binary : Bytes) : Void
+  def on_binary(context : Context, socket : Socket, binary : Bytes) : Void
   end
 
-  def on_close(context : Context, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+  def on_close(context : Context, socket : Socket, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
   end
 end
 
