@@ -16,6 +16,23 @@ class SwaggerController < Grip::Controllers::Http
   end
 end
 
+class ErrorController < Grip::Controllers::Exception
+  def call(context : Context) : Context
+    context
+      .halt
+  end
+end
+
+class ErrorApplication < Grip::Application
+  def port
+    0
+  end
+
+  def routes
+    error 404, ErrorController
+  end
+end
+
 class SwaggerApplication < Grip::Application
   def port
     0

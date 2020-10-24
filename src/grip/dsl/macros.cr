@@ -80,7 +80,7 @@ module Grip
       {% end %}
 
       macro error(error_code, resource)
-        @exception_handler.handlers[\{{error_code}}] = \{{resource}}.new
+        @exception_handler.handlers[{{error_code}}] = {{resource}}.new
       end
 
       {% if flag?(:websocket) %}
