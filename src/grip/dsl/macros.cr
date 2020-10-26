@@ -85,11 +85,7 @@ module Grip
 
       {% if flag?(:websocket) %}
         macro ws(route, resource, **kwargs)
-          \{% if kwargs[:via] %}
-            @websocket_handler.not_nil!.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, @pipethrough_valve, nil)
-          \{% else %}
-            @websocket_handler.not_nil!.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, nil, nil)
-          \{% end %}
+          @websocket_handler.not_nil!.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, @pipethrough_valve, nil)
         end
       {% end %}
     end
