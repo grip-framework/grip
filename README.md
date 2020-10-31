@@ -28,7 +28,7 @@ Grip is a microframework for building RESTful web applications. It is designed t
 
 ## Motivation
 
-The existance of this project is due to the fact that Kemal lacks one crucial part of every successful framework, a structure. An example for the absence of structure can be found [here](https://github.com/iv-org/invidious/blob/master/src/invidious.cr).
+This project exists due to the fact that Kemal lacks one crucial part of a framework, a structure. An example for the absence of an structure can be found [here](https://github.com/iv-org/invidious/blob/master/src/invidious.cr).
 
 ## Features
 
