@@ -123,6 +123,7 @@ See our [contribution guidelines](https://github.com/grip-framework/grip/blob/ma
 - [Whaxion](https://github.com/Whaxion) - contributor
 - [Vincent Agnano](https://github.com/vinyll) - contributor
 - [danreeves](https://github.com/danreeves) - contributor
+- [marcoroth](https://github.com/marcoroth) - contributor
 
 ## Thanks
 
