@@ -15,7 +15,7 @@ module Grip
 
       macro scope(path)
         if {{path}} != "/"
-          @scope_path = {{path}}
+          @scope_path += {{path}}
         end
 
         {{yield}}
