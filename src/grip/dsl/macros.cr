@@ -10,7 +10,14 @@ module Grip
       end
 
       macro pipe_through(valve)
-        @pipethrough_valve = {{valve}}
+        case @pipethrough_valve
+        when Array(Symbol)
+          @pipethrough_valve.not_nil!.as(Array(Symbol)).push({{valve}})
+        when Symbol
+          @pipethrough_valve = [{{valve}}]
+        else
+          @pipethrough_valve = {{valve}}
+        end
       end
 
       macro scope(path)
