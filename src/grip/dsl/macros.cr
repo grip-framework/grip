@@ -19,7 +19,7 @@ module Grip
           @pipethrough_valve = {{valve}}
         end
       end
-    
+
       macro scope(path)
         scope_before = @scope_path
 
