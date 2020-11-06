@@ -19,15 +19,17 @@ module Grip
           @pipethrough_valve = {{valve}}
         end
       end
-
+    
       macro scope(path)
+        scope_before = @scope_path
+
         if {{path}} != "/"
           @scope_path += {{path}}
         end
 
         {{yield}}
         @pipethrough_valve = nil
-        @scope_path = ""
+        @scope_path = scope_before
       end
 
       {% if flag?(:swagger) %}
