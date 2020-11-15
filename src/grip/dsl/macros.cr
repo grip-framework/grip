@@ -26,7 +26,9 @@ module Grip
         end
         {{yield}}
         @pipethrough_valve = nil
-        @scopes.pop()
+        if {{path}} != "/"
+          @scopes.pop()
+        end
       end
 
       {% if flag?(:swagger) %}
