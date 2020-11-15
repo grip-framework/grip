@@ -21,15 +21,12 @@ module Grip
       end
 
       macro scope(path)
-        scope_before = @scope_path
-
         if {{path}} != "/"
-          @scope_path += {{path}}
+          @scopes.push({{path}})
         end
-
         {{yield}}
         @pipethrough_valve = nil
-        @scope_path = scope_before
+        @scopes.delete({{path}})
       end
 
       {% if flag?(:swagger) %}
@@ -69,7 +66,7 @@ module Grip
           \{% if kwargs[:as] %}
             @http_handler.add_route(
               {{http_method}}.to_s.upcase,
-              "#{@scope_path}#{\{{route}}}",
+              "#{@scopes.join()}#{\{{route}}}",
               \{{resource}}.new.as(Grip::Controllers::Base),
               @pipethrough_valve,
               -> (context : HTTP::Server::Context) {
@@ -79,7 +76,7 @@ module Grip
           \{% else %}
             @http_handler.add_route(
               {{http_method}}.to_s.upcase,
-              "#{@scope_path}#{\{{route}}}",
+              "#{@scopes.join()}#{\{{route}}}",
               \{{resource}}.new.as(Grip::Controllers::Base),
               @pipethrough_valve,
               nil
@@ -94,7 +91,7 @@ module Grip
 
       {% if flag?(:websocket) %}
         macro ws(route, resource, **kwargs)
-          @websocket_handler.not_nil!.add_route("", "#{@scope_path}#{\{{route}}}", \{{ resource }}.new, @pipethrough_valve, nil)
+          @websocket_handler.not_nil!.add_route("", "#{@scopes.join()}#{\{{route}}}", \{{ resource }}.new, @pipethrough_valve, nil)
         end
       {% end %}
     end

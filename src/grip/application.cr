@@ -28,7 +28,7 @@ module Grip
     private property static_handler : Grip::Handlers::Static?
     private property websocket_handler : Grip::Routers::WebSocket?
 
-    private property scope_path : String = ""
+    private property scopes : Array(String) = [] of String
     private property pipethrough_valve : Array(Symbol)? | Symbol? = nil
     private property router : Array(HTTP::Handler)
 
