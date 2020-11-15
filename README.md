@@ -70,20 +70,7 @@ end
 
 class Application < Grip::Application
   def routes
-    pipeline :api, [
-        Pipes::PoweredByHeader.new
-    ]
-
-    pipeline :web, [
-        Pipes::SecureHeaders.new
-    ]
-
-    scope "/api/v1" do
-      pipe_through [:web, :api]
-
-      get "/", IndexController
-    end
-
+    get "/", IndexController
     get "/:id", IndexController, as: :index
   end
 end
