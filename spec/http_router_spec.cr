@@ -104,9 +104,7 @@ describe "Grip::Routers::Http" do
     http_handler = Grip::Routers::Http.new
     http_handler.add_route "POST", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
       skills = context.fetch_json_params.["skills"].as(Array)
-      skills_from_languages = skills.map do |skill|
-        skill["language"]
-      end
+      skills_from_languages = skills.map(&.["language"])
       context.response.print("Skills #{skills_from_languages.each.join(',')}")
       context
     end

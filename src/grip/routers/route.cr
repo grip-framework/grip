@@ -38,11 +38,7 @@ module Grip
 
       private def call_through_pipeline(context : HTTP::Server::Context, via : Symbol | Array(Symbol), pipeline_handler : Grip::Handlers::Pipeline) : HTTP::Server::Context
         pipes = pipeline_handler.get(via)
-
-        pipes.each do |pipe|
-          pipe.call(context)
-        end
-
+        pipes.each(&.call(context))
         context
       end
     end
