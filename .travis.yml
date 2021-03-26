@@ -4,6 +4,7 @@ crystal:
   - nightly
 
 script:
+  - shards update --ignore-crystal--version
   - crystal spec -Dtest -Dwebsocket
   - crystal spec -Dtest -Dwebsocket --release --no-debug
   - crystal tool format --check
