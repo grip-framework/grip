@@ -14,11 +14,20 @@ dependencies:
   swagger:
     github: icyleaf/swagger
 
+  graphql-crystal:
+    github: ziprandom/graphql-crystal
+
+  json_mapping:
+    github: crystal-lang/json_mapping.cr
+
+  jwt:
+    github: crystal-community/jwt
+
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
 
-crystal: => 0.36.0
+crystal: ">= 0.36.0"
 
 license: MIT
 

@@ -4,8 +4,8 @@ crystal:
   - nightly
 
 script:
-  - crystal spec -Dtest -Dswagger -Dwebsocket
-  - crystal spec -Dtest -Dswagger -Dwebsocket --release --no-debug
+  - crystal spec -Dtest -Dwebsocket
+  - crystal spec -Dtest -Dwebsocket --release --no-debug
   - crystal tool format --check
   - bin/ameba
 

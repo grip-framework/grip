@@ -18,7 +18,7 @@ module Grip
         call_next(context)
       rescue ex
         context.response.status_code = 500 if !context.response.status_code.in?([400, 401, 403, 404, 405, 500])
-        if ex.is_a?(Exceptions::Base)
+        if ex.is_a?(Grip::Exceptions::Base)
           context.response.status_code = ex.status_code
           call_exception_with_status_code(context, ex, ex.status_code)
         else

@@ -1,15 +1,15 @@
 require "http"
 require "http/web_socket"
 require "json"
+require "json_mapping"
 require "uri"
 require "radix"
 require "base64"
 require "uuid"
 require "crypto/subtle"
-require "exceptions"
-require "pipes"
 require "exception_page"
 require "swagger"
+require "graphql-crystal"
 
 {% if flag?(:with_openssl) %}
   require "openssl/sha1"
@@ -17,7 +17,9 @@ require "swagger"
   require "digest/sha1"
 {% end %}
 
-require "./grip/annotations/*"
+require "./grip/annotations/**"
+require "./grip/exceptions/base"
+require "./grip/exceptions/*"
 require "./grip/support/*"
 require "./grip/minuscule/*"
 require "./grip/parsers/*"
@@ -27,6 +29,7 @@ require "./grip/handlers/*"
 require "./grip/controllers/*"
 require "./grip/routers/route"
 require "./grip/routers/*"
+require "./grip/third_party/**"
 require "./grip/*"
 
 module Grip; end

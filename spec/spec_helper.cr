@@ -3,19 +3,6 @@ require "../src/*"
 
 include Grip
 
-@[Annotations::Controller(description: "An example description")]
-class SwaggerController < Grip::Controllers::Http
-  @[Annotations::Route(
-    method: "GET",
-    route: "/",
-    summary: "This route returns a response."
-  )]
-  def get(context : Context) : Context
-    context
-      .halt
-  end
-end
-
 class ErrorController < Grip::Controllers::Exception
   def call(context : Context) : Context
     context
@@ -30,18 +17,6 @@ class ErrorApplication < Grip::Application
 
   def routes
     error 404, ErrorController
-  end
-end
-
-class SwaggerApplication < Grip::Application
-  def port
-    0
-  end
-
-  def routes
-    swagger [
-      SwaggerController,
-    ]
   end
 end
 
@@ -63,24 +38,6 @@ class WebSocketApplication < Grip::Application
 
   def routes
     ws "/", MatchController
-  end
-end
-
-class PipelineApplication < Grip::Application
-  def port
-    0
-  end
-
-  def routes
-    pipeline :api, [
-      Pipes::PoweredByHeader.new,
-    ]
-
-    scope "/" do
-      pipe_through :api
-
-      get "/", ExampleController
-    end
   end
 end
 

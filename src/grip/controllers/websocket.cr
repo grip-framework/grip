@@ -69,9 +69,6 @@ module Grip
 
           case info.opcode
           when .ping?
-            {% if flag?(:verbose) %}
-              puts "#{Time.utc} [info] received websocket ping, ws: #{@ws}"
-            {% end %}
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
@@ -80,9 +77,6 @@ module Grip
               @current_message.clear
             end
           when .pong?
-            {% if flag?(:verbose) %}
-              puts "#{Time.utc} [info] received websocket pong, ws: #{@ws}"
-            {% end %}
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
@@ -93,9 +87,6 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_s
-              {% if flag?(:verbose) %}
-                puts "#{Time.utc} [info] received websocket message, ws: #{@ws}, message: #{message}"
-              {% end %}
               on_message(context, @ws.not_nil!, message)
               @current_message.clear
             end
@@ -103,9 +94,6 @@ module Grip
             @current_message.write @buffer[0, info.size]
             if info.final
               message = @current_message.to_slice
-              {% if flag?(:verbose) %}
-                puts "#{Time.utc} [info] received websocket binary, ws: #{@ws}, binary: #{message}"
-              {% end %}
               on_binary(context, @ws.not_nil!, message)
               @current_message.clear
             end
@@ -120,10 +108,6 @@ module Grip
                 code = HTTP::WebSocket::CloseCode::NoStatusReceived
               end
               message = @current_message.gets_to_end
-
-              {% if flag?(:verbose) %}
-                puts "#{Time.utc} [info] received websocket close, ws: #{@ws}, message: #{message}, code: #{code}"
-              {% end %}
 
               on_close(context, @ws.not_nil!, code, message)
               close(code)

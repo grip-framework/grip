@@ -4,7 +4,7 @@
 
 <p align="center">
     The microframework for writing <ins>powerful web applications</ins>.<br><br>
-    <b>Notice:</b> Versions below 4.0.0 are not maintained anymore.
+    <b>Notice:</b> Versions below 5.0.0 are not maintained anymore.
 </p>
 
 <p align="center">
@@ -36,8 +36,9 @@ This project exists due to the fact that Kemal lacks one crucial part of a frame
 - WebSocket RFC 6455 support.
 - Built-in exceptions support.
 - Parameter handling support.
-- JSON serialization and deserialization support.
-- Built-in middleware support.
+- GraphQL and Swagger support.
+- JSON serialization and deserialization support (fastest framework with JSON).
+- Built-in third-party module support.
 - Request/Response context, inspired by [expressjs](https://github.com/expressjs/express).
 - Advanced routing support.
 

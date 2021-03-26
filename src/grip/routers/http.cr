@@ -11,31 +11,45 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
+        return context if context.response.closed?
+
+        forward = find_route(
+          "ALL",
+          context.request.path
+        )
+
+        context.parameters = Grip::Parsers::ParameterBox.new(context.request, forward.params)
+
+        if forward.found?
+          payload = forward.payload
+          payload.handler.call(context)
+
+          return context
+        end
+
         route = find_route(
           context.request.method.as(String),
           context.request.path
         )
 
-        raise Exceptions::NotFound.new if !route.found?
-        return context if context.response.closed?
-
         context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
 
-        payload = route.payload
+        if route.found?
+          payload = route.payload
+          if payload.override
+            payload.call_into_override(context)
+          else
+            payload.handler.call(context)
+          end
 
-        if payload.override
-          payload.call_into_override(context)
-        else
-          payload.handler.call(context)
+          return context
         end
 
+        raise Exceptions::NotFound.new if !route.found? && !forward.found?
         context
       end
 
       def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
-        {% if flag?(:verbose) %}
-          puts "#{Time.utc} [info] added an http route, path: #{path}, method: #{method}, handler: #{handler}, via: #{via}, override: #{override}."
-        {% end %}
         add_to_radix_tree(method, path, Route.new(method, path, handler, via, override))
       end
 

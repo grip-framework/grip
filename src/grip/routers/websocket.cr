@@ -44,9 +44,6 @@ module Grip
 
       def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
-        {% if flag?(:verbose) %}
-          puts "#{Time.utc} [info] added a ws route, path: #{path}, handler: #{handler}, via: #{via}."
-        {% end %}
       end
 
       private def add_to_radix_tree(path, websocket)
