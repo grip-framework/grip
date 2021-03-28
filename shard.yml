@@ -1,5 +1,5 @@
 name: grip
-version: 4.0.5
+version: 5.0.0
 
 authors:
   - Grip and its Contributors <https://github.com/grip-framework/>
@@ -11,12 +11,6 @@ dependencies:
   exception_page:
     github: crystal-loot/exception_page
 
-  exceptions:
-    github: grip-framework/exceptions
-
-  pipes:
-    github: grip-framework/pipes
-
   swagger:
     github: icyleaf/swagger
 
@@ -24,7 +18,7 @@ development_dependencies:
   ameba:
     github: crystal-ameba/ameba
 
-crystal: 0.35.1
+crystal: ">= 0.36.0"
 
 license: MIT
 

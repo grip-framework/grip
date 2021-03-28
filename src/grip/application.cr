@@ -18,47 +18,69 @@ module Grip
     include Grip::Dsl::Macros
 
     abstract def routes
+    abstract def custom : Array(HTTP::Handler)
+    abstract def root : Array(HTTP::Handler)
 
     private property http_handler : Grip::Routers::Http
     private property exception_handler : Grip::Handlers::Exception
-    private property pipeline_handler : Grip::Handlers::Pipeline?
-
-    private property log_handler : HTTP::Handler?
-    private property swagger_handler : Grip::Handlers::Swagger?
-    private property static_handler : Grip::Handlers::Static?
-    private property websocket_handler : Grip::Routers::WebSocket?
+    private property pipeline_handler : Grip::Handlers::Pipeline
+    private property websocket_handler : Grip::Routers::WebSocket
 
     private property scopes : Array(String) = [] of String
     private property pipethrough_valve : Array(Symbol)? | Symbol? = nil
     private property router : Array(HTTP::Handler)
+    private property swagger_builder : Swagger::Builder
 
     def initialize
       @http_handler = Grip::Routers::Http.new
+      @websocket_handler = Grip::Routers::WebSocket.new
+      @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler)
       @exception_handler = Grip::Handlers::Exception.new
-
-      {% if flag?(:websocket) %}
-        @websocket_handler = Grip::Routers::WebSocket.new
-
-        @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler.not_nil!)
-      {% else %}
-        @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler)
-      {% end %}
-
-      {% if flag?(:swagger) %}
-        @swagger_handler = Grip::Handlers::Swagger.new(path, title, version, description, authorizations)
-      {% end %}
-
-      {% if flag?(:serveStatic) %}
-        @static_handler = Grip::Handlers::Static.new(public_dir, fallthrough, directory_listing)
-      {% end %}
-
-      {% if flag?(:logs) %}
-        @log_handler = Grip::Handlers::Log.new
-      {% end %}
+      @swagger_builder = Swagger::Builder.new(
+        title: title(),
+        version: version(),
+        description: description(),
+        terms_url: terms_url(),
+        contact: contact(),
+        license: license(),
+        authorizations: authorizations()
+      )
 
       @router = router
 
       routes()
+    end
+
+    def title : String
+      "API Documentation"
+    end
+
+    def version : String
+      "1.0.0"
+    end
+
+    def description : String
+      ""
+    end
+
+    def terms_url : String
+      ""
+    end
+
+    def contact : Swagger::Contact?
+      Swagger::Contact.new("icyleaf", "icyleaf.cn@gmail.com", "http://icyleaf.com")
+    end
+
+    def license : Swagger::License?
+      Swagger::License.new("MIT", "https://github.com/icyleaf/swagger/blob/master/LICENSE")
+    end
+
+    def authorizations : Array(Swagger::Authorization)
+      [] of Swagger::Authorization
+    end
+
+    def document : Swagger::Builder
+      @swagger_builder
     end
 
     def host : String
@@ -73,72 +95,23 @@ module Grip
       false
     end
 
-    {% if flag?(:swagger) %}
-      def path : String
-        "/docs"
-      end
-
-      def title : String
-        "API Documentation"
-      end
-
-      def version : String
-        {{ `shards version`.chomp.stringify }}
-      end
-
-      def description : String
-        "A documentation medium for the API"
-      end
-
-      def authorizations : Array(Swagger::Authorization)
-        [
-          Swagger::Authorization.jwt(description: "Use JWT Auth")
-        ] of Swagger::Authorization
-      end
-    {% end %}
-
-    {% if flag?(:serveStatic) %}
-      def public_dir : String
-        "./public"
-      end
-
-      def fallthrough : Bool
-        false
-      end
-
-      def directory_listing : Bool
-        false
-      end
-    {% end %}
-
-    def router : Array(HTTP::Handler)
-      {% if flag?(:verbose) %}
-        puts "#{Time.utc} [info] building an array out of `HTTP::Handler` components."
-      {% end %}
-
+    protected def router : Array(HTTP::Handler)
       [
         @exception_handler,
-        @pipeline_handler.not_nil!,
+        @pipeline_handler,
+        @websocket_handler,
         @http_handler,
       ] of HTTP::Handler
     end
 
     def server : HTTP::Server
-      {% if flag?(:swagger) %}
-        @router.insert(@router.size - 1, @swagger_handler.not_nil!)
-      {% end %}
+      custom.each do |handler|
+        @router.insert(@router.size - 4, handler)
+      end
 
-      {% if flag?(:serveStatic) %}
-        @router.insert(2, @static_handler.not_nil!)
-      {% end %}
-
-      {% if flag?(:logs) %}
-        @router.insert(0, @log_handler.not_nil!)
-      {% end %}
-
-      {% if flag?(:websocket) %}
-        @router.insert(@router.size - 1, @websocket_handler.not_nil!)
-      {% end %}
+      root.each do |handler|
+        @router.insert(@router.size - 2, handler)
+      end
 
       HTTP::Server.new(@router)
     end
@@ -172,7 +145,7 @@ module Grip
       end
     {% end %}
 
-    private def schema : String
+    protected def schema : String
       ssl ? "https" : "http"
     end
 
