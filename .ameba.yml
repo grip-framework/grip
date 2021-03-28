@@ -18,4 +18,4 @@ Lint/UselessAssign:
   Enabled: true
   Severity: Warning
   Excluded:
-  - src/grip/third_party/swagger/interface.cr
+  - src/grip/controllers/swagger.cr
