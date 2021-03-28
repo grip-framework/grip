@@ -9,7 +9,6 @@ require "uuid"
 require "crypto/subtle"
 require "exception_page"
 require "swagger"
-require "graphql-crystal"
 
 {% if flag?(:with_openssl) %}
   require "openssl/sha1"
@@ -29,7 +28,6 @@ require "./grip/handlers/*"
 require "./grip/controllers/*"
 require "./grip/routers/route"
 require "./grip/routers/*"
-require "./grip/third_party/**"
 require "./grip/*"
 
 module Grip; end

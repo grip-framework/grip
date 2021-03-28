@@ -59,7 +59,7 @@ module Grip
             \{% if route_annotation && controller_annotation %}
               @swagger_builder.add(
                 Swagger::Controller.new(
-                  "#{\{{ resource }}.to_s} Routes",
+                  "#{\{{ resource }}.to_s}",
                   \{{ controller_annotation[:description] }},
                   [
                     Swagger::Action.new(

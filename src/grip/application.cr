@@ -18,6 +18,8 @@ module Grip
     include Grip::Dsl::Macros
 
     abstract def routes
+    abstract def custom : Array(HTTP::Handler)
+    abstract def root : Array(HTTP::Handler)
 
     private property http_handler : Grip::Routers::Http
     private property exception_handler : Grip::Handlers::Exception
@@ -93,14 +95,6 @@ module Grip
       false
     end
 
-    def custom_handlers : Array(HTTP::Handler)
-      [] of HTTP::Handler
-    end
-
-    def root_handlers : Array(HTTP::Handler)
-      [] of HTTP::Handler
-    end
-
     protected def router : Array(HTTP::Handler)
       [
         @exception_handler,
@@ -111,12 +105,12 @@ module Grip
     end
 
     def server : HTTP::Server
-      root_handlers.each do |handler|
+      custom.each do |handler|
         @router.insert(@router.size - 4, handler)
       end
 
-      custom_handlers.each do |handler|
-        @router.insert(@router.size - 3, handler)
+      root.each do |handler|
+        @router.insert(@router.size - 2, handler)
       end
 
       HTTP::Server.new(@router)
@@ -151,7 +145,7 @@ module Grip
       end
     {% end %}
 
-    private def schema : String
+    protected def schema : String
       ssl ? "https" : "http"
     end
 
