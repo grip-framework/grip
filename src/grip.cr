@@ -1,7 +1,6 @@
 require "http"
 require "http/web_socket"
 require "json"
-require "json_mapping"
 require "uri"
 require "radix"
 require "base64"

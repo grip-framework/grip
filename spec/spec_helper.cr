@@ -15,6 +15,14 @@ class ErrorApplication < Grip::Application
     0
   end
 
+  def custom : Array(HTTP::Handler)
+    [] of HTTP::Handler
+  end
+
+  def root : Array(HTTP::Handler)
+    [] of HTTP::Handler
+  end
+
   def routes
     error 404, ErrorController
   end
@@ -23,6 +31,14 @@ end
 class HttpApplication < Grip::Application
   def port
     0
+  end
+
+  def custom : Array(HTTP::Handler)
+    [] of HTTP::Handler
+  end
+
+  def root : Array(HTTP::Handler)
+    [] of HTTP::Handler
   end
 
   def routes
@@ -34,6 +50,14 @@ end
 class WebSocketApplication < Grip::Application
   def port
     0
+  end
+
+  def custom : Array(HTTP::Handler)
+    [] of HTTP::Handler
+  end
+
+  def root : Array(HTTP::Handler)
+    [] of HTTP::Handler
   end
 
   def routes
