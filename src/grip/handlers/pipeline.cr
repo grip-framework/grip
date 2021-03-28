@@ -14,7 +14,9 @@ module Grip
 
       def add_pipe(valve : Symbol, pipe : HTTP::Handler)
         if @pipeline.has_key?(valve)
+          size = @pipeline[valve].size
           @pipeline[valve].push(pipe)
+          @pipeline[valve].[size - 1].next = pipe
         else
           @pipeline[valve] = [pipe.as(HTTP::Handler)]
         end
