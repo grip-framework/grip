@@ -4,7 +4,7 @@ describe "Context" do
   context "headers" do
     it "sets content type" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/content_type", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/content_type", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.response.headers.merge!({"Content-Type" => "application/json"})
         context
       end
@@ -16,7 +16,7 @@ describe "Context" do
 
     it "parses headers" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/headers", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/headers", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         name = context.request.headers["name"]
         context.response.print("Hello #{name}")
         context
@@ -31,7 +31,7 @@ describe "Context" do
 
     it "sets response headers" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/response_headers", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/response_headers", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.response.headers.add "Accept-Language", "ge"
         context
       end
@@ -45,7 +45,7 @@ describe "Context" do
   context "methods" do
     it "has binary() method with octet-stream" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.binary(10).halt
       end
 
@@ -57,7 +57,7 @@ describe "Context" do
 
     it "encodes text in utf-8" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.text("👋🏼 grip").halt
       end
 
@@ -69,7 +69,7 @@ describe "Context" do
 
     it "encodes json in utf-8" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.json({:message => "👋🏼 grip"}).halt
       end
 
@@ -81,7 +81,7 @@ describe "Context" do
 
     it "encodes html in utf-8" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.html("👋🏼 grip").halt
       end
 
@@ -95,7 +95,7 @@ describe "Context" do
   context "methods" do
     it "allows overriding text() content type" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.text("👋🏼 grip", "text/html").halt
       end
 
@@ -106,7 +106,7 @@ describe "Context" do
 
     it "allows overriding json() content type" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.json({:message => "👋🏼 grip"}, "application/json").halt
       end
 
@@ -117,7 +117,7 @@ describe "Context" do
 
     it "allows overriding html() content type" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.html("👋🏼 grip", "text/html").halt
       end
 
@@ -128,7 +128,7 @@ describe "Context" do
 
     it "allows overriding binary() content type" do
       http_handler = Grip::Routers::Http.new
-      http_handler.add_route "GET", "/", ExampleController.new, nil, ->(context : HTTP::Server::Context) do
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
         context.binary(10, "multipart/encrypted").halt
       end
 
