@@ -68,7 +68,6 @@ module Grip
         unless route.found?
           return false
         end
-
         route.payload.match_via_keyword(context, self)
 
         true

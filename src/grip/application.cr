@@ -27,7 +27,9 @@ module Grip
     private property websocket_handler : Grip::Routers::WebSocket
 
     private property scopes : Array(String) = [] of String
-    private property pipethrough_valve : Array(Symbol)? | Symbol? = nil
+    private property valves : Array(Symbol) = [] of Symbol
+
+    private property valve : Symbol?
     private property router : Array(HTTP::Handler)
     private property swagger_builder : Swagger::Builder
 

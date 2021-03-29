@@ -5,30 +5,36 @@ module Grip
 
       macro pipeline(name, pipes)
         {{pipes}}.each do |pipe|
-          @pipeline_handler.not_nil!.add_pipe({{name}}, pipe)
+          @pipeline_handler.add_pipe({{name}}, pipe)
         end
       end
 
       macro pipe_through(valve)
-        case @pipethrough_valve
-        when Array(Symbol)
-          @pipethrough_valve.not_nil!.as(Array(Symbol)).push({{valve}})
+        @valve = {{valve}}
+        case {{valve}}
         when Symbol
-          @pipethrough_valve = [{{valve}}]
+          @valves.push({{valve}})
         else
-          @pipethrough_valve = {{valve}}
+          # Ignore this condition
         end
       end
 
       macro scope(path)
+        size = @valves.size
+
         if {{path}} != "/"
           @scopes.push({{path}})
         end
+
         {{yield}}
-        @pipethrough_valve = nil
+
+        @valves.pop() if @valves.size != 0 && @valves.size != size
+
         if {{path}} != "/"
           @scopes.pop()
         end
+
+        @valves.pop() if @scopes.size == 0 && @valves.size != 0
       end
 
       {% for http_method in HTTP_METHODS %}
@@ -38,7 +44,7 @@ module Grip
               {{http_method}}.to_s.upcase,
               "#{@scopes.join()}#{\{{route}}}",
               \{{resource}}.new.as(Grip::Controllers::Base),
-              @pipethrough_valve,
+              @valves.clone(),
               -> (context : HTTP::Server::Context) {
                 \{{ resource }}.new.as(\{{resource}}).\{{kwargs[:as].id}}(context)
               }
@@ -48,7 +54,7 @@ module Grip
               {{http_method}}.to_s.upcase,
               "#{@scopes.join()}#{\{{route}}}",
               \{{resource}}.new.as(Grip::Controllers::Base),
-              @pipethrough_valve,
+              @valves.clone(),
               nil
             )
           \{% end %}
@@ -92,7 +98,7 @@ module Grip
           "ALL",
           "#{@scopes.join()}#{{{route}}}",
           {{resource}}.new({{**kwargs}}).as(Grip::Controllers::Base),
-          @pipethrough_valve,
+          @valves.clone(),
           nil
         )
       end
@@ -102,7 +108,7 @@ module Grip
       end
 
       macro ws(route, resource, **kwargs)
-        @websocket_handler.add_route("", "#{@scopes.join()}#{{{route}}}", {{ resource }}.new, @pipethrough_valve, nil)
+        @websocket_handler.add_route("", "#{@scopes.join()}#{{{route}}}", {{ resource }}.new, @valves.clone(), nil)
       end
     end
   end

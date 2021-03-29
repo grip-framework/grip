@@ -1,27 +1,19 @@
 module Grip
   module Routers
     struct Route
-      getter method, path, handler, override, via
+      property method, path, handler, override, via
 
-      def initialize(@method : String, @path : String, @handler : Grip::Controllers::Base, @via : Symbol? | Array(Symbol)?, @override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
+      def initialize(@method : String, @path : String, @handler : Grip::Controllers::Base, @via : Array(Symbol), @override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
+        puts @via
       end
 
       def match_via_keyword(context : HTTP::Server::Context, pipeline_handler : Grip::Handlers::Pipeline) : HTTP::Server::Context
-        case @via
-        when Symbol
-          call_through_pipeline(
-            context,
-            via.not_nil!,
-            pipeline_handler
-          )
-        when Array(Symbol)
-          call_through_pipeline(
-            context,
-            via.not_nil!,
-            pipeline_handler
-          )
-        when Nil
-        end
+        puts @via
+        call_through_pipeline(
+          context,
+          @via,
+          pipeline_handler
+        )
 
         context
       end
