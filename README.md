@@ -68,14 +68,6 @@ class IndexController < Grip::Controllers::Http
 end
 
 class Application < Grip::Application
-  def custom : Array(HTTP::Handler)
-    [] of HTTP::Handler
-  end
-
-  def root : Array(HTTP::Handler)
-    [] of HTTP::Handler
-  end
-
   def routes
     get "/", IndexController
     get "/:id", IndexController, as: :index

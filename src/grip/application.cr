@@ -18,8 +18,6 @@ module Grip
     include Grip::Dsl::Macros
 
     abstract def routes
-    abstract def custom : Array(HTTP::Handler)
-    abstract def root : Array(HTTP::Handler)
 
     private property http_handler : Grip::Routers::Http
     private property exception_handler : Grip::Handlers::Exception
@@ -83,6 +81,14 @@ module Grip
 
     def document : Swagger::Builder
       @swagger_builder
+    end
+
+    def root : Array(HTTP::Handler)
+      [] of HTTP::Handler
+    end
+
+    def custom : Array(HTTP::Handler)
+      [] of HTTP::Handler
     end
 
     def host : String
