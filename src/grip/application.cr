@@ -138,10 +138,7 @@ module Grip
       end
     {% else %}
       def ssl : OpenSSL::SSL::Context::Server
-        context =
-          Grip::Ssl
-            .new
-            .context
+        context = OpenSSL::SSL::Context::Server.new
 
         context
           .private_key = key_file

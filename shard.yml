@@ -1,5 +1,5 @@
 name: grip
-version: 1.0.0
+version: 1.0.1
 
 authors:
   - Grip and its Contributors <https://github.com/grip-framework/>
@@ -21,4 +21,3 @@ development_dependencies:
 crystal: ">= 0.36.0"
 
 license: MIT
-
