@@ -94,7 +94,7 @@ module Grip
       {% end %}
 
       macro forward(route, resource, **kwargs)
-        @http_handler.add_route(
+        @forward_handler.add_route(
           "ALL",
           "#{@scopes.join()}#{{{route}}}",
           {{resource}}.new({{**kwargs}}).as(Grip::Controllers::Base),
