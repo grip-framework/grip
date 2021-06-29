@@ -23,6 +23,7 @@ module Grip
     private property exception_handler : Grip::Handlers::Exception
     private property pipeline_handler : Grip::Handlers::Pipeline
     private property websocket_handler : Grip::Routers::WebSocket
+    private property forward_handler : Grip::Handlers::Forward
 
     private property scopes : Array(String) = [] of String
     private property valves : Array(Symbol) = [] of Symbol
@@ -36,6 +37,7 @@ module Grip
       @websocket_handler = Grip::Routers::WebSocket.new
       @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler)
       @exception_handler = Grip::Handlers::Exception.new
+      @forward_handler = Grip::Handlers::Forward.new
       @swagger_builder = Swagger::Builder.new(
         title: title(),
         version: version(),
@@ -107,6 +109,7 @@ module Grip
       [
         @exception_handler,
         @pipeline_handler,
+        @forward_handler,
         @websocket_handler,
         @http_handler,
       ] of HTTP::Handler

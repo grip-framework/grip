@@ -1,44 +1,50 @@
+require "../routers/route"
+
 module Grip
-  module Routers
-    class Http < Base
+  module Handlers
+    # :nodoc:
+    class Forward
+      include HTTP::Handler
+
       CACHE_LIMIT = 1024
-      property routes : Radix::Tree(Route)
-      property cache : Hash(String, Radix::Result(Route))
+      property routes : Radix::Tree(Grip::Routers::Route)
+      property cache : Hash(String, Radix::Result(Grip::Routers::Route))
 
       def initialize
-        @routes = Radix::Tree(Route).new
-        @cache = Hash(String, Radix::Result(Route)).new
+        @routes = Radix::Tree(Grip::Routers::Route).new
+        @cache = Hash(String, Radix::Result(Grip::Routers::Route)).new
       end
 
       def call(context : HTTP::Server::Context)
         return context if context.response.closed?
+
+        forward = find_route(
+          "ALL",
+          context.request.path
+        )
 
         route = find_route(
           context.request.method.as(String),
           context.request.path
         )
 
-        if route.found?
-          context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
-          payload = route.payload
+        if forward.found?
+          context.parameters = Grip::Parsers::ParameterBox.new(context.request, forward.params)
+          payload = forward.payload
 
-          if payload.override
-            payload.call_into_override(context)
-            return context
-          else
-            payload.handler.call(context)
-            return context
-          end
+          payload.handler.call(context)
+
+          return context
         end
 
-        raise Exceptions::NotFound.new if !route.found?
+        return call_next(context) if !route.found? && !forward.found?
       end
 
       def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
-        add_to_radix_tree(method, path, Route.new(method, path, handler, via, override))
+        add_to_radix_tree(method, path, Grip::Routers::Route.new(method, path, handler, via, override))
       end
 
-      def find_route(verb : String, path : String) : Radix::Result(Route)
+      def find_route(verb : String, path : String) : Radix::Result(Grip::Routers::Route)
         lookup_path = radix_path(verb, path)
 
         if cached_route = @cache[lookup_path]?

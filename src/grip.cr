@@ -30,3 +30,35 @@ require "./grip/routers/*"
 require "./grip/*"
 
 module Grip; end
+
+class Authorization < Grip::Controllers::Base
+  def initialize(@username : String, @password : String); end
+
+  def call(context : Context) : Context
+    context
+      .put_status(201)
+      .json({username: @username, password: @password})
+      .halt
+  end
+end
+
+class ProtectedController < Grip::Controllers::Http
+  def get(context)
+    context
+      .put_status(200)
+      .json({status: 200, message: "You are accessing a protected resource"})
+      .halt
+  end
+end
+
+class Application < Grip::Application
+  def routes
+    # Forward macro simply routes the matched requests to a certain Base controller
+    # which contains a single call/1 function.
+    forward "/", Authorization, username: "admin", password: "admin"
+    get "/:id", ProtectedController
+  end
+end
+
+app = Application.new
+app.run
