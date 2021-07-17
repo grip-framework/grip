@@ -50,6 +50,18 @@ module Grip
         self
       end
 
+      # Sets response cookie
+      def put_resp_cookie(cookie)
+        @response.cookies[cookie.name] = cookie
+        self
+      end
+
+      # Sets response cookie from string
+      def put_resp_cookie(key, val)
+        @response.cookies[key] = val
+        self
+      end
+
       # Assigns response status code.
       def put_status(status_code = HTTP::Status::OK)
         @response.status_code = status_code.to_i
