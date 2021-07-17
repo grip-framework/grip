@@ -137,4 +137,59 @@ describe "Context" do
       client_response.headers["Content-Type"].should eq "multipart/encrypted"
     end
   end
+
+  context "cookies" do
+    it "sets cookie" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/cookies", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        context.put_resp_cookie(HTTP::Cookie.new("Foo", "Bar")).halt
+      end
+
+      request = HTTP::Request.new("GET", "/cookies")
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.cookies.size.should eq(1)
+      client_response.cookies["Foo"].value.should eq("Bar")
+    end
+
+    it "sets string cookie" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/cookies", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        context.put_resp_cookie("Foo", "Bar").halt
+      end
+
+      request = HTTP::Request.new("GET", "/cookies")
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.cookies.size.should eq(1)
+      client_response.cookies["Foo"].value.should eq("Bar")
+    end
+
+    it "sets multiple cookie" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/cookies", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        context.put_resp_cookie("Foo", "Bar").put_resp_cookie("Qux", "Baz").halt
+      end
+
+      request = HTTP::Request.new("GET", "/cookies")
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.cookies.size.should eq(2)
+      client_response.cookies["Foo"].value.should eq("Bar")
+      client_response.cookies["Qux"].value.should eq("Baz")
+    end
+
+    it "overrides cookie" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/cookies", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        context.put_resp_cookie("Foo", "Bar").put_resp_cookie("Foo", "Baz").halt
+      end
+
+      request = HTTP::Request.new("GET", "/cookies")
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.cookies.size.should eq(1)
+      client_response.cookies["Foo"].value.should eq("Baz")
+    end
+  end
 end
