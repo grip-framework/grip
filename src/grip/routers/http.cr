@@ -32,10 +32,10 @@ module Grip
 
         if payload.override
           payload.call_into_override(context)
-          return context
+          context
         else
           payload.handler.call(context)
-          return context
+          context
         end
       end
 
