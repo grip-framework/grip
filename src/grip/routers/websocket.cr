@@ -17,7 +17,12 @@ module Grip
           return call_next(context)
         end
 
-        context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
+        if context.parameters
+          # Continue the execution since the parameters already exist.
+        else
+          context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
+        end
+
         payload = route.payload
 
         payload.handler.call(context)
