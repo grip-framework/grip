@@ -54,6 +54,7 @@ module Grip
           return false
         end
 
+        context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
         route.payload.match_via_keyword(context, self)
 
         true
@@ -68,6 +69,8 @@ module Grip
         unless route.found?
           return false
         end
+
+        context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
         route.payload.match_via_keyword(context, self)
 
         true
