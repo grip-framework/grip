@@ -96,7 +96,7 @@ end
 
 class MatchController < Grip::Controllers::WebSocket
   def on_open(context, socket) : Void
-    send("Match")
+    socket.send("Match")
   end
 
   def on_ping(context : Context, socket : Socket, message : String) : Void
@@ -117,7 +117,7 @@ end
 
 class NoMatchController < Grip::Controllers::WebSocket
   def on_open(context, socket) : Void
-    send("No Match")
+    socket.send("No Match")
   end
 
   def on_ping(context : Context, socket : Socket, message : String) : Void
