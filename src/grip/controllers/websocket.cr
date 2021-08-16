@@ -3,7 +3,6 @@ module Grip
     abstract class WebSocket < Grip::Controllers::Base
       alias Socket = HTTP::WebSocket::Protocol
       getter? closed = false
-      property ws : HTTP::WebSocket::Protocol?
 
       # :nodoc:
       def initialize
@@ -22,47 +21,14 @@ module Grip
         raise IO::Error.new "Closed socket" if closed?
       end
 
-      private def send(message)
-        check_open
-        @ws.not_nil!.send(message)
-      end
-
-      private def ping(message = nil)
-        check_open
-        @ws.not_nil!.ping(message)
-      end
-
-      private def pong(message = nil)
-        check_open
-        @ws.not_nil!.pong(message)
-      end
-
-      private def stream(binary = true, frame_size = 1024)
-        check_open
-        @ws.not_nil!.stream(binary: binary, frame_size: frame_size) do |io|
-          yield io
-        end
-      end
-
-      @[Deprecated("Use WebSocket#close(code, message) instead")]
-      private def close(message)
-        close(nil, message)
-      end
-
-      private def close(code : HTTP::WebSocket::CloseCode | Int? = nil, message = nil)
-        return if closed?
-        @closed = true
-        @ws.not_nil!.close(code, message)
-      end
-
-      def run(context)
-        on_open(context, @ws.not_nil!)
+      def run(context, socket)
+        on_open(context, socket)
 
         loop do
           begin
-            info = @ws.not_nil!.receive(@buffer)
+            info = socket.receive(@buffer)
           rescue
-            on_close(context, @ws.not_nil!, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
+            on_close(context, socket, HTTP::WebSocket::CloseCode::AbnormalClosure, "")
             @closed = true
             break
           end
@@ -71,30 +37,25 @@ module Grip
           when .ping?
             @current_message.write @buffer[0, info.size]
             if info.final
-              message = @current_message.to_s
-              on_pong(context, @ws.not_nil!, message)
-              pong(message) unless closed?
+              on_ping(context, socket, @current_message.to_s)
               @current_message.clear
             end
           when .pong?
             @current_message.write @buffer[0, info.size]
             if info.final
-              message = @current_message.to_s
-              on_pong(context, @ws.not_nil!, message)
+              on_pong(context, socket, @current_message.to_s)
               @current_message.clear
             end
           when .text?
             @current_message.write @buffer[0, info.size]
             if info.final
-              message = @current_message.to_s
-              on_message(context, @ws.not_nil!, message)
+              on_message(context, socket, @current_message.to_s)
               @current_message.clear
             end
           when .binary?
             @current_message.write @buffer[0, info.size]
             if info.final
-              message = @current_message.to_slice
-              on_binary(context, @ws.not_nil!, message)
+              on_binary(context, socket, @current_message.to_slice)
               @current_message.clear
             end
           when .close?
@@ -109,8 +70,8 @@ module Grip
               end
               message = @current_message.gets_to_end
 
-              on_close(context, @ws.not_nil!, code, message)
-              close(code)
+              on_close(context, socket, code, message)
+              socket.close(code, message)
 
               @current_message.clear
               break
@@ -122,36 +83,35 @@ module Grip
       end
 
       def call(context : Context) : Context
-        if websocket_upgrade_request? context.request
-          response = context.response
-
-          version = context.request.headers["Sec-WebSocket-Version"]?
-          unless version == HTTP::WebSocket::Protocol::VERSION
-            response.status = :upgrade_required
-            response.headers["Sec-WebSocket-Version"] = HTTP::WebSocket::Protocol::VERSION
-            return context
-          end
-
-          key = context.request.headers["Sec-WebSocket-Key"]?
-
-          unless key
-            response.respond_with_status(:bad_request)
-            return context
-          end
-
-          accept_code = HTTP::WebSocket::Protocol.key_challenge(key)
-
-          response.status = :switching_protocols
-          response.headers["Upgrade"] = "websocket"
-          response.headers["Connection"] = "Upgrade"
-          response.headers["Sec-WebSocket-Accept"] = accept_code
-          response.upgrade do |io|
-            @ws = HTTP::WebSocket::Protocol.new(io, sync_close: true)
-            run(context)
-            io.close
-          end
-        else
+        unless websocket_upgrade_request? context.request
           raise Exceptions::BadRequest.new
+        end
+
+        response = context.response
+
+        version = context.request.headers["Sec-WebSocket-Version"]?
+        unless version == HTTP::WebSocket::Protocol::VERSION
+          response.status = :upgrade_required
+          response.headers["Sec-WebSocket-Version"] = HTTP::WebSocket::Protocol::VERSION
+          return context
+        end
+
+        key = context.request.headers["Sec-WebSocket-Key"]?
+
+        unless key
+          response.respond_with_status(:bad_request)
+          return context
+        end
+
+        accept_code = HTTP::WebSocket::Protocol.key_challenge(key)
+
+        response.status = :switching_protocols
+        response.headers["Upgrade"] = "websocket"
+        response.headers["Connection"] = "Upgrade"
+        response.headers["Sec-WebSocket-Accept"] = accept_code
+        response.upgrade do |io|
+          socket = HTTP::WebSocket::Protocol.new(io, sync_close: true)
+          run(context, socket)
         end
 
         context
