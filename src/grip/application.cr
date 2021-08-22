@@ -24,6 +24,7 @@ module Grip
     private property pipeline_handler : Grip::Handlers::Pipeline
     private property websocket_handler : Grip::Routers::WebSocket
     private property forward_handler : Grip::Handlers::Forward
+    private property static_handler : Grip::Handlers::Static?
 
     private property scopes : Array(String) = [] of String
     private property valves : Array(Symbol) = [] of Symbol
@@ -38,6 +39,9 @@ module Grip
       @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler)
       @exception_handler = Grip::Handlers::Exception.new
       @forward_handler = Grip::Handlers::Forward.new
+      {% if flag?(:serveStatic) %}
+        @static_handler = Grip::Handlers::Static.new(pubilc_dir, fallthrough, directory_listing)
+      {% end %}
       @swagger_builder = Swagger::Builder.new(
         title: title(),
         version: version(),
@@ -105,6 +109,20 @@ module Grip
       false
     end
 
+    {% if flag?(:serveStatic) %}
+      def pubilc_dir : String
+        "./public"
+      end
+
+      def fallthrough : Bool
+        false
+      end
+
+      def directory_listing : Bool
+        false
+      end
+    {% end %}
+
     protected def router : Array(HTTP::Handler)
       [
         @exception_handler,
@@ -123,6 +141,10 @@ module Grip
       root.each do |handler|
         @router.insert(@router.size - 2, handler)
       end
+
+      {% if flag?(:serveStatic) %}
+        @router.insert(1, @static_handler.not_nil!)
+      {% end %}
 
       HTTP::Server.new(@router)
     end
