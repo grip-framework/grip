@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    The microframework for writing <ins>powerful web applications</ins>.<br><br>
+    The microframework for writing <ins>powerful web applications</ins>.<br><br> Added static file handler back
 </p>
 
 <p align="center">
@@ -85,7 +85,8 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   grip:
-    github: grip-framework/grip
+    github: acoolstraw/grip
+    commit: cd05c5a2406c6f0e939b3888ff9c052bc5c40536
 ```
 
 And run this command in your terminal:
