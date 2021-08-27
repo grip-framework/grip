@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    The microframework for writing <ins>powerful web applications</ins>.<br><br> Added static file handler back
+    The microframework for writing <ins>powerful web applications</ins>.<br><br>
 </p>
 
 <p align="center">
