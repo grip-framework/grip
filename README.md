@@ -101,18 +101,3 @@ Documentation can be found on the [official website of the Grip framework](https
 ## Contribute
 
 See our [contribution guidelines](https://github.com/grip-framework/grip/blob/master/CONTRIBUTING.md) and read the [code of conduct](https://github.com/grip-framework/grip/blob/master/CODE_OF_CONDUCT.md).
-
-## Contributors
-
-- [Giorgi Kavrelishvili](https://github.com/grkek) - creator and maintainer.
-- [nilsding](https://github.com/nilsding) - contributor
-- [Whaxion](https://github.com/Whaxion) - contributor
-- [Vincent Agnano](https://github.com/vinyll) - contributor
-- [danreeves](https://github.com/danreeves) - contributor
-- [marcoroth](https://github.com/marcoroth) - contributor
-
-## Thanks
-
-- [Kemal](https://github.com/kemalcr/kemal) - Underlying routing, parameter parsing and filtering mechanisms.
-- [Gitter](https://gitter.im/crystal-lang/crystal) - Technical help, feedback and framework design tips.
-- [Crystal](https://crystal-lang.org/api/0.35.1/) - Detailed documentation, examples.
