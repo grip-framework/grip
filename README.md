@@ -85,8 +85,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   grip:
-    github: acoolstraw/grip
-    commit: cd05c5a2406c6f0e939b3888ff9c052bc5c40536
+    github: gripframework/grip
 ```
 
 And run this command in your terminal:
