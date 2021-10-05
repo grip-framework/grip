@@ -118,6 +118,17 @@ module Grip
           @parameters.not_nil!.url
         end
       end
+
+      def redirect(url)
+        redirect(url, 302)
+        self
+      end
+
+      def redirect(url, status)
+        @response.headers.add "Location", "/"
+        put_status status
+        self
+      end
     end
   end
 end
