@@ -191,5 +191,44 @@ describe "Context" do
       client_response.cookies.size.should eq(1)
       client_response.cookies["Foo"].value.should eq("Baz")
     end
+
+    it "gets correkt cookie" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/get_cookie", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        cookie = context.get_req_cookie("Foo")
+        if cookie
+          context.response.print(cookie.value)
+        else
+          context.response.print("nil")
+        end
+        context
+      end
+
+      request = HTTP::Request.new("GET", "/get_cookie")
+      request.cookies["Foo"] = "Bar"
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.body.should eq "Bar"
+    end
+
+    it "gets nil for not existing cookie" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/get_cookie", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        cookie = context.get_req_cookie("Baz")
+        if cookie
+          context.response.print(cookie.value)
+        else
+          context.response.print("nil")
+        end
+
+        context
+      end
+
+      request = HTTP::Request.new("GET", "/get_cookie")
+      request.cookies["Foo"] = "Bar"
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.body.should eq "nil"
+    end
   end
 end

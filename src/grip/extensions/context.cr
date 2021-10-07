@@ -21,6 +21,12 @@ module Grip
         @request.headers[key]
       end
 
+      # Get cookie from request or nil if key does not exist
+      def get_req_cookie(key)
+        return @request.cookies[key] if @request.cookies[key]?
+        nil
+      end
+
       # Gets response header.
       def get_resp_header(key)
         @response.headers[key]
