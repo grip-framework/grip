@@ -137,14 +137,9 @@ module Grip
         end
       end
 
-      def redirect(url)
-        redirect(url, 302)
-        self
-      end
-
-      def redirect(url, status)
-        @response.headers.add "Location", "/"
-        put_status status
+      def redirect(url = "/", status_code = HTTP::Status::FOUND)
+        @response.headers["Location"] = url
+        @response.status_code = status_code.to_i
         self
       end
     end
