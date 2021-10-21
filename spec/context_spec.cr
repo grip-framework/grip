@@ -231,4 +231,45 @@ describe "Context" do
       client_response.body.should eq "nil"
     end
   end
+
+  context "redirects" do
+    it "redirects to home page when called without arguments" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/redirect_to_home", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        context.redirect
+      end
+
+      request = HTTP::Request.new("GET", "/redirect_to_home")
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.headers["Location"].should eq("/")
+      client_response.status_code.should eq(302)
+    end
+
+    it "redirects to another url with status code 301 using keyword arguments" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/redirect_to_another_url", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        context.redirect(url: "/another_url", status_code: 301)
+      end
+
+      request = HTTP::Request.new("GET", "/redirect_to_another_url")
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.headers["Location"].should eq("/another_url")
+      client_response.status_code.should eq(301)
+    end
+
+    it "redirects to another url with status code 308 using positional arguments" do
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/redirect_to_another_url_with_308", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        context.redirect("/another_url", HTTP::Status::PERMANENT_REDIRECT)
+      end
+
+      request = HTTP::Request.new("GET", "/redirect_to_another_url_with_308")
+      client_response = call_request_on_app(request, http_handler)
+
+      client_response.headers["Location"].should eq("/another_url")
+      client_response.status_code.should eq(308)
+    end
+  end
 end
