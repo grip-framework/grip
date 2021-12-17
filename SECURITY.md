@@ -1,18 +1,7 @@
 # Security Policy
 
-## Supported Versions
-
-Currently supported versions of the Grip framework are:
-
-| Version  | Supported          |
-| -------- | ------------------ |
-| ~> 3.0.0 | :white_check_mark: |
-
-Versions mentioned above will receive security patches if anything is discovered by
+Every version of Grip will receive security patches if anything is discovered by
 either the core team or the open-source contributors of the Grip framework.
-
-Two major version of the Crystal programming language 0.35.1 is supported by
-the core team of the Grip framework.
 
 ## Reporting a Vulnerability
 
