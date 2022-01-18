@@ -1,5 +1,5 @@
-module Grip
-  struct Log < Log::StaticFormatter
+module Grip::Logging
+  struct Formatter < Log::StaticFormatter
     def run
       string "#{Time.utc} "
       severity
@@ -7,6 +7,6 @@ module Grip
       message
     end
   end
+  
+  Log.setup(:info, Log::IOBackend.new(formatter: Grip::Logging::Formatter))
 end
-
-Log.setup(:info, Log::IOBackend.new(formatter: Grip::Log))
