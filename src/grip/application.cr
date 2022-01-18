@@ -194,7 +194,7 @@ module Grip
         {% end %}
       end
 
-      puts "#{Time.utc} [info] listening at #{schema}://#{host}:#{port}."
+      Log.info { "Listening at #{schema}://#{host}:#{port}" }
 
       {% if !flag?(:test) %}
         setup_trap_signal()
