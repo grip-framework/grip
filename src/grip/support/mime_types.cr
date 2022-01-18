@@ -137,6 +137,7 @@ module Grip
         "eol"       => "audio/vnd.digital-winds",
         "eot"       => "application/vnd.ms-fontobject",
         "eps"       => "application/postscript",
+        "epub"      => "application/epub+zip",
         "es3"       => "application/vnd.eszigno3+xml",
         "esf"       => "application/vnd.epson.esf",
         "etx"       => "text/x-setext",
