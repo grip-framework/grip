@@ -1,6 +1,14 @@
 module Grip
   module Controllers
     class Swagger < Grip::Controllers::Base
+      macro inherited
+        @@instance = new
+
+        def self.instance
+          @@instance
+        end
+      end
+
       property document : ::Swagger::Builder
       property base_path : String
 
