@@ -1,6 +1,14 @@
 module Grip
   module Controllers
     class Http < Base
+      macro inherited
+        @@instance = new
+
+        def self.instance
+          @@instance
+        end
+      end
+
       def get(context : Context) : Context
         context
           .halt
