@@ -1,13 +1,9 @@
+require "./singleton"
+
 module Grip
   module Controllers
     abstract class WebSocket < Grip::Controllers::Base
-      macro inherited
-        @@instance = new
-
-        def self.instance
-          @@instance
-        end
-      end
+      include Singleton
 
       alias Socket = HTTP::WebSocket::Protocol
       getter? closed = false

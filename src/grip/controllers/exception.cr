@@ -1,13 +1,9 @@
+require "./singleton"
+
 module Grip
   module Controllers
     abstract class Exception < Base
-      macro inherited
-        @@instance = new
-
-        def self.instance
-          @@instance
-        end
-      end
+      include Singleton
 
       abstract def call(context : Context) : Context
     end
