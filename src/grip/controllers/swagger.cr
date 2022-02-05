@@ -1,6 +1,10 @@
+require "./singleton"
+
 module Grip
   module Controllers
     class Swagger < Grip::Controllers::Base
+      include Singleton
+
       property document : ::Swagger::Builder
       property base_path : String
 

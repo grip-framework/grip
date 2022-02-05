@@ -43,17 +43,17 @@ module Grip
             @http_handler.add_route(
               {{http_method}}.to_s.upcase,
               "#{@scopes.join()}#{\{{route}}}",
-              \{{resource}}.new.as(Grip::Controllers::Base),
+              \{{resource}}.instance.as(Grip::Controllers::Base),
               @valves.clone(),
               -> (context : HTTP::Server::Context) {
-                \{{ resource }}.new.as(\{{resource}}).\{{kwargs[:as].id}}(context)
+                \{{ resource }}.instance.\{{kwargs[:as].id}}(context)
               }
             )
           \{% else %}
             @http_handler.add_route(
               {{http_method}}.to_s.upcase,
               "#{@scopes.join()}#{\{{route}}}",
-              \{{resource}}.new.as(Grip::Controllers::Base),
+              \{{resource}}.instance.as(Grip::Controllers::Base),
               @valves.clone(),
               nil
             )

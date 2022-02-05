@@ -1,6 +1,10 @@
+require "./singleton"
+
 module Grip
   module Controllers
     class Http < Base
+      include Singleton
+
       def get(context : Context) : Context
         context
           .halt

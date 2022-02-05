@@ -1,6 +1,10 @@
+require "./singleton"
+
 module Grip
   module Controllers
     abstract class WebSocket < Grip::Controllers::Base
+      include Singleton
+
       alias Socket = HTTP::WebSocket::Protocol
       getter? closed = false
 
