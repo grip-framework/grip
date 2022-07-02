@@ -8,8 +8,6 @@
 module Grip
   module Handlers
     class Static < HTTP::StaticFileHandler
-      delegate send_file, to: Grip::Helpers::FileDownload
-
       def initialize(public_dir : String, fallthrough = false, directory_listing = false)
         super
       end
@@ -36,7 +34,7 @@ module Grip
 
         if is_dir_path && File.exists? root_file
           return if etag(context, root_file)
-          return send_file(context, root_file, gzip_enabled: self.class.config_gzip?(static_config))
+          return context.send_file(root_file, gzip_enabled: self.class.config_gzip?(static_config))
         end
 
         is_dir_path = Dir.exists?(file_path) && !is_dir_path
@@ -82,7 +80,7 @@ module Grip
           end
         elsif File.exists?(file_path)
           return if etag(context, file_path)
-          send_file(context, file_path, gzip_enabled: self.class.config_gzip?(static_config))
+          context.send_file(file_path, gzip_enabled: self.class.config_gzip?(static_config))
         else
           call_next(context)
         end
