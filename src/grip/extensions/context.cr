@@ -80,6 +80,12 @@ module Grip
         self
       end
 
+      # Sends a file
+      def send_file(path : String, mime_type : String? = nil, gzip_enabled : Bool = false)
+        Grip::Helpers::FileDownload.send_file(self, path, mime_type, gzip_enabled)
+        self
+      end
+
       # Sends a response with the content formated as json.
       def json(content, content_type = "application/json; charset=UTF-8")
         @response.headers.merge!({"Content-Type" => content_type})
