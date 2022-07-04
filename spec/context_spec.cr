@@ -43,6 +43,19 @@ describe "Context" do
   end
 
   context "methods" do
+    it "sends a local file" do
+      file_path = File.join(__DIR__, "./fixtures/index.html")
+      http_handler = Grip::Routers::Http.new
+      http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+        context.send_file(file_path).halt
+      end
+
+      request = HTTP::Request.new("GET", "/")
+      client_response = call_request_on_app(request, http_handler)
+      client_response.body.should eq File.read(file_path)
+      ("text/html".in? client_response.headers["Content-Type"]).should be_true
+    end
+
     it "has binary() method with octet-stream" do
       http_handler = Grip::Routers::Http.new
       http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
