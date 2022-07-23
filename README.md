@@ -85,7 +85,7 @@ Add this to your application's `shard.yml`:
 dependencies:
   grip:
     github: grip-framework/grip
-    branch: 0.0.1-core
+    branch: core
 ```
 
 And run this command in your terminal:
