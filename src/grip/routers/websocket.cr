@@ -17,9 +17,7 @@ module Grip
           return call_next(context)
         end
 
-        if context.parameters
-          # Continue the execution since the parameters already exist.
-        else
+        unless context.parameters
           context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
         end
 
@@ -30,7 +28,7 @@ module Grip
         context
       end
 
-      def find_route(_verb : String, path : String) : Radix::Result(Route)
+      def find_route(verb : String, path : String) : Radix::Result(Route)
         lookup_path = "/ws" + path
 
         if cached_route = @cache[lookup_path]?

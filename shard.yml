@@ -1,5 +1,5 @@
 name: grip
-version: 1.0.7
+version: 0.0.1-core
 
 authors:
   - Grip and its Contributors <https://github.com/grip-framework/>
@@ -10,9 +10,6 @@ dependencies:
 
   exception_page:
     github: crystal-loot/exception_page
-
-  swagger:
-    github: icyleaf/swagger
 
 development_dependencies:
   ameba:

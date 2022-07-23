@@ -7,6 +7,6 @@ module Grip::Logging
       message
     end
   end
-  
+
   Log.setup(:info, Log::IOBackend.new(formatter: Grip::Logging::Formatter))
 end

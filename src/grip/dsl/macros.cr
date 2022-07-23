@@ -58,38 +58,6 @@ module Grip
               nil
             )
           \{% end %}
-
-          \{% for method in resource.resolve.methods %}
-            \{% route_annotation = method.annotation(Grip::Annotations::Route) %}
-            \{% controller_annotation = resource.resolve.annotation(Grip::Annotations::Controller) %}
-            \{% if route_annotation && controller_annotation %}
-              @swagger_builder.add(
-                Swagger::Controller.new(
-                  \{{ controller_annotation[:name] }} || "#{\{{ resource }}.to_s}",
-                  \{{ controller_annotation[:description] }},
-                  [
-                    Swagger::Action.new(
-                      method: {{http_method}}.to_s || "",
-                      # This looks quite painful but it is what it is :)
-                      route: "/" + "#{@scopes.join()}#{\{{route}}}".split("/", remove_empty: true).map! { |path|
-                        if path.includes?(":")
-                          "{#{path.gsub(":", "")}}"
-                        else
-                          path
-                        end }.join("/"),
-                      responses: \{{route_annotation[:responses]}} || [] of Swagger::Response,
-                      request: \{{route_annotation[:request]}},
-                      summary: \{{route_annotation[:summary]}},
-                      parameters: \{{route_annotation[:parameters]}},
-                      description: \{{route_annotation[:description]}},
-                      authorization: \{{route_annotation[:authorization]}} || false,
-                      deprecated: \{{route_annotation[:deprecated]}} || false
-                    )
-                  ]
-                )
-              )
-            \{% end %}
-          \{% end %}
         end
       {% end %}
 

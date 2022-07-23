@@ -8,7 +8,6 @@ require "uuid"
 require "log"
 require "crypto/subtle"
 require "exception_page"
-require "swagger"
 
 {% if flag?(:with_openssl) %}
   require "openssl/sha1"
@@ -16,7 +15,6 @@ require "swagger"
   require "digest/sha1"
 {% end %}
 
-require "./grip/annotations/**"
 require "./grip/exceptions/base"
 require "./grip/exceptions/*"
 require "./grip/support/*"

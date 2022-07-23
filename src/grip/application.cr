@@ -19,19 +19,19 @@ module Grip
 
     abstract def routes
 
-    private property http_handler : Grip::Routers::Http
-    private property exception_handler : Grip::Handlers::Exception
-    private property pipeline_handler : Grip::Handlers::Pipeline
-    private property websocket_handler : Grip::Routers::WebSocket
-    private property forward_handler : Grip::Handlers::Forward
-    private property static_handler : Grip::Handlers::Static?
+    getter http_handler : Grip::Routers::Http
+    getter exception_handler : Grip::Handlers::Exception
+    getter pipeline_handler : Grip::Handlers::Pipeline
+    getter websocket_handler : Grip::Routers::WebSocket
+    getter forward_handler : Grip::Handlers::Forward
+    getter static_handler : Grip::Handlers::Static?
 
-    private property scopes : Array(String) = [] of String
-    private property valves : Array(Symbol) = [] of Symbol
+    property router : Array(HTTP::Handler)
 
-    private property valve : Symbol?
-    private property router : Array(HTTP::Handler)
-    private property swagger_builder : Swagger::Builder
+    getter scopes : Array(String) = [] of String
+    getter valves : Array(Symbol) = [] of Symbol
+
+    getter valve : Symbol?
 
     def initialize
       @http_handler = Grip::Routers::Http.new
@@ -39,62 +39,20 @@ module Grip
       @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler)
       @exception_handler = Grip::Handlers::Exception.new
       @forward_handler = Grip::Handlers::Forward.new
+
       {% if flag?(:serveStatic) %}
         @static_handler = Grip::Handlers::Static.new(pubilc_dir, fallthrough, directory_listing)
       {% end %}
-      @swagger_builder = Swagger::Builder.new(
-        title: title(),
-        version: version(),
-        description: description(),
-        terms_url: terms_url(),
-        contact: contact(),
-        license: license(),
-        authorizations: authorizations()
-      )
 
-      @router = router
+      @router = [
+        @exception_handler,
+        @pipeline_handler,
+        @forward_handler,
+        @websocket_handler,
+        @http_handler,
+      ] of HTTP::Handler
 
       routes()
-    end
-
-    def title : String
-      "API Documentation"
-    end
-
-    def version : String
-      "1.0.0"
-    end
-
-    def description : String
-      ""
-    end
-
-    def terms_url : String
-      ""
-    end
-
-    def contact : Swagger::Contact?
-      Swagger::Contact.new("icyleaf", "icyleaf.cn@gmail.com", "http://icyleaf.com")
-    end
-
-    def license : Swagger::License?
-      Swagger::License.new("MIT", "https://github.com/icyleaf/swagger/blob/master/LICENSE")
-    end
-
-    def authorizations : Array(Swagger::Authorization)
-      [] of Swagger::Authorization
-    end
-
-    def document : Swagger::Builder
-      @swagger_builder
-    end
-
-    def root : Array(HTTP::Handler)
-      [] of HTTP::Handler
-    end
-
-    def custom : Array(HTTP::Handler)
-      [] of HTTP::Handler
     end
 
     def host : String
@@ -123,25 +81,7 @@ module Grip
       end
     {% end %}
 
-    protected def router : Array(HTTP::Handler)
-      [
-        @exception_handler,
-        @pipeline_handler,
-        @forward_handler,
-        @websocket_handler,
-        @http_handler,
-      ] of HTTP::Handler
-    end
-
     def server : HTTP::Server
-      custom.each do |handler|
-        @router.insert(@router.size - 4, handler)
-      end
-
-      root.each do |handler|
-        @router.insert(@router.size - 2, handler)
-      end
-
       {% if flag?(:serveStatic) %}
         @router.insert(1, @static_handler.not_nil!)
       {% end %}

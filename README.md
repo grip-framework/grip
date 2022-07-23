@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://grip-framework.github.io/docs/"><img alt="Docs CI Status" src="https://img.shields.io/github/workflow/status/grip-framework/docs/ci?label=docs&style=flat-square"></a>    
+  <a href="https://grip-framework.github.io/docs/"><img alt="Docs CI Status" src="https://img.shields.io/github/workflow/status/grip-framework/docs/ci?label=docs&style=flat-square"></a>
 </p>
 
 <p align="center">
@@ -34,7 +34,6 @@ This project exists due to the fact that Kemal lacks one crucial part of a frame
 - WebSocket RFC 6455 support.
 - Built-in exceptions support.
 - Parameter handling support.
-- Swagger API support.
 - JSON serialization and deserialization support (fastest framework with JSON).
 - Built-in third-party module support.
 - Request/Response context, inspired by [expressjs](https://github.com/expressjs/express).
@@ -86,6 +85,7 @@ Add this to your application's `shard.yml`:
 dependencies:
   grip:
     github: grip-framework/grip
+    branch: 0.0.1-core
 ```
 
 And run this command in your terminal:

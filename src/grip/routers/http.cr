@@ -13,30 +13,20 @@ module Grip
       def call(context : HTTP::Server::Context)
         return context if context.response.closed?
 
-        route = find_route(
-          context.request.method.as(String),
-          context.request.path
-        )
+        route = find_route(context.request.method.as(String), context.request.path)
 
-        unless route.found?
-          raise Exceptions::NotFound.new
-        end
+        raise Exceptions::NotFound.new unless route.found?
 
-        if context.parameters
-          # Continue the execution since the parameters already exist.
-        else
+        unless context.parameters
           context.parameters = Grip::Parsers::ParameterBox.new(context.request, route.params)
         end
 
         payload = route.payload
 
-        if payload.override
-          payload.call_into_override(context)
-          context
-        else
-          payload.handler.call(context)
-          context
-        end
+        payload.call_into_override(context) if payload.override
+        payload.handler.call(context) unless payload.override
+
+        context
       end
 
       def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void

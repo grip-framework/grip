@@ -7,19 +7,14 @@ module Grip
       end
 
       def match_via_keyword(context : HTTP::Server::Context, pipeline_handler : Grip::Handlers::Pipeline) : HTTP::Server::Context
-        call_through_pipeline(
-          context,
-          @via,
-          pipeline_handler
-        )
-
+        call_through_pipeline(context, @via, pipeline_handler)
         context
       end
 
       def call_into_override(context : HTTP::Server::Context) : HTTP::Server::Context
         case @override
         when Proc(HTTP::Server::Context, HTTP::Server::Context)
-          @override.not_nil!.call(context)
+          @override.try(&.call(context))
         when Nil
         end
 

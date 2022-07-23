@@ -12,10 +12,3 @@ Metrics/CyclomaticComplexity:
   - src/grip/controllers/websocket.cr
   Enabled: true
   Severity: Convention
-
-Lint/UselessAssign:
-  Description: Disallows useless variable assignments
-  Enabled: true
-  Severity: Warning
-  Excluded:
-  - src/grip/controllers/swagger.cr
