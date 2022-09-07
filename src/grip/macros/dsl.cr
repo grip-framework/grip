@@ -1,6 +1,6 @@
 module Grip
-  module Dsl
-    module Macros
+  module Macros
+    module Dsl
       HTTP_METHODS = %i(get post put patch delete options head)
 
       macro pipeline(name, pipes)
@@ -39,24 +39,15 @@ module Grip
 
       {% for http_method in HTTP_METHODS %}
         macro {{http_method.id}}(route, resource, **kwargs)
+          method = {{http_method}}.to_s.upcase
+          scoped_route = [@scopes.join(), \{{route}}].join
+          resource = \{{resource}}
+          valves = @valves.clone()
+
           \{% if kwargs[:as] %}
-            @http_handler.add_route(
-              {{http_method}}.to_s.upcase,
-              "#{@scopes.join()}#{\{{route}}}",
-              \{{resource}}.instance.as(Grip::Controllers::Base),
-              @valves.clone(),
-              -> (context : HTTP::Server::Context) {
-                \{{ resource }}.instance.\{{kwargs[:as].id}}(context)
-              }
-            )
+            @http_handler.add_route(method, scoped_route, resource.instance.as(Grip::Controllers::Base), valves, ->(context : HTTP::Server::Context) { resource.instance.\{{kwargs[:as].id}}(context) })
           \{% else %}
-            @http_handler.add_route(
-              {{http_method}}.to_s.upcase,
-              "#{@scopes.join()}#{\{{route}}}",
-              \{{resource}}.instance.as(Grip::Controllers::Base),
-              @valves.clone(),
-              nil
-            )
+            @http_handler.add_route(method, scoped_route, resource.instance.as(Grip::Controllers::Base), valves, nil)
           \{% end %}
         end
       {% end %}
@@ -71,8 +62,14 @@ module Grip
         )
       end
 
-      macro error(error_code, resource)
-        @exception_handler.handlers[{{error_code}}] = {{resource}}.new
+      macro exception(exception, resource)
+        @exception_handler.handlers[{{exception}}.name] = {{resource}}.instance
+      end
+
+      macro exceptions(exceptions, resource)
+        {% for exception in exceptions %}
+          @exception_handler.handlers[{{exception}}.name] = {{resource}}.instance
+        {% end %}
       end
 
       macro ws(route, resource, **kwargs)

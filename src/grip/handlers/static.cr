@@ -18,7 +18,7 @@ module Grip
         original_path = context.request.path.not_nil!
         request_path = URI.decode(original_path)
 
-        # File path cannot contains '\0' (NUL) because all filesystem I know
+        # File path cannot contain '\0' (NUL) because all filesystem I know
         # don't accept '\0' character as file name.
         if request_path.includes? '\0'
           context.response.status_code = 400

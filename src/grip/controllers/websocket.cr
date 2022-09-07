@@ -1,9 +1,15 @@
-require "./singleton"
-
 module Grip
   module Controllers
-    abstract class WebSocket < Grip::Controllers::Base
-      include Singleton
+    class WebSocket < Base
+      macro inherited
+        macro finished
+          @@instance = new
+
+          def self.instance
+            @@instance
+          end
+        end
+      end
 
       alias Socket = HTTP::WebSocket::Protocol
       getter? closed = false
@@ -14,12 +20,23 @@ module Grip
         @current_message = IO::Memory.new
       end
 
-      abstract def on_open(context : Context, socket : Socket) : Void
-      abstract def on_ping(context : Context, socket : Socket, message : String) : Void
-      abstract def on_pong(context : Context, socket : Socket, message : String) : Void
-      abstract def on_message(context : Context, socket : Socket, message : String) : Void
-      abstract def on_binary(context : Context, socket : Socket, binary : Bytes) : Void
-      abstract def on_close(context : Context, socket : Socket, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+      def on_open(context : Context, socket : Socket) : Void
+      end
+
+      def on_ping(context : Context, socket : Socket, message : String) : Void
+      end
+
+      def on_pong(context : Context, socket : Socket, message : String) : Void
+      end
+
+      def on_message(context : Context, socket : Socket, message : String) : Void
+      end
+
+      def on_binary(context : Context, socket : Socket, binary : Bytes) : Void
+      end
+
+      def on_close(context : Context, socket : Socket, close_code : HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+      end
 
       protected def check_open
         raise IO::Error.new "Closed socket" if closed?

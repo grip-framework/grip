@@ -1,9 +1,15 @@
-require "./singleton"
-
 module Grip
   module Controllers
     class Http < Base
-      include Singleton
+      macro inherited
+        macro finished
+          @@instance = new
+
+          def self.instance
+            @@instance
+          end
+        end
+      end
 
       def get(context : Context) : Context
         context

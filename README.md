@@ -63,17 +63,50 @@ class IndexController < Grip::Controllers::Http
     # An optional secondary argument gives a custom `Content-Type` header to the response.
     context
       .json(content: {"id" => id}, content_type: "application/json; charset=us-ascii")
+      .halt
+  end
+
+  def error(context : Context) : Context
+    if context.request.path.includes?("/api/error")
+      raise ArgumentError.new("An example message.")
+    end
+
+    context
+      .json({"id" => UUID.random.to_s})
+      .halt
+  end
+end
+
+class ExceptionController < Grip::Controllers::Exception
+  def call(context : Context) : Context
+    context
+      .json({"error" => context.exception.try(&.message)}) # The exception is nilable.
+      .halt
   end
 end
 
 class Application < Grip::Application
-  def routes
-    get "/", IndexController
-    get "/:id", IndexController, as: :index
+  def initialize(environment : String, serve_static : Bool)
+    # By default the environment is set to "development" and serve_static is false.
+    super(environment, serve_static)
+
+    exception ArgumentError, ExceptionController
+
+    scope "/api" do
+      get "/error", IndexController, as: :error
+
+      scope "/v1" do
+        get "/", IndexController
+        get "/:id", IndexController, as: :index
+      end
+    end
+
+    # Enable request/response logging.
+    router.insert(0, Grip::Handlers::Log.new)
   end
 end
 
-app = Application.new
+app = Application.new(environment: "production", serve_static: false)
 app.run
 ```
 

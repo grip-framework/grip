@@ -1,11 +1,19 @@
-require "./singleton"
-
 module Grip
   module Controllers
-    abstract class Exception < Base
-      include Singleton
+    class Exception < Base
+      macro inherited
+        macro finished
+          @@instance = new
 
-      abstract def call(context : Context) : Context
+          def self.instance
+            @@instance
+          end
+        end
+      end
+
+      def call(context : Context) : Context
+        context.html(context.exception)
+      end
     end
   end
 end

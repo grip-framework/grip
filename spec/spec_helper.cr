@@ -11,57 +11,39 @@ class ErrorController < Grip::Controllers::Exception
 end
 
 class ErrorApplication < Grip::Application
+  def initialize
+    super(environment: "test", serve_static: false)
+
+    exception Grip::Exceptions::NotFound, ErrorController
+  end
+
   def port
     0
-  end
-
-  def custom : Array(HTTP::Handler)
-    [] of HTTP::Handler
-  end
-
-  def root : Array(HTTP::Handler)
-    [] of HTTP::Handler
-  end
-
-  def routes
-    error 404, ErrorController
   end
 end
 
 class HttpApplication < Grip::Application
-  def port
-    0
-  end
+  def initialize
+    super(environment: "test", serve_static: false)
 
-  def custom : Array(HTTP::Handler)
-    [] of HTTP::Handler
-  end
-
-  def root : Array(HTTP::Handler)
-    [] of HTTP::Handler
-  end
-
-  def routes
     get "/", ExampleController
     get "/:id", ExampleController, as: :index
+  end
+
+  def port
+    0
   end
 end
 
 class WebSocketApplication < Grip::Application
+  def initialize
+    super(environment: "test", serve_static: false)
+
+    ws "/", MatchController
+  end
+
   def port
     0
-  end
-
-  def custom : Array(HTTP::Handler)
-    [] of HTTP::Handler
-  end
-
-  def root : Array(HTTP::Handler)
-    [] of HTTP::Handler
-  end
-
-  def routes
-    ws "/", MatchController
   end
 end
 

@@ -1,23 +1,11 @@
 module Grip
   # `Grip::Application` is a building class which initializes the crucial parts of the
   # web-framework.
-  #
-  # ```
-  # class Application < Grip::Application
-  #   def routes
-  #     pipeline :api, [
-  #       Pipes::PoweredByHeader.new,
-  #     ]
-  #   end
-  # end
-  #
-  # app = Application.new
-  # app.run
-  # ```
-  abstract class Application
-    include Grip::Dsl::Macros
+  class Application
+    include Grip::Macros::Dsl
 
-    abstract def routes
+    getter environment : String = "development"
+    getter serve_static : Bool = false
 
     getter http_handler : Grip::Routers::Http
     getter exception_handler : Grip::Handlers::Exception
@@ -33,16 +21,16 @@ module Grip
 
     getter valve : Symbol?
 
-    def initialize
+    def initialize(@environment : String = "development", @serve_static : Bool = false)
       @http_handler = Grip::Routers::Http.new
       @websocket_handler = Grip::Routers::WebSocket.new
       @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler)
-      @exception_handler = Grip::Handlers::Exception.new
+      @exception_handler = Grip::Handlers::Exception.new(@environment)
       @forward_handler = Grip::Handlers::Forward.new
 
-      {% if flag?(:serveStatic) %}
+      if serve_static
         @static_handler = Grip::Handlers::Static.new(pubilc_dir, fallthrough, directory_listing)
-      {% end %}
+      end
 
       @router = [
         @exception_handler,
@@ -51,8 +39,6 @@ module Grip
         @websocket_handler,
         @http_handler,
       ] of HTTP::Handler
-
-      routes()
     end
 
     def host : String
@@ -60,31 +46,29 @@ module Grip
     end
 
     def port : Int32
-      5000
+      4004
     end
 
     def reuse_port : Bool
       false
     end
 
-    {% if flag?(:serveStatic) %}
-      def pubilc_dir : String
-        "./public"
-      end
+    def pubilc_dir : String
+      "./public"
+    end
 
-      def fallthrough : Bool
-        false
-      end
+    def fallthrough : Bool
+      false
+    end
 
-      def directory_listing : Bool
-        false
-      end
-    {% end %}
+    def directory_listing : Bool
+      false
+    end
 
     def server : HTTP::Server
-      {% if flag?(:serveStatic) %}
+      if serve_static
         @router.insert(1, @static_handler.not_nil!)
-      {% end %}
+      end
 
       HTTP::Server.new(@router)
     end
@@ -136,10 +120,10 @@ module Grip
 
       Log.info { "Listening at #{schema}://#{host}:#{port}" }
 
-      {% if !flag?(:test) %}
+      if @environment != "test"
         setup_trap_signal()
         server.listen
-      {% end %}
+      end
     end
 
     private def setup_trap_signal
