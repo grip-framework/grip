@@ -1,17 +1,9 @@
 module Grip
   module Controllers
     class WebSocket < Base
-      macro inherited
-        macro finished
-          @@instance = new
-
-          def self.instance
-            @@instance
-          end
-        end
-      end
-
+      include Helpers::Singleton
       alias Socket = HTTP::WebSocket::Protocol
+
       getter? closed = false
 
       # :nodoc:

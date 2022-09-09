@@ -46,6 +46,7 @@ Add this to your application's `application.cr`:
 ```ruby
 require "grip"
 
+
 class IndexController < Grip::Controllers::Http
   def get(context : Context) : Context
     context
@@ -85,6 +86,12 @@ class ExceptionController < Grip::Controllers::Exception
   end
 end
 
+class Swigger::Swagger < Grip::Controllers::Base
+  def call(context : Context) : Context
+    context.html("<h1>Hello, World!</h1>")
+  end
+end
+
 class Application < Grip::Application
   def initialize(environment : String, serve_static : Bool)
     # By default the environment is set to "development" and serve_static is false.
@@ -101,12 +108,14 @@ class Application < Grip::Application
       end
     end
 
+    forward "/swagger/*", Swigger::Swagger
+
     # Enable request/response logging.
     router.insert(0, Grip::Handlers::Log.new)
   end
 end
 
-app = Application.new(environment: "production", serve_static: false)
+app = Application.new(environment: "development", serve_static: false)
 app.run
 ```
 

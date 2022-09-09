@@ -1,15 +1,7 @@
 module Grip
   module Controllers
     class Exception < Base
-      macro inherited
-        macro finished
-          @@instance = new
-
-          def self.instance
-            @@instance
-          end
-        end
-      end
+      include Helpers::Singleton
 
       def call(context : Context) : Context
         context.html(context.exception)
