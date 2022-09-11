@@ -40,15 +40,15 @@ module Grip
       {% for http_method in HTTP_METHODS %}
         macro {{http_method.id}}(route, resource, **kwargs)
           \{% if kwargs[:as] %}
-            @http_handler.add_route({{http_method}}.to_s.upcase, [@scopes.join(), \{{route}}].join, \{{resource}}.instance.as(Grip::Controllers::Base), @valves.clone(), ->(context : HTTP::Server::Context) { \{{resource}}.instance.as(\{{resource}}).\{{kwargs[:as].id}}(context) })
+            @http_handler.add_route({{http_method}}.to_s.upcase, [@scopes.join(), \{{route}}].join, \{{resource}}.instance.as(HTTP::Handler), @valves.clone(), ->(context : HTTP::Server::Context) { \{{resource}}.instance.as(\{{resource}}).\{{kwargs[:as].id}}(context) })
           \{% else %}
-            @http_handler.add_route({{http_method}}.to_s.upcase, [@scopes.join(), \{{route}}].join, \{{resource}}.instance.as(Grip::Controllers::Base), @valves.clone(), nil)
+            @http_handler.add_route({{http_method}}.to_s.upcase, [@scopes.join(), \{{route}}].join, \{{resource}}.instance.as(HTTP::Handler), @valves.clone(), nil)
           \{% end %}
         end
       {% end %}
 
-      macro forward(route, resource)
-        @forward_handler.add_route("ALL", [@scopes.join(), {{route}}].join, {{resource}}.instance.as(Grip::Controllers::Base), @valves.clone(), nil)
+      macro forward(route, resource, **kwargs)
+        @forward_handler.add_route("ALL", [@scopes.join(), {{route}}].join, {{resource}}.new({{**kwargs}}).as(HTTP::Handler), @valves.clone(), nil)
       end
 
       macro exception(exception, resource)

@@ -40,7 +40,7 @@ module Grip
         return call_next(context) if !route.found? && !forward.found?
       end
 
-      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
+      def add_route(method : String, path : String, handler : HTTP::Handler, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
         add_to_radix_tree(method, path, Grip::Routers::Route.new(method, path, handler, via, override))
       end
 

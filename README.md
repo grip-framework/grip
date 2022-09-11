@@ -86,7 +86,7 @@ class ExceptionController < Grip::Controllers::Exception
   end
 end
 
-class Swigger::Swagger < Grip::Controllers::Base
+class Swigger::Swagger < HTTP::Handler
   def call(context : Context) : Context
     context.html("<h1>Hello, World!</h1>")
   end

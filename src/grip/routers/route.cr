@@ -3,7 +3,7 @@ module Grip
     struct Route
       property method, path, handler, override, via
 
-      def initialize(@method : String, @path : String, @handler : Grip::Controllers::Base, @via : Array(Symbol), @override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
+      def initialize(@method : String, @path : String, @handler : HTTP::Handler, @via : Array(Symbol), @override : Proc(HTTP::Server::Context, HTTP::Server::Context)?)
       end
 
       def match_via_keyword(context : HTTP::Server::Context, pipeline_handler : Grip::Handlers::Pipeline) : HTTP::Server::Context

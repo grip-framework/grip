@@ -1,6 +1,9 @@
 module Grip
   module Controllers
-    class Http < Base
+    class Http
+      alias Context = HTTP::Server::Context
+
+      include HTTP::Handler
       include Helpers::Singleton
 
       def get(context : Context) : Context

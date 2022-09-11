@@ -4,10 +4,10 @@ module Grip
     class Exception
       include HTTP::Handler
 
-      property handlers : Hash(String, Grip::Controllers::Base)
+      property handlers : Hash(String, HTTP::Handler)
 
       def initialize(@environment : String)
-        @handlers = {} of String => Grip::Controllers::Base
+        @handlers = {} of String => HTTP::Handler
       end
 
       def call(context : HTTP::Server::Context)

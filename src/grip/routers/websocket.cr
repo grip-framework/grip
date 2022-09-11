@@ -45,7 +45,7 @@ module Grip
         route
       end
 
-      def add_route(method : String, path : String, handler : Grip::Controllers::Base, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
+      def add_route(method : String, path : String, handler : HTTP::Handler, via : Symbol? | Array(Symbol)?, override : Proc(HTTP::Server::Context, HTTP::Server::Context)?) : Void
         add_to_radix_tree path, Route.new("", path, handler, via, nil)
       end
 

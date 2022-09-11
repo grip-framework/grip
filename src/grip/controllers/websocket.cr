@@ -1,8 +1,11 @@
 module Grip
   module Controllers
-    class WebSocket < Base
-      include Helpers::Singleton
+    class WebSocket
+      alias Context = HTTP::Server::Context
       alias Socket = HTTP::WebSocket::Protocol
+
+      include HTTP::Handler
+      include Helpers::Singleton
 
       getter? closed = false
 
