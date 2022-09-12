@@ -11,7 +11,6 @@ module Grip
     getter exception_handler : Grip::Handlers::Exception
     getter pipeline_handler : Grip::Handlers::Pipeline
     getter websocket_handler : Grip::Routers::WebSocket
-    getter forward_handler : Grip::Handlers::Forward
     getter static_handler : Grip::Handlers::Static?
 
     property router : Array(HTTP::Handler)
@@ -26,7 +25,6 @@ module Grip
       @websocket_handler = Grip::Routers::WebSocket.new
       @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler)
       @exception_handler = Grip::Handlers::Exception.new(@environment)
-      @forward_handler = Grip::Handlers::Forward.new
 
       if serve_static
         @static_handler = Grip::Handlers::Static.new(pubilc_dir, fallthrough, directory_listing)
@@ -35,7 +33,6 @@ module Grip
       @router = [
         @exception_handler,
         @pipeline_handler,
-        @forward_handler,
         @websocket_handler,
         @http_handler,
       ] of HTTP::Handler

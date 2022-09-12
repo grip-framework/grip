@@ -46,7 +46,6 @@ Add this to your application's `application.cr`:
 ```ruby
 require "grip"
 
-
 class IndexController < Grip::Controllers::Http
   def get(context : Context) : Context
     context
@@ -86,9 +85,33 @@ class ExceptionController < Grip::Controllers::Exception
   end
 end
 
-class Swigger::Swagger < HTTP::Handler
-  def call(context : Context) : Context
-    context.html("<h1>Hello, World!</h1>")
+class Swigger::Swagger
+  include HTTP::Handler
+
+  def call(context : HTTP::Server::Context) : HTTP::Server::Context
+    context
+      .html("<h1>Hello, World!</h1>")
+      .halt
+  end
+end
+
+class PoweredByGrip
+  include HTTP::Handler
+
+  def call(context : HTTP::Server::Context) : HTTP::Server::Context
+    context.put_resp_header("Server", "grip/#{Grip::VERSION}")
+
+    context
+  end
+end
+
+class Authorization
+  include HTTP::Handler
+
+  def call(context : HTTP::Server::Context) : HTTP::Server::Context
+    raise Grip::Exceptions::Unauthorized.new unless context.get_req_header?("Authorization")
+
+    context
   end
 end
 
@@ -97,18 +120,33 @@ class Application < Grip::Application
     # By default the environment is set to "development" and serve_static is false.
     super(environment, serve_static)
 
+    exceptions [Grip::Exceptions::Unauthorized, Grip::Exceptions::NotFound], ExceptionController
     exception ArgumentError, ExceptionController
+
+    pipeline :api, [
+      Authorization.new
+    ]
+
+    pipeline :docs, [
+      PoweredByGrip.new
+    ]
 
     scope "/api" do
       get "/error", IndexController, as: :error
 
       scope "/v1" do
+        pipe_through :api
+
         get "/", IndexController
         get "/:id", IndexController, as: :index
       end
     end
 
-    forward "/swagger/*", Swigger::Swagger
+    scope "/docs" do
+      pipe_through :docs
+
+      forward "/swagger", Swigger::Swagger
+    end
 
     # Enable request/response logging.
     router.insert(0, Grip::Handlers::Log.new)

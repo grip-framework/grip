@@ -14,6 +14,7 @@ module Grip
         return context if context.response.closed?
 
         route = find_route(context.request.method.as(String), context.request.path)
+        route = find_route("ALL", context.request.path) unless route.found?
 
         raise Exceptions::NotFound.new unless route.found?
 

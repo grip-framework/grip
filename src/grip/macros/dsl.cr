@@ -48,7 +48,7 @@ module Grip
       {% end %}
 
       macro forward(route, resource, **kwargs)
-        @forward_handler.add_route("ALL", [@scopes.join(), {{route}}].join, {{resource}}.new({{**kwargs}}).as(HTTP::Handler), @valves.clone(), nil)
+        @http_handler.add_route("ALL", [@scopes.join(), {{route}}].join, {{resource}}.new({{**kwargs}}).as(HTTP::Handler), @valves.clone(), nil)
       end
 
       macro exception(exception, resource)

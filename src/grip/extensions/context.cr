@@ -16,9 +16,14 @@ module Grip
         self
       end
 
-      # Gets request header.
+      # Gets request header, raises if not found.
       def get_req_header(key)
         @request.headers[key]
+      end
+
+      # Gets request header, returns nil if not found.
+      def get_req_header?(key)
+        @request.headers[key]?
       end
 
       # Get cookie from request or nil if key does not exist

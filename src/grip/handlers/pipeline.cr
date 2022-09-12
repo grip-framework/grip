@@ -61,10 +61,8 @@ module Grip
       end
 
       def match_via_http(context : HTTP::Server::Context) : Bool
-        route = @http_handler.find_route(
-          context.request.method.as(String),
-          context.request.path
-        )
+        route = @http_handler.find_route(context.request.method.as(String), context.request.path)
+        route = @http_handler.find_route("ALL", context.request.path) unless route.found?
 
         unless route.found?
           return false
