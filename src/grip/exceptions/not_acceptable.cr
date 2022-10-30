@@ -1,8 +1,8 @@
 module Grip
   module Exceptions
-    class BadRequest < Base
+    class NotAcceptable < Base
       def initialize
-        @status_code = HTTP::Status::BAD_REQUEST
+        @status_code = HTTP::Status::NOT_ACCEPTABLE
         super "Please provide a proper request to the endpoint."
       end
     end

@@ -14,8 +14,6 @@ module Grip
         case {{valve}}
         when Symbol
           @valves.push({{valve}})
-        else
-          # Ignore this condition
         end
       end
 

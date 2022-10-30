@@ -34,8 +34,8 @@ This project exists due to the fact that Kemal lacks one crucial part of a frame
 - WebSocket RFC 6455 support.
 - Built-in exceptions support.
 - Parameter handling support.
-- JSON serialization and deserialization support (fastest framework with JSON).
-- Built-in third-party module support.
+- JSON serialization and deserialization support (fastest framework with JSON in Crystal).
+- Middleware support.
 - Request/Response context, inspired by [expressjs](https://github.com/expressjs/express).
 - Advanced routing support.
 
@@ -123,13 +123,8 @@ class Application < Grip::Application
     exceptions [Grip::Exceptions::Unauthorized, Grip::Exceptions::NotFound], ExceptionController
     exception ArgumentError, ExceptionController
 
-    pipeline :api, [
-      Authorization.new
-    ]
-
-    pipeline :docs, [
-      PoweredByGrip.new
-    ]
+    pipeline :api, [PoweredByGrip.new, Authorization.new]
+    pipeline :docs, [PoweredByGrip.new]
 
     scope "/api" do
       get "/error", IndexController, as: :error
