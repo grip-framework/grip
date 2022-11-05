@@ -52,7 +52,7 @@ module Grip
       end
 
       private def radix_path(method, path)
-        '/' + method.downcase + path
+        '/' + method + path
       end
 
       private def add_to_radix_tree(method, path, route)

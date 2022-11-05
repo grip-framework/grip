@@ -55,7 +55,7 @@ module Grip
       end
 
       private def radix_path(method, path)
-        '/' + method.downcase + path
+        '/' + method + path
       end
 
       def websocket_upgrade_request?(context)
