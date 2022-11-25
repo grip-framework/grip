@@ -160,7 +160,6 @@ Add this to your application's `shard.yml`:
 dependencies:
   grip:
     github: grip-framework/grip
-    branch: core
 ```
 
 And run this command in your terminal:
