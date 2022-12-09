@@ -65,54 +65,6 @@ class IndexController < Grip::Controllers::Http
       .json(content: {"id" => id}, content_type: "application/json; charset=us-ascii")
       .halt
   end
-
-  def error(context : Context) : Context
-    if context.request.path.includes?("/api/error")
-      raise ArgumentError.new("An example message.")
-    end
-
-    context
-      .json({"id" => UUID.random.to_s})
-      .halt
-  end
-end
-
-class ExceptionController < Grip::Controllers::Exception
-  def call(context : Context) : Context
-    context
-      .json({"error" => context.exception.try(&.message)}) # The exception is nilable.
-      .halt
-  end
-end
-
-class Swigger::Swagger
-  include HTTP::Handler
-
-  def call(context : HTTP::Server::Context) : HTTP::Server::Context
-    context
-      .html("<h1>Hello, World!</h1>")
-      .halt
-  end
-end
-
-class PoweredByGrip
-  include HTTP::Handler
-
-  def call(context : HTTP::Server::Context) : HTTP::Server::Context
-    context.put_resp_header("Server", "grip/#{Grip::VERSION}")
-
-    context
-  end
-end
-
-class Authorization
-  include HTTP::Handler
-
-  def call(context : HTTP::Server::Context) : HTTP::Server::Context
-    raise Grip::Exceptions::Unauthorized.new unless context.get_req_header?("Authorization")
-
-    context
-  end
 end
 
 class Application < Grip::Application
@@ -120,27 +72,11 @@ class Application < Grip::Application
     # By default the environment is set to "development" and serve_static is false.
     super(environment, serve_static)
 
-    exceptions [Grip::Exceptions::Unauthorized, Grip::Exceptions::NotFound], ExceptionController
-    exception ArgumentError, ExceptionController
-
-    pipeline :api, [PoweredByGrip.new, Authorization.new]
-    pipeline :docs, [PoweredByGrip.new]
-
     scope "/api" do
-      get "/error", IndexController, as: :error
-
       scope "/v1" do
-        pipe_through :api
-
         get "/", IndexController
         get "/:id", IndexController, as: :index
       end
-    end
-
-    scope "/docs" do
-      pipe_through :docs
-
-      forward "/swagger", Swigger::Swagger
     end
 
     # Enable request/response logging.
