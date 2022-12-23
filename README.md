@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/grip-framework/grip/actions"><img alt="Actions Status" src="https://img.shields.io/github/workflow/status/grip-framework/grip/Crystal%20CI?label=actions&style=flat-square"></a>
+  <a href="https://github.com/grip-framework/grip/actions"><img alt="Actions Status" src="https://img.shields.io/github/actions/workflow/status/grip-framework/grip/crystal.yml?branch=core&label=actions&style=flat-square"></a>
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://grip-framework.github.io/docs/"><img alt="Docs CI Status" src="https://img.shields.io/github/workflow/status/grip-framework/docs/ci?label=docs&style=flat-square"></a>
+  <a href="https://grip-framework.github.io/docs/"><img alt="Docs CI Status" src="https://img.shields.io/github/actions/workflow/status/grip-framework/docs/ci.yml?branch=master&label=docs&style=flat-square"></a>
 </p>
 
 <p align="center">
