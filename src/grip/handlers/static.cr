@@ -26,7 +26,7 @@ module Grip
         end
 
         is_dir_path = dir_path? original_path
-        expanded_path = File.expand_path(request_path, "/")
+        expanded_path = Path.posix(request_path).expand("/").to_s
         expanded_path += "/" if is_dir_path && !dir_path?(expanded_path)
         is_dir_path = dir_path? expanded_path
         file_path = File.join(@public_dir, expanded_path)
