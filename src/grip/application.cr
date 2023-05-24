@@ -118,14 +118,8 @@ module Grip
       Log.info { "Listening at #{schema}://#{host}:#{port}" }
 
       if @environment != "test"
-        setup_trap_signal()
+        Process.on_interrupt { exit }
         server.listen
-      end
-    end
-
-    private def setup_trap_signal
-      Signal::INT.trap do
-        exit
       end
     end
   end
