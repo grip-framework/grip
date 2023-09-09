@@ -78,7 +78,7 @@ module Grip
       ENV["CERTIFICATE"]? || ""
     end
 
-    {% unless flag?(:with_openssl) %}
+    {% unless flag?(:ssl) %}
       def ssl : Bool
         false
       end
@@ -104,7 +104,7 @@ module Grip
       server = self.server
 
       unless server.each_address { |_| break true }
-        {% if flag?(:with_openssl) %}
+        {% if flag?(:ssl) %}
           if ssl
             server.bind_tls(host, port, ssl, reuse_port)
           else
