@@ -106,7 +106,8 @@ shards install
 
 ## API Reference
 
-Documentation can be found on the [official website of the Grip framework](https://grip-framework.github.io/docs/).
+Documentation can be found on the [official website of the Grip framework](https://grip-framework.github.io/docs/) or
+the [CrystalDoc website](https://crystaldoc.info/github/grip-framework/grip/v2.0.3/index.html).
 
 ## Contribute
 
