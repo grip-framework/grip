@@ -18,7 +18,7 @@ module Grip
       end
 
       macro scope(path)
-        size = @valves.size
+        %size = @valves.size
 
         if {{path}} != "/"
           @scopes.push({{path}})
@@ -26,13 +26,11 @@ module Grip
 
         {{yield}}
 
-        @valves.pop() if @valves.size != 0 && @valves.size != size
+        @valves.pop(@valves.size - %size)
 
         if {{path}} != "/"
           @scopes.pop()
         end
-
-        @valves.pop() if @scopes.size == 0 && @valves.size != 0
       end
 
       {% for http_method in HTTP_METHODS %}
