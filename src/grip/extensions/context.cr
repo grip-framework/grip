@@ -3,6 +3,7 @@ module Grip
     module Context
       property exception : Exception?
       property parameters : Grip::Parsers::ParameterBox?
+      property? skip_router : Bool = false
 
       # Deletes request header.
       def delete_req_header(key)

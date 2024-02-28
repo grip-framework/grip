@@ -11,7 +11,7 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
-        return context if context.response.closed?
+        return context if context.skip_router? || context.response.closed?
 
         route = find_route(context.request.method.as(String), context.request.path)
         route = find_route("ALL", context.request.path) unless route.found?

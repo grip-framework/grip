@@ -11,6 +11,8 @@ module Grip
       end
 
       def call(context : HTTP::Server::Context)
+        return context if context.skip_router? || context.response.closed?
+
         route = find_route("", context.request.path)
 
         unless route.found? && websocket_upgrade_request?(context)
