@@ -11,7 +11,7 @@ module Grip
     getter exception_handler : Grip::Handlers::Exception
     getter pipeline_handler : Grip::Handlers::Pipeline
     getter websocket_handler : Grip::Routers::WebSocket
-    getter static_handler : Grip::Handlers::Static?
+    getter static_handler : Array(Grip::Handlers::Static) = [] of Grip::Handlers::Static
 
     property router : Array(HTTP::Handler)
 
@@ -26,8 +26,8 @@ module Grip
       @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler)
       @exception_handler = Grip::Handlers::Exception.new(@environment)
 
-      if serve_static
-        @static_handler = Grip::Handlers::Static.new(pubilc_dir, fallthrough, directory_listing)
+      serve_static && static_routes.each do |route, path|
+        @static_handler << Grip::Handlers::Static.new(path, fallthrough, directory_listing, route)
       end
 
       @router = [
@@ -54,6 +54,10 @@ module Grip
       "./public"
     end
 
+    def static_routes : Hash(String, String)
+      {"/" => pubilc_dir}
+    end
+
     def fallthrough : Bool
       false
     end
@@ -63,8 +67,8 @@ module Grip
     end
 
     def server : HTTP::Server
-      if serve_static
-        @router.insert(1, @static_handler.not_nil!)
+      serve_static && @static_handler.each do |handler|
+        @router.insert(1, handler)
       end
 
       HTTP::Server.new(@router)
