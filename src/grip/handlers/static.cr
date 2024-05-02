@@ -8,7 +8,7 @@
 module Grip
   module Handlers
     class Static < HTTP::StaticFileHandler
-      def initialize(public_dir : String, @fallthrough = true, @directory_listing = true, @routing = "/")
+      def initialize(public_dir : String, @fallthrough = false, @directory_listing = false, @routing = "/")
         @public_dir = Path.new(public_dir).expand
       end
 
