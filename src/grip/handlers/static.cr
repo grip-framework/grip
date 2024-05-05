@@ -14,11 +14,8 @@ module Grip
 
       def call(context : HTTP::Server::Context)
         return allow_get_or_head(context) unless method_get_or_head?(context.request.method)
-        # 1. / -> ./public
-        # 2. /foo/bar -> ./public
-        # 3. /foo/bar/ -> ./public
 
-        original_path = context.request.path.not_nil! # / /foo/bar /foo/bar/
+        original_path = context.request.path.not_nil!
         request_path = URI.decode(original_path)
 
         # File path cannot contain '\0' (NUL) because all filesystem I know
@@ -31,25 +28,21 @@ module Grip
         is_dir_path = dir_path? original_path
         expanded_path = Path.posix(request_path).expand("/").to_s
         expanded_path += "/" if is_dir_path && !dir_path?(expanded_path)
-        relative_path = request_path.lchop(routing) # "" "" /
+        relative_path = request_path.lchop(routing)
 
-        is_dir_path = dir_path? expanded_path                                            # false false true
-        file_path = File.join([@public_dir] + relative_path.split("/"))                  # ./public ./public ./public
-        root_file = File.join([@public_dir] + relative_path.split("/") + ["index.html"]) # ./public/index.html ./public/index.html ./public/index.html
+        is_dir_path = dir_path? expanded_path
+        file_path = File.join(@public_dir, Path[relative_path])
+        root_file = File.join(@public_dir, Path[relative_path], "index.html")
 
         if is_dir_path && File.exists? root_file
           return if etag(context, root_file)
           return context.send_file(root_file, gzip_enabled: self.class.config_gzip?(static_config))
         end
 
-        is_dir_path = Dir.exists?(file_path) && !is_dir_path # true
+        is_dir_path = Dir.exists?(file_path) && !is_dir_path
         if request_path != expanded_path || is_dir_path
           redirect_to context, file_redirect_path(expanded_path, is_dir_path)
         end
-
-        # private def redirect_to(context, url)
-        #   context.response.redirect url.to_s
-        # end
 
         call_next_with_file_path(context, request_path, file_path)
       end
