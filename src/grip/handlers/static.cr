@@ -28,7 +28,10 @@ module Grip
         is_dir_path = dir_path? original_path
         expanded_path = Path.posix(request_path).expand("/").to_s
         expanded_path += "/" if is_dir_path && !dir_path?(expanded_path)
-        relative_path = request_path.lchop(routing)
+        relative_path = request_path.lchop?(routing) || begin
+          call_next(context)
+          expanded_path
+        end
 
         is_dir_path = dir_path? expanded_path
         file_path = File.join(@public_dir, Path[relative_path])
