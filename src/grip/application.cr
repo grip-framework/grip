@@ -118,7 +118,29 @@ module Grip
       Log.info { "Listening at #{schema}://#{host}:#{port}" }
 
       if @environment != "test"
-        Process.on_interrupt { exit }
+        {% begin %}
+          {% version = Crystal::VERSION.split(".").map(&.to_i) %}
+
+          {% major = version[0] %}
+          {% minor = version[1] %}
+          {% patch = version[2] %}
+
+          # 0.X.X
+          {% if major < 1 %}
+            Signal::INT.trap { exit }
+          {% end %}
+
+          # 1.0.0 to 1.11.X
+          {% if major == 1 && minor < 12 %}
+            Process.on_interrupt { exit }
+          {% end %}
+
+          # 1.12.X to 1.X.X
+          {% if major == 1 && minor >= 12 %}
+            Process.on_terminate { exit }
+          {% end %}
+        {% end %}
+
         server.listen
       end
     end

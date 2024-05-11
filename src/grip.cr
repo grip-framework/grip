@@ -25,3 +25,12 @@ require "./grip/routers/*"
 require "./grip/*"
 
 module Grip; end
+
+class Application < Grip::Application
+    def initialize()
+        super("development", false)
+    end
+end
+
+app = Application.new
+app.run
