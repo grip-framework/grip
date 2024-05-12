@@ -119,7 +119,7 @@ module Grip
 
       if @environment != "test"
         {% begin %}
-          {% version = Crystal::VERSION.split(".").map(&.to_i) %}
+          {% version = Crystal::VERSION.gsub(/[^0-9.]/, "").split(".").map(&.to_i) %}
 
           {% major = version[0] %}
           {% minor = version[1] %}
