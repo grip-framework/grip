@@ -8,8 +8,8 @@
 module Grip
   module Handlers
     class Static < HTTP::StaticFileHandler
-      def initialize(public_dir : String, fallthrough = false, directory_listing = false)
-        super
+      def initialize(public_dir : String, @fallthrough = false, @directory_listing = false, @routing = "/")
+        @public_dir = Path.new(public_dir).expand
       end
 
       def call(context : HTTP::Server::Context)
@@ -28,9 +28,14 @@ module Grip
         is_dir_path = dir_path? original_path
         expanded_path = Path.posix(request_path).expand("/").to_s
         expanded_path += "/" if is_dir_path && !dir_path?(expanded_path)
+        relative_path = request_path.lchop?(routing) || begin
+          call_next(context)
+          expanded_path
+        end
+
         is_dir_path = dir_path? expanded_path
-        file_path = File.join(@public_dir, expanded_path)
-        root_file = File.join(@public_dir, expanded_path, "index.html")
+        file_path = File.join(@public_dir, Path[relative_path])
+        root_file = File.join(@public_dir, Path[relative_path], "index.html")
 
         if is_dir_path && File.exists? root_file
           return if etag(context, root_file)
@@ -103,6 +108,8 @@ module Grip
       def self.config_gzip?(config)
         config.is_a?(Hash) && config["gzip"] == true
       end
+
+      getter routing : String
     end
   end
 end
