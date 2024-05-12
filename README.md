@@ -68,9 +68,9 @@ class IndexController < Grip::Controllers::Http
 end
 
 class Application < Grip::Application
-  def initialize(environment : String, serve_static : Bool)
+  def initialize(environment : String)
     # By default the environment is set to "development" and serve_static is false.
-    super(environment, serve_static)
+    super(environment)
 
     scope "/api" do
       scope "/v1" do
@@ -84,7 +84,7 @@ class Application < Grip::Application
   end
 end
 
-app = Application.new(environment: "development", serve_static: false)
+app = Application.new(environment: "development")
 app.run
 ```
 

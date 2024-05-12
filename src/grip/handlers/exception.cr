@@ -29,8 +29,9 @@ module Grip
           context.response.status_code = status_code
           context.exception = exception
 
+          updated_context = @handlers[exception.class.name].call(context)
           context.response.close
-          @handlers[exception.class.name].call(context)
+          updated_context
         else
           if status_code.in?(400..599)
             context.response.status_code = status_code

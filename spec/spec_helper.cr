@@ -12,7 +12,7 @@ end
 
 class ErrorApplication < Grip::Application
   def initialize
-    super(environment: "test", serve_static: false)
+    super(environment: "test")
 
     exception Grip::Exceptions::NotFound, ErrorController
   end
@@ -24,7 +24,7 @@ end
 
 class HttpApplication < Grip::Application
   def initialize
-    super(environment: "test", serve_static: false)
+    super(environment: "test")
 
     get "/", ExampleController
     get "/:id", ExampleController, as: :index
@@ -37,7 +37,7 @@ end
 
 class WebSocketApplication < Grip::Application
   def initialize
-    super(environment: "test", serve_static: false)
+    super(environment: "test")
 
     ws "/", MatchController
   end
