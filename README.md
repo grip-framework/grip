@@ -69,7 +69,7 @@ end
 
 class Application < Grip::Application
   def initialize(environment : String)
-    # By default the environment is set to "development" and serve_static is false.
+    # By default the environment is set to "development".
     super(environment)
 
     scope "/api" do
