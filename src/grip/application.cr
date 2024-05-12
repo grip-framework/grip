@@ -5,30 +5,24 @@ module Grip
     include Grip::Macros::Dsl
 
     getter environment : String = "development"
-    getter serve_static : Bool = false
 
     getter http_handler : Grip::Routers::Http
     getter exception_handler : Grip::Handlers::Exception
     getter pipeline_handler : Grip::Handlers::Pipeline
     getter websocket_handler : Grip::Routers::WebSocket
-    getter static_handler : Array(Grip::Handlers::Static) = [] of Grip::Handlers::Static
-
-    property router : Array(HTTP::Handler)
+    getter static_handlers : Array(Grip::Handlers::Static) = [] of Grip::Handlers::Static
 
     getter scopes : Array(String) = [] of String
     getter valves : Array(Symbol) = [] of Symbol
-
     getter valve : Symbol?
+    
+    property router : Array(HTTP::Handler)
 
-    def initialize(@environment : String = "development", @serve_static : Bool = false)
+    def initialize(@environment : String = "development")
       @http_handler = Grip::Routers::Http.new
       @websocket_handler = Grip::Routers::WebSocket.new
       @pipeline_handler = Grip::Handlers::Pipeline.new(@http_handler, @websocket_handler)
       @exception_handler = Grip::Handlers::Exception.new(@environment)
-
-      serve_static && static_routes.each do |route, path|
-        @static_handler << Grip::Handlers::Static.new(path, fallthrough, directory_listing, route)
-      end
 
       @router = [
         @exception_handler,
@@ -50,24 +44,8 @@ module Grip
       false
     end
 
-    def pubilc_dir : String
-      "./public"
-    end
-
-    def static_routes : Hash(String, String)
-      {"/" => pubilc_dir}
-    end
-
-    def fallthrough : Bool
-      false
-    end
-
-    def directory_listing : Bool
-      false
-    end
-
     def server : HTTP::Server
-      serve_static && @static_handler.each do |handler|
+      @static_handlers.each do |handler|
         @router.insert(1, handler)
       end
 

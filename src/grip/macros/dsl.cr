@@ -43,6 +43,22 @@ module Grip
         end
       {% end %}
 
+      macro static(source, destination, **kwargs)
+        {% if kwargs[:fallthrough] %}
+          {% fallthrough = kwargs[:fallthrough] %}
+        {% else %}
+          {% fallthrough = false %}
+        {% end %}
+
+        {% if kwargs[:directory_listing] %}
+          {% directory_listing = kwargs[:directory_listing] %}
+        {% else %}
+          {% directory_listing = false %}
+        {% end %}
+
+        @static_handlers.push(Grip::Handlers::Static.new({{destination}}, {{fallthrough}}, {{directory_listing}}, {{source}}))
+      end
+
       macro forward(route, resource, **kwargs)
         @http_handler.add_route("ALL", [@scopes.join(), {{route}}].join, {{resource}}.new({{**kwargs}}).as(HTTP::Handler), @valves.clone(), nil)
       end

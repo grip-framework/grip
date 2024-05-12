@@ -15,10 +15,7 @@ module Grip
       rescue ex
         return context if context.response.closed?
 
-        context.response.status_code = 500 if !context.response.status_code.in?([400, 401, 403, 404, 405, 500])
-
         if ex.is_a?(Grip::Exceptions::Base)
-          context.response.status_code = ex.status_code.value
           call_exception(context, ex, ex.status_code.value)
         else
           call_exception(context, ex, context.response.status_code)
@@ -27,20 +24,29 @@ module Grip
 
       private def call_exception(context : HTTP::Server::Context, exception : ::Exception, status_code : Int32)
         return context if context.response.closed?
+
         if @handlers.has_key?(exception.class.name)
           context.response.status_code = status_code
           context.exception = exception
 
+          context.response.close
           @handlers[exception.class.name].call(context)
         else
+          if status_code.in?(400..599)
+            context.response.status_code = status_code
+          else
+            context.response.status_code = 500
+          end
+
+          context.response.headers.merge!({"Content-Type" => "text/html; charset=UTF-8"})
+
           if @environment == "production"
-            context.response.headers.merge!({"Content-Type" => "text/html; charset=UTF-8"})
             context.response.print("An error occured, please try again later.")
           else
-            context.response.headers.merge!({"Content-Type" => "text/html; charset=UTF-8"})
             context.response.print(Grip::Minuscule::ExceptionPage.for_runtime_exception(context, exception).to_s)
           end
 
+          context.response.close
           context
         end
       end

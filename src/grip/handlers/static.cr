@@ -78,7 +78,7 @@ module Grip
 
         if Dir.exists?(file_path)
           if config.is_a?(Hash) && config["dir_listing"] == true
-            context.response.content_type = "text/html"
+            context.response.content_type = "text/html;charset=UTF-8;"
             directory_listing(context.response, request_path, file_path)
           else
             call_next(context)
