@@ -157,6 +157,7 @@ module Grip
 
       def exec
         with self yield
+        self
       end
     end
   end
