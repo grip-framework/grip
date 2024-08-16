@@ -15,7 +15,7 @@ module Grip
     getter scopes : Array(String) = [] of String
     getter valves : Array(Symbol) = [] of Symbol
     getter valve : Symbol?
-    
+
     property router : Array(HTTP::Handler)
 
     def initialize(@environment : String = "development")
