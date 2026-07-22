@@ -1,7 +1,7 @@
 module Grip
   module Macros
     module Dsl
-      HTTP_METHODS = %i(get post put patch delete options head)
+      HTTP_METHODS = %i(get head post put delete connect options trace patch)
 
       macro pipe_through(valve)
         @valve = {{valve}}
@@ -44,16 +44,17 @@ module Grip
         end
 
         %http_handler = @handlers.find { |handler| handler.is_a?(Grip::Handlers::HTTP) }
+        %server_sent_handler = @handlers.find { |handler| handler.is_a?(Grip::Handlers::ServerSent) }
         %websocket_handler = @handlers.find { |handler| handler.is_a?(Grip::Handlers::WebSocket) }
 
-        if %http_handler.nil? && %websocket_handler.nil?
-          raise ::Exception.new("You need to add either HTTP or WebSocket handlers to use the `pipeline` macro")
+        if %http_handler.nil? && %server_sent_handler.nil? && %websocket_handler.nil?
+          raise ::Exception.new("You need to add either HTTP, Server-Sent event, or WebSocket handlers to use the `pipeline` macro")
         end
 
         {{pipes}}.each do |pipe|
           %pipeline_handler
             .as(Grip::Handlers::Pipeline)
-            .add_pipe({{name}}, pipe, %http_handler, %websocket_handler)
+            .add_pipe({{name}}, pipe, %http_handler, %server_sent_handler, %websocket_handler)
         end
       end
 
@@ -122,6 +123,26 @@ module Grip
           %exception_handler
             .as(Grip::Handlers::Exception)
             .handlers[{{exception}}.name] = {{resource}}.instance
+        {% end %}
+      end
+
+      macro sse(route, resource, **kwargs)
+        %server_sent_handler = @handlers.find { |handler| handler.is_a?(Grip::Handlers::ServerSent) }
+
+        raise ::Exception.new("You need to add the server-side event handler to use the `sse` macro") if %server_sent_handler.nil?
+
+        {% if kwargs[:as] %}
+          %server_sent_handler
+            .as(Grip::Handlers::Base)
+            .add_route(
+              "",
+              [@scopes.join(), {{route}}].join,
+              {{resource}}.instance,
+              @valves.clone(),
+              ->(context : HTTP::Server::Context) { {{resource}}.instance.as({{resource}}).{{kwargs[:as].id}}(context) }
+            )
+        {% else %}
+          raise ::Exception.new("You need to specify the `as` keyword argument when using the `sse` macro")
         {% end %}
       end
 

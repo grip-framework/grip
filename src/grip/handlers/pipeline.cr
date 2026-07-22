@@ -6,11 +6,13 @@ module Grip
 
       property pipeline : Hash(Symbol, Array(::HTTP::Handler))
       property http_handler : ::HTTP::Handler?
+      property server_sent_handler : ::HTTP::Handler?
       property websocket_handler : ::HTTP::Handler?
 
       def initialize(
         @http_handler = nil,
-        @websocket_handler = nil,
+        @server_sent_handler = nil,
+        @websocket_handler = nil
       )
         @pipeline = Hash(Symbol, Array(::HTTP::Handler)).new
         @pipe_cache = Hash(Array(Symbol), Array(::HTTP::Handler)).new
@@ -21,7 +23,7 @@ module Grip
         path : String,
         handler : ::HTTP::Handler,
         via : Symbol? | Array(Symbol)? = nil,
-        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
+        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil
       ) : Nil
       end
 
@@ -32,8 +34,14 @@ module Grip
       @[AlwaysInline]
       def call(context : ::HTTP::Server::Context)
         # Try WebSocket first if handler exists
-        if ws = @websocket_handler
-          if match_via_websocket(context, ws.as(WebSocket))
+        if websocket = @websocket_handler
+          if match_via_websocket(context, websocket.as(WebSocket))
+            return call_next(context)
+          end
+        end
+
+        if server_sent = @server_sent_handler
+          if match_via_server_sent(context, server_sent.as(ServerSent))
             return call_next(context)
           end
         end
@@ -52,9 +60,11 @@ module Grip
         valve : Symbol,
         pipe : ::HTTP::Handler,
         http_handler : ::HTTP::Handler? = nil,
-        websocket_handler : ::HTTP::Handler? = nil,
+        server_sent_handler : ::HTTP::Handler? = nil,
+        websocket_handler : ::HTTP::Handler? = nil
       ) : Nil
         @http_handler = http_handler
+        @server_sent_handler = server_sent_handler
         @websocket_handler = websocket_handler
 
         handlers = @pipeline[valve] ||= Array(::HTTP::Handler).new
@@ -95,12 +105,27 @@ module Grip
       end
 
       @[AlwaysInline]
-      private def match_via_websocket(context : ::HTTP::Server::Context, ws_handler : WebSocket) : Bool
+      private def match_via_websocket(context : ::HTTP::Server::Context, websocket_handler : WebSocket) : Bool
         # Check upgrade first (cheaper than route lookup)
-        return false unless ws_handler.websocket_upgrade_request?(context)
+        return false unless websocket_handler.websocket_upgrade_request?(context)
 
-        route = ws_handler.find_route("", context.request.path)
+        route = websocket_handler.find_route("", context.request.path)
         return false unless route.found?
+
+        context.parameters = Parsers::ParameterBox.new(context.request, route.params)
+        route.payload.process_pipeline(context, self)
+        true
+      end
+
+      @[AlwaysInline]
+      private def match_via_server_sent(context : ::HTTP::Server::Context, server_sent : ServerSent) : Bool
+        route = server_sent.find_route(context.request.method, context.request.path)
+
+        # Try ALL fallback if not found
+        unless route.found?
+          route = server_sent.find_route("ALL", context.request.path)
+          return false unless route.found?
+        end
 
         context.parameters = Parsers::ParameterBox.new(context.request, route.params)
         route.payload.process_pipeline(context, self)

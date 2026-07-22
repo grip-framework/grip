@@ -43,6 +43,23 @@ class HttpApplication
   end
 end
 
+class ServerSentApplication
+  include Grip::Application
+
+  property handlers : Array(::HTTP::Handler) = [
+    Grip::Handlers::ServerSent.new,
+  ] of ::HTTP::Handler
+
+  property host : String = "0.0.0.0"
+  property port : Int32 = 0
+
+  def initialize
+    sse "/", ServerSentExampleController, as: :stream
+    sse "/wallet/stream", WalletStreamController, as: :stream
+    sse "/large", LargePayloadController, as: :stream
+  end
+end
+
 class WebSocketApplication
   include Grip::Application
 
@@ -88,6 +105,56 @@ class ExampleController
 
   def delete(context : Context) : Context
     context
+  end
+end
+
+class ServerSentExampleController
+  include Grip::Controllers::ServerSent
+
+  def stream(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
+    stream = context.stream
+
+    # Emit handshake/data frame so specs can assert against response body
+    stream.connected("conn_test_123")
+
+    sleep 0.1 # Allow time for the background worker fiber to flush to socket
+    context.halt
+  end
+end
+
+class WalletStreamController
+  include Grip::Controllers::ServerSent
+
+  def stream(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
+    stream = context.stream
+
+    payload = {
+      "amount"   => 10.5,
+      "currency" => "USD",
+    }
+
+    stream.emit(
+      Grip::ServerSent::Event::Type::Data,
+      data: payload,
+      id: 1001
+    )
+
+    sleep 0.1
+    context.halt
+  end
+end
+
+class LargePayloadController
+  include Grip::Controllers::ServerSent
+
+  def stream(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
+    stream = context.stream
+    large_payload = "x" * 10_000
+
+    stream.emit(Grip::ServerSent::Event::Type::Data, data: large_payload)
+
+    sleep 0.1
+    context.halt
   end
 end
 
