@@ -19,13 +19,12 @@ module Grip
         @cache = Array(Tuple(UInt64, Radix::Result(Route)?)).new(CACHE_SIZE) { {0_u64, nil} }
       end
 
-      # Unchanged signature
       def add_route(
         verb : String,
         path : String,
         handler : ::HTTP::Handler,
         via : Symbol? | Array(Symbol)? = nil,
-        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
+        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil
       ) : Nil
         route = Route.new(verb, path, handler, via, override)
 
@@ -33,7 +32,6 @@ module Grip
         @routes.add(radix_path(verb, path), route)
       end
 
-      # Unchanged signature - returns Radix::Result(Route)
       def find_route(verb : String, path : String) : Radix::Result(Route)
         hash = route_hash(verb, path)
 
@@ -48,7 +46,6 @@ module Grip
         result
       end
 
-      # Unchanged signature
       def call(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
         return context if context.response.closed?
 

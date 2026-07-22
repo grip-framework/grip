@@ -8,56 +8,61 @@ module Grip
         include Grip::Helpers::Singleton
 
         def get(context : Context) : Context
-          context
-            .halt
-        end
-
-        def post(context : Context) : Context
-          context
-            .halt
-        end
-
-        def put(context : Context) : Context
-          context
-            .halt
-        end
-
-        def patch(context : Context) : Context
-          context
-            .halt
-        end
-
-        def delete(context : Context) : Context
-          context
-            .halt
-        end
-
-        def options(context : Context) : Context
-          context
-            .halt
+          raise Grip::Exceptions::NotImplemented.new
         end
 
         def head(context : Context) : Context
-          context
-            .halt
+          raise Grip::Exceptions::NotImplemented.new
+        end
+
+        def post(context : Context) : Context
+          raise Grip::Exceptions::NotImplemented.new
+        end
+
+        def put(context : Context) : Context
+          raise Grip::Exceptions::NotImplemented.new
+        end
+
+        def delete(context : Context) : Context
+          raise Grip::Exceptions::NotImplemented.new
+        end
+
+        def connect(context : Context) : Context
+          raise Grip::Exceptions::NotImplemented.new
+        end
+
+        def options(context : Context) : Context
+          raise Grip::Exceptions::NotImplemented.new
+        end
+
+        def trace(context : Context) : Context
+          raise Grip::Exceptions::NotImplemented.new
+        end
+
+        def patch(context : Context) : Context
+          raise Grip::Exceptions::NotImplemented.new
         end
 
         def call(context : Context) : Context
           case context.request.method
           when "GET"
             get(context)
+          when "HEAD"
+            head(context)
           when "POST"
             post(context)
           when "PUT"
             put(context)
-          when "PATCH"
-            patch(context)
           when "DELETE"
             delete(context)
+          when "CONNECT"
+            connect(context)
           when "OPTIONS"
             options(context)
-          when "HEAD"
-            head(context)
+          when "TRACE"
+            trace(context)
+          when "PATCH"
+            patch(context)
           else
             raise Grip::Exceptions::MethodNotAllowed.new
           end
