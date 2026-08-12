@@ -80,6 +80,8 @@ module Grip
         response.close
 
         context
+      rescue exception : IO::Error
+        context
       end
     end
   end
