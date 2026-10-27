@@ -33,6 +33,8 @@ module Grip
 
       @[AlwaysInline]
       def call(context : ::HTTP::Server::Context)
+        raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
+
         # Try WebSocket first if handler exists
         if websocket = @websocket_handler
           if match_via_websocket(context, websocket.as(WebSocket))

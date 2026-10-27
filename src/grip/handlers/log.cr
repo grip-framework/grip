@@ -16,6 +16,9 @@ module Grip
 
       @[AlwaysInline]
       def call(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
+        return context if context.response.closed?
+        raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
+
         start = Time.monotonic
         call_next(context)
         elapsed = Time.monotonic - start

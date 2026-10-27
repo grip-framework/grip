@@ -39,6 +39,7 @@ module Grip
 
       def call(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
         return context if context.response.closed?
+        raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
 
         route = find_route("", context.request.path)
 

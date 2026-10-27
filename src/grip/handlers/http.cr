@@ -48,6 +48,7 @@ module Grip
 
       def call(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
         return context if context.response.closed?
+        raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
 
         route = resolve_route(context.request.method, context.request.path)
         raise Exceptions::NotFound.new unless route.found?
@@ -145,9 +146,10 @@ module Grip
 
       @[AlwaysInline]
       private def radix_path(verb : String, path : String) : String
-        String.build(verb.bytesize + path.bytesize + 1) do |io|
+        String.build(verb.bytesize + path.bytesize + 2) do |io|
           io << '/'
           io << verb
+          io << '/'
           io << path
         end
       end

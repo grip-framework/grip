@@ -27,6 +27,7 @@ module Grip
 
       @[AlwaysInline]
       def call(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
+        raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
         call_next(context) || context
       rescue ex : ::Exception
         return context if context.response.closed?
