@@ -24,7 +24,7 @@ module Grip
         path : String,
         handler : ::HTTP::Handler,
         via : Symbol? | Array(Symbol)? = nil,
-        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil
+        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
       ) : Nil
         route = Route.new(verb, path, handler, via, override)
 

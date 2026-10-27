@@ -17,7 +17,7 @@ module Grip
         path : String,
         handler : ExceptionHandler,
         via : Symbol | Array(Symbol) | Nil = nil,
-        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil
+        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
       ) : Nil
       end
 
@@ -56,7 +56,7 @@ module Grip
         context : ::HTTP::Server::Context,
         handler : ExceptionHandler,
         exception : ::Exception,
-        status_code : Int32
+        status_code : Int32,
       ) : ::HTTP::Server::Context
         context.response.status_code = status_code
         context.exception = exception
@@ -70,7 +70,7 @@ module Grip
       private def render_default_error(
         context : ::HTTP::Server::Context,
         exception : ::Exception,
-        status_code : Int32
+        status_code : Int32,
       ) : ::HTTP::Server::Context
         response = context.response
 
