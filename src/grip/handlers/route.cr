@@ -19,8 +19,8 @@ module Grip
         @method : String,
         @path : String,
         @handler : ::HTTP::Handler,
-        via : Symbol | Array(Symbol) | Nil = nil,
-        @override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil
+        via : Symbol? | Array(Symbol)? = nil,
+        @override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
       )
         @via = normalize_via(via)
         @has_override = !@override.nil?
@@ -31,7 +31,7 @@ module Grip
       @[AlwaysInline]
       def process_pipeline(
         context : ::HTTP::Server::Context,
-        pipeline_handler : Grip::Handlers::Pipeline
+        pipeline_handler : Grip::Handlers::Pipeline,
       ) : ::HTTP::Server::Context
         # Skip pipeline lookup entirely if no via
         return context unless has_pipeline?
@@ -47,7 +47,7 @@ module Grip
       end
 
       @[AlwaysInline]
-      private def normalize_via(via : Symbol | Array(Symbol) | Nil) : Array(Symbol)
+      private def normalize_via(via : Symbol? | Array(Symbol)?) : Array(Symbol)
         case via
         when Symbol
           [via]
@@ -61,7 +61,7 @@ module Grip
       @[AlwaysInline]
       private def execute_pipeline(
         context : ::HTTP::Server::Context,
-        pipeline_handler : Grip::Handlers::Pipeline
+        pipeline_handler : Grip::Handlers::Pipeline,
       ) : Nil
         # Avoid iterator allocation with manual loop
         pipes = pipeline_handler.get(@via)

@@ -6,7 +6,7 @@ module Grip
         path : String,
         handler : ::HTTP::Handler,
         via : Symbol? | Array(Symbol)? = nil,
-        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil
+        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
       ) : Nil
       end
 
@@ -16,9 +16,12 @@ module Grip
 
       @[AlwaysInline]
       def call(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
-        start = Time.monotonic
+        return context if context.response.closed?
+        raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
+
+        start = Time.instant
         call_next(context)
-        elapsed = Time.monotonic - start
+        elapsed = Time.instant - start
 
         log_request(context, elapsed)
         context

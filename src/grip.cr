@@ -9,6 +9,7 @@ require "log"
 require "crypto/subtle"
 require "exception_page"
 require "openssl"
+require "openssl/hmac"
 
 require "./grip/extensions/*"
 require "./grip/exceptions/base"

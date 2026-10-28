@@ -2,7 +2,7 @@ module Grip
   module Support
     module MimeTypes
       DEFAULT_MIME_TYPE      = "application/octet-stream"
-      ZIP_FILE_EXTENSIONS    = %w(.htm .html .txt .css .js .svg .json .xml .otf .ttf .woff .woff2)
+      ZIP_FILE_EXTENSIONS    = %w[.htm .html .txt .css .js .svg .json .xml .otf .ttf .woff .woff2]
       ACCEPT_SEPARATOR_REGEX = /,|,\s/
       TYPE_EXT_REGEX         = /\.(#{MIME_TYPES.keys.join("|")})$/
       FORMAT_HEADER          = "Accept"

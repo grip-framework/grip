@@ -11,7 +11,7 @@ module Grip
       @[AlwaysInline]
       def stream(
         capacity : Int32 = 100,
-        strategy : ::Grip::ServerSent::Strategy = ::Grip::ServerSent::Strategy::DropOldest
+        strategy : ::Grip::ServerSent::Strategy = ::Grip::ServerSent::Strategy::DropOldest,
       ) : ::Grip::ServerSent::Stream
         @stream ||= ::Grip::ServerSent::Stream.new(
           self,
@@ -146,7 +146,7 @@ module Grip
       def send_file(
         path : ::String,
         mime_type : ::String? = nil,
-        gzip_enabled : Bool = false
+        gzip_enabled : Bool = false,
       ) : self
         ::Grip::Helpers::FileDownload.send_file(self, path, mime_type, gzip_enabled)
         self

@@ -1,5 +1,5 @@
 name: grip
-version: 5.0.0
+version: 5.1.1
 
 authors:
   - Grip and its Contributors <https://github.com/grip-framework/>
@@ -11,6 +11,10 @@ dependencies:
   exception_page:
     github: crystal-loot/exception_page
     version: ~> 0.5.0
+
+targets:
+  ameba:
+    main: lib/ameba/bin/ameba.cr
 
 development_dependencies:
   ameba:

@@ -12,7 +12,7 @@ module Grip
       def initialize(
         @http_handler = nil,
         @server_sent_handler = nil,
-        @websocket_handler = nil
+        @websocket_handler = nil,
       )
         @pipeline = Hash(Symbol, Array(::HTTP::Handler)).new
         @pipe_cache = Hash(Array(Symbol), Array(::HTTP::Handler)).new
@@ -23,7 +23,7 @@ module Grip
         path : String,
         handler : ::HTTP::Handler,
         via : Symbol? | Array(Symbol)? = nil,
-        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil
+        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
       ) : Nil
       end
 
@@ -33,6 +33,8 @@ module Grip
 
       @[AlwaysInline]
       def call(context : ::HTTP::Server::Context)
+        raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
+
         # Try WebSocket first if handler exists
         if websocket = @websocket_handler
           if match_via_websocket(context, websocket.as(WebSocket))
@@ -61,7 +63,7 @@ module Grip
         pipe : ::HTTP::Handler,
         http_handler : ::HTTP::Handler? = nil,
         server_sent_handler : ::HTTP::Handler? = nil,
-        websocket_handler : ::HTTP::Handler? = nil
+        websocket_handler : ::HTTP::Handler? = nil,
       ) : Nil
         @http_handler = http_handler
         @server_sent_handler = server_sent_handler

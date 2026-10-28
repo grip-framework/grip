@@ -12,7 +12,7 @@ module Grip
       def initialize(
         @context : HTTP::Server::Context,
         @capacity : Int32 = 100,
-        @strategy : Strategy = Strategy::DropOldest
+        @strategy : Strategy = Strategy::DropOldest,
       )
         setup_headers
         @queue = Channel(String).new(@capacity)
@@ -24,7 +24,7 @@ module Grip
         data : T = nil,
         *,
         id : String | Int? = nil,
-        retry : Time::Span? = nil
+        retry : Time::Span? = nil,
       ) : self forall T
         event_type = type.to_s
 
@@ -65,7 +65,7 @@ module Grip
         *,
         event : String? = nil,
         id : String | Int? = nil,
-        retry : Time::Span? = nil
+        retry : Time::Span? = nil,
       ) : self
         return self if @closed
 

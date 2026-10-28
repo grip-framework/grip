@@ -16,8 +16,8 @@ module Grip
         verb : String,
         path : String,
         handler : ExceptionHandler,
-        via : Symbol | Array(Symbol) | Nil = nil,
-        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil
+        via : Symbol? | Array(Symbol)? = nil,
+        override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
       ) : Nil
       end
 
@@ -27,6 +27,7 @@ module Grip
 
       @[AlwaysInline]
       def call(context : ::HTTP::Server::Context) : ::HTTP::Server::Context
+        raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
         call_next(context) || context
       rescue ex : ::Exception
         return context if context.response.closed?
@@ -55,7 +56,7 @@ module Grip
         context : ::HTTP::Server::Context,
         handler : ExceptionHandler,
         exception : ::Exception,
-        status_code : Int32
+        status_code : Int32,
       ) : ::HTTP::Server::Context
         context.response.status_code = status_code
         context.exception = exception
@@ -69,7 +70,7 @@ module Grip
       private def render_default_error(
         context : ::HTTP::Server::Context,
         exception : ::Exception,
-        status_code : Int32
+        status_code : Int32,
       ) : ::HTTP::Server::Context
         response = context.response
 
@@ -80,7 +81,7 @@ module Grip
         response.close
 
         context
-      rescue exception : IO::Error
+      rescue IO::Error
         context
       end
     end

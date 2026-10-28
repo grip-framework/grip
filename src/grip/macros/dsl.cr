@@ -1,21 +1,21 @@
 module Grip
   module Macros
     module Dsl
-      HTTP_METHODS = %i(get head post put delete connect options trace patch)
+      HTTP_METHODS = %i[get head post put delete connect options trace patch]
 
       macro pipe_through(valve)
-        @valve = {{valve}}
+        @valve = {{ valve }}
 
-        case {{valve}}
+        case {{ valve }}
         when Symbol
-          @valves.push({{valve}})
+          @valves.push({{ valve }})
         end
       end
 
       macro scope
         %size = @valves.size
 
-        {{yield}}
+        {{ yield }}
 
         @valves.pop(@valves.size - %size)
       end
@@ -23,15 +23,15 @@ module Grip
       macro scope(path)
         %size = @valves.size
 
-        if {{path}} != "/"
-          @scopes.push({{path}})
+        if {{ path }} != "/"
+          @scopes.push({{ path }})
         end
 
-        {{yield}}
+        {{ yield }}
 
         @valves.pop(@valves.size - %size)
 
-        if {{path}} != "/"
+        if {{ path }} != "/"
           @scopes.pop()
         end
       end
@@ -51,24 +51,24 @@ module Grip
           raise ::Exception.new("You need to add either HTTP, Server-Sent event, or WebSocket handlers to use the `pipeline` macro")
         end
 
-        {{pipes}}.each do |pipe|
+        {{ pipes }}.each do |pipe|
           %pipeline_handler
             .as(Grip::Handlers::Pipeline)
-            .add_pipe({{name}}, pipe, %http_handler, %server_sent_handler, %websocket_handler)
+            .add_pipe({{ name }}, pipe, %http_handler, %server_sent_handler, %websocket_handler)
         end
       end
 
       {% for http_method in HTTP_METHODS %}
-        macro {{http_method.id}}(route, resource, **kwargs)
+        macro {{ http_method.id }}(route, resource, **kwargs)
           %http_handler = @handlers.find { |handler| handler.is_a?(Grip::Handlers::HTTP) }
 
-          raise ::Exception.new("You need to add the HTTP handler to use the `{{http_method.id}}` macro") if %http_handler.nil?
+          raise ::Exception.new("You need to add the HTTP handler to use the `{{ http_method.id }}` macro") if %http_handler.nil?
 
           \{% if kwargs[:as] %}
             %http_handler
               .as(Grip::Handlers::Base)
               .add_route(
-                {{http_method}}.to_s.upcase,
+                {{ http_method }}.to_s.upcase,
                 [@scopes.join(), \{{route}}].join,
                 \{{resource}}.instance.as(HTTP::Handler),
                 @valves.clone(),
@@ -78,7 +78,7 @@ module Grip
             %http_handler
               .as(Grip::Handlers::Base)
               .add_route(
-                {{http_method}}.to_s.upcase,
+                {{ http_method }}.to_s.upcase,
                 [@scopes.join(), \{{route}}].join,
                 \{{resource}}.instance.as(HTTP::Handler),
                 @valves.clone(),
@@ -97,8 +97,8 @@ module Grip
           .as(Grip::Handlers::HTTP)
           .add_route(
             "ALL",
-            [@scopes.join(), {{route}}].join,
-            {{resource}}.new({{kwargs.double_splat}}).as(HTTP::Handler),
+            [@scopes.join(), {{ route }}].join,
+            {{ resource }}.new({{ kwargs.double_splat }}).as(HTTP::Handler),
             @valves.clone(),
             nil
           )
@@ -111,7 +111,7 @@ module Grip
 
         %exception_handler
           .as(Grip::Handlers::Exception)
-          .handlers[{{exception}}.name] = {{resource}}.instance
+          .handlers[{{ exception }}.name] = {{ resource }}.instance
       end
 
       macro exceptions(exceptions, resource)
@@ -122,7 +122,7 @@ module Grip
         {% for exception in exceptions %}
           %exception_handler
             .as(Grip::Handlers::Exception)
-            .handlers[{{exception}}.name] = {{resource}}.instance
+            .handlers[{{ exception }}.name] = {{ resource }}.instance
         {% end %}
       end
 
@@ -136,10 +136,10 @@ module Grip
             .as(Grip::Handlers::Base)
             .add_route(
               "",
-              [@scopes.join(), {{route}}].join,
-              {{resource}}.instance,
+              [@scopes.join(), {{ route }}].join,
+              {{ resource }}.instance,
               @valves.clone(),
-              ->(context : HTTP::Server::Context) { {{resource}}.instance.as({{resource}}).{{kwargs[:as].id}}(context) }
+              ->(context : HTTP::Server::Context) { {{ resource }}.instance.as({{ resource }}).{{ kwargs[:as].id }}(context) }
             )
         {% else %}
           raise ::Exception.new("You need to specify the `as` keyword argument when using the `sse` macro")
@@ -155,7 +155,7 @@ module Grip
           .as(Grip::Handlers::WebSocket)
           .add_route(
             "",
-            "#{@scopes.join()}#{{{route}}}",
+            "#{@scopes.join()}#{{{ route }}}",
             {{ resource }}.instance,
             @valves.clone(),
             nil

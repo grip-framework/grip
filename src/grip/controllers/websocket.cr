@@ -13,22 +13,22 @@ module Grip
           @current_message = IO::Memory.new
         end
 
-        def on_open(context : Context, socket : Socket) : Void
+        def on_open(context : Context, socket : Socket)
         end
 
-        def on_ping(context : Context, socket : Socket, message : String) : Void
+        def on_ping(context : Context, socket : Socket, message : String)
         end
 
-        def on_pong(context : Context, socket : Socket, message : String) : Void
+        def on_pong(context : Context, socket : Socket, message : String)
         end
 
-        def on_message(context : Context, socket : Socket, message : String) : Void
+        def on_message(context : Context, socket : Socket, message : String)
         end
 
-        def on_binary(context : Context, socket : Socket, binary : Bytes) : Void
+        def on_binary(context : Context, socket : Socket, binary : Bytes)
         end
 
-        def on_close(context : Context, socket : Socket, close_code : ::HTTP::WebSocket::CloseCode | Int?, message : String) : Void
+        def on_close(context : Context, socket : Socket, close_code : ::HTTP::WebSocket::CloseCode | Int?, message : String)
         end
 
         def run(context, socket)

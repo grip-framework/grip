@@ -11,7 +11,7 @@ module Grip
         def initialize(
           @type : String,
           @data : T? = nil,
-          @timestamp : Int64 = Time.utc.to_unix_ms
+          @timestamp : Int64 = Time.utc.to_unix_ms,
         )
         end
       end
