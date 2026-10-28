@@ -5,7 +5,7 @@ module Grip
       APPLICATION_JSON = "application/json"
       MULTIPART_FORM   = "multipart/form-data"
 
-      alias AllParamTypes = Nil | String | Int64 | Float64 | Bool | Hash(String, JSON::Any) | Array(JSON::Any)
+      alias AllParamTypes = String? | Int64? | Float64? | Bool? | Hash(String, JSON::Any)? | Array(JSON::Any)?
 
       # Use class-level empty instances to avoid allocations
       EMPTY_STRING_HASH = {} of String => String

@@ -18,9 +18,8 @@ describe "Grip::Handlers::Exception" do
     error_handler.handlers[Exceptions::Forbidden.name] = ForbiddenController.new
     http_handler = Grip::Handlers::HTTP.new
 
-    http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(context : HTTP::Server::Context) do
+    http_handler.add_route "GET", "/", ExampleController.new, [:none], ->(_context : HTTP::Server::Context) do
       raise Exceptions::Forbidden.new
-      context
     end
 
     request = HTTP::Request.new("GET", "/")

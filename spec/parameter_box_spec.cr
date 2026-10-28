@@ -135,7 +135,7 @@ describe "ParameterBox" do
       body_params.to_s.should eq("")
 
       json_params = Grip::Parsers::ParameterBox.new(request).json
-      json_params.should eq({} of String => Nil | String | Int64 | Float64 | Bool | Hash(String, JSON::Any) | Array(JSON::Any))
+      json_params.should eq({} of String => String? | Int64? | Float64? | Bool? | Hash(String, JSON::Any)? | Array(JSON::Any)?)
     end
   end
 

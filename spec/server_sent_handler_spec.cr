@@ -7,7 +7,7 @@ describe Grip::Handlers::ServerSent do
       stream = context.stream
       stream.connected("conn_123")
 
-      sleep 0.1
+      sleep 0.1.seconds
       context
     end
 
@@ -40,7 +40,7 @@ describe Grip::Handlers::ServerSent do
         id: 1001
       )
 
-      sleep 0.1
+      sleep 0.1.seconds
       context
     end
 
@@ -61,7 +61,7 @@ describe Grip::Handlers::ServerSent do
       stream = context.stream
       stream.emit(Grip::ServerSent::Event::Type::Data, data: large_payload)
 
-      sleep 0.1
+      sleep 0.1.seconds
       context
     end
 

@@ -19,7 +19,7 @@ module Grip
         @method : String,
         @path : String,
         @handler : ::HTTP::Handler,
-        via : Symbol | Array(Symbol) | Nil = nil,
+        via : Symbol? | Array(Symbol)? = nil,
         @override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
       )
         @via = normalize_via(via)
@@ -47,7 +47,7 @@ module Grip
       end
 
       @[AlwaysInline]
-      private def normalize_via(via : Symbol | Array(Symbol) | Nil) : Array(Symbol)
+      private def normalize_via(via : Symbol? | Array(Symbol)?) : Array(Symbol)
         case via
         when Symbol
           [via]

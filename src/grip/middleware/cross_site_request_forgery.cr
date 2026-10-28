@@ -3,7 +3,7 @@ module Grip
     class CrossSiteRequestForgery
       include HTTP::Handler
 
-      CHECK_METHODS = %w(PUT POST PATCH DELETE)
+      CHECK_METHODS = %w[PUT POST PATCH DELETE]
       HEADER_KEY    = "X-CSRF-Token"
       PARAM_KEY     = "_csrf"
       COOKIE_KEY    = "csrf_token"

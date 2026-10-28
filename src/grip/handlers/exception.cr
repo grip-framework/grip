@@ -16,7 +16,7 @@ module Grip
         verb : String,
         path : String,
         handler : ExceptionHandler,
-        via : Symbol | Array(Symbol) | Nil = nil,
+        via : Symbol? | Array(Symbol)? = nil,
         override : Proc(::HTTP::Server::Context, ::HTTP::Server::Context)? = nil,
       ) : Nil
       end
@@ -81,7 +81,7 @@ module Grip
         response.close
 
         context
-      rescue exception : IO::Error
+      rescue IO::Error
         context
       end
     end

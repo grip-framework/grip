@@ -19,7 +19,9 @@ jobs:
         run: shards update --ignore-crystal-version
       - name: Check formatting
         run: crystal tool format --check
-      - name: Static analysis
+      - name: Build Ameba
+        run: shards build ameba
+      - name: Static analysis using Ameba
         run: ./bin/ameba
       - name: Run tests
         run: ENVIRONMENT=TEST crystal spec --verbose

@@ -19,9 +19,9 @@ module Grip
         return context if context.response.closed?
         raise Exceptions::BadRequest.new unless context.request.path.starts_with?('/')
 
-        start = Time.monotonic
+        start = Time.instant
         call_next(context)
-        elapsed = Time.monotonic - start
+        elapsed = Time.instant - start
 
         log_request(context, elapsed)
         context
